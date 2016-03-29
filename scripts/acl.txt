@@ -1,0 +1,21 @@
+[
+  {
+    "entity": "allUsers",
+    "role": "READER"
+  },
+  {
+    "email": "smus@google.com",
+    "entity": "user-smus@google.com",
+    "role": "OWNER"
+  },
+  {
+    "email": "bwuest@google.com",
+    "entity": "user-bwuest@google.com",
+    "role": "OWNER"
+  },
+  {
+    "email": "nathanmartz@google.com",
+    "entity": "user-nathanmartz@google.com",
+    "role": "OWNER"
+  }
+]

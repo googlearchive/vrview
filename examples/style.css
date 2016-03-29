@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+}
+h1, h2 {
+  font-family: 'Lora', serif;
+}
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+
+p {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.9rem;
+}
+
+h1, h2, p {
+  margin: 1rem;
+}
+
+p.caption {
+  font-size: 0.7rem
+  margin-bottom: 0;
+  margin-top: 0;
+  font-family: 'Lora', serif;
+}
+
+iframe { border: 0; }
+
+
+/* MOBILE */
+@media screen and (max-width: 600px) {
+  iframe {
+    height: 240px;
+  }
+}
+/* DESKTOP */
+@media screen and (min-width: 600px) {
+  iframe {
+    height: 400px;
+    width: 700px;
+    margin: 1rem auto;
+    display: block;
+  }
+  h1, h2, p {
+    width: 700px;
+    margin: 1rem auto;
+  }
+}
+
