@@ -5,7 +5,10 @@
   "main": "index.js",
   "//": "TODO: Re-add dependencies once vanilla versions can be used again.",
   "dependencies": {
-    "es6-promise": "^3.0.2"
+    "es6-promise": "^3.0.2",
+    "three": "^0.75.0",
+    "webvr-boilerplate": "^0.4.1",
+    "webvr-polyfill": "^0.9.4"
   },
   "devDependencies": {},
   "scripts": {

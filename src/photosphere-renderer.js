@@ -55,19 +55,28 @@ PhotosphereRenderer.prototype.init = function() {
   this.initScenes_();
 
   // The vertex distorter.
-  this.distorter = new VertexDistorter(this.manager.getDeviceInfo());
+  //this.distorter = new VertexDistorter(this.manager.getDeviceInfo());
+  this.distorter = new VertexDistorter();
 
-  this.manager.on('modechange', this.onModeChange_.bind(this));
-  this.manager.on('viewerchange', this.onViewerChange_.bind(this));
+  // TODO: Remove these, they are deprecated in 1.0.
+  //this.manager.on('modechange', this.onModeChange_.bind(this));
+  //this.manager.on('viewerchange', this.onViewerChange_.bind(this));
 
   // Watch the resize event.
   window.addEventListener('resize', this.onResize_.bind(this));
 
+  // Watch the custom vrdisplaydeviceparamschange event, which fires whenever
+  // the viewer parameters change.
+  window.addEventListener('vrdisplaydeviceparamschange',
+                          this.onVRDisplayParamsChange_.bind(this));
+
+  window.addEventListener('vrdisplaypresentchange',
+                          this.onVRDisplayPresentChange_.bind(this));
   var that = this;
-  navigator.getVRDevices().then(function(devices) {
-    devices.forEach(function(device) {
-      if (device instanceof HMDVRDevice) {
-        that.hmd = device;
+  navigator.getVRDisplays().then(function(displays) {
+    displays.forEach(function(display) {
+      if (display instanceof VRDisplay) {
+        that.hmd = display;
       }
     });
   });
@@ -253,6 +262,25 @@ PhotosphereRenderer.prototype.onViewerChange_ = function(newViewer) {
 
 PhotosphereRenderer.prototype.onResize_ = function() {
   this.updateRenderRect_();
+
+  this.effect.setSize(window.innerWidth, window.innerHeight);
+  this.camera.aspect = window.innerWidth / window.innerHeight;
+  this.camera.updateProjectionMatrix();
+};
+
+PhotosphereRenderer.prototype.onVRDisplayParamsChange_ = function(e) {
+  console.log('onVRDisplayParamsChange_');
+  this.distorter.setDeviceInfo(e.detail.deviceInfo);
+};
+
+PhotosphereRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
+  console.log('onVRDisplayPresentChange_');
+  var isVRMode = e.detail.vrdisplay.isPresenting;
+  this.distorter.setEnabled(isVRMode);
+  this.updateMaterial_();
+
+  // Resize the thing for good measure.
+  this.onResize_();
 };
 
 module.exports = PhotosphereRenderer;

@@ -24,16 +24,18 @@ var NO_DISTORTION = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
  * so that a second shader pass is not needed. This is intended to greatly
  * optimize the rendering process.
  */
-function VertexDistorter(deviceInfo) {
+function VertexDistorter() {
   this.texture = null;
   this.isEnabled = false;
-
-  this.deviceInfo = deviceInfo;
 }
 
 VertexDistorter.prototype.setEnabled = function(isEnabled) {
   this.isEnabled = isEnabled;
-}
+};
+
+VertexDistorter.prototype.setDeviceInfo = function(deviceInfo) {
+  this.deviceInfo = deviceInfo;
+};
 
 /**
  * Sets the texture that is used to render this photosphere.

@@ -13,11 +13,6 @@
  * limitations under the License.
  */
 
-// Disable distortion provided by the boilerplate because we are doing
-// vertex-based distortion.
-WebVRConfig = window.WebVRConfig || {}
-WebVRConfig.PREVENT_DISTORTION = true;
-
 // Initialize the loading indicator as quickly as possible to give the user
 // immediate feedback.
 var LoadingIndicator = require('./loading-indicator');
