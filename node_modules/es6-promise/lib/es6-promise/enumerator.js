@@ -19,13 +19,18 @@ import then from './then';
 import Promise from './promise';
 import originalResolve from './promise/resolve';
 import originalThen from './then';
+import { makePromise, PROMISE_ID } from './-internal';
 
 export default Enumerator;
 function Enumerator(Constructor, input) {
   this._instanceConstructor = Constructor;
   this.promise = new Constructor(noop);
 
-  if (Array.isArray(input)) {
+  if (!this.promise[PROMISE_ID]) {
+    makePromise(this.promise);
+  }
+
+  if (isArray(input)) {
     this._input     = input;
     this.length     = input.length;
     this._remaining = input.length;
@@ -42,11 +47,11 @@ function Enumerator(Constructor, input) {
       }
     }
   } else {
-    reject(this.promise, this._validationError());
+    reject(this.promise, validationError());
   }
 }
 
-Enumerator.prototype._validationError = function() {
+function validationError() {
   return new Error('Array Methods must be provided an Array');
 };
 

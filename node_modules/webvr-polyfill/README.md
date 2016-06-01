@@ -43,11 +43,17 @@ are supported:
 
 ```javascript
 WebVRConfig = {
+  // Flag to disabled the UI in VR Mode.
+  CARDBOARD_UI_DISABLED: false, // Default: false
+
   // Forces availability of VR mode, even for non-mobile devices.
   FORCE_ENABLE_VR: true, // Default: false.
 
   // Complementary filter coefficient. 0 for accelerometer, 1 for gyro.
   K_FILTER: 0.98, // Default: 0.98.
+
+  // Flag to disable the instructions to rotate your device.
+  ROTATE_INSTRUCTIONS_DISABLED: false, // Default: false.
 
   // How far into the future to predict during fast motion (in seconds).
   PREDICTION_TIME_S: 0.040, // Default: 0.040.

@@ -29,6 +29,12 @@ window.WebVRConfig = Util.extend({
   // Flag to disable touch panner. In case you have your own touch controls.
   TOUCH_PANNER_DISABLED: false,
 
+  // Flag to disabled the UI in VR Mode.
+  CARDBOARD_UI_DISABLED: false, // Default: false
+
+  // Flag to disable the instructions to rotate your device.
+  ROTATE_INSTRUCTIONS_DISABLED: false, // Default: false.
+
   // Enable yaw panning only, disabling roll and pitch. This can be useful
   // for panoramas with nothing interesting above or below.
   YAW_ONLY: false,

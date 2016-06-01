@@ -117,7 +117,9 @@ function CardboardDistorter(gl) {
 
   this.onResize();
 
-  this.cardboardUI = new CardboardUI(gl);
+  if (!WebVRConfig.CARDBOARD_UI_DISABLED) {
+    this.cardboardUI = new CardboardUI(gl);
+  }
 };
 
 /**
@@ -144,7 +146,9 @@ CardboardDistorter.prototype.destroy = function() {
     gl.deleteRenderbuffer(this.stencilBuffer);
   }
 
-  this.cardboardUI.destroy();
+  if (this.cardboardUI) {
+    this.cardboardUI.destroy();
+  }
 };
 
 
@@ -445,7 +449,9 @@ CardboardDistorter.prototype.submitFrame = function() {
     // Draws both eyes
     gl.drawElements(gl.TRIANGLES, self.indexCount, gl.UNSIGNED_SHORT, 0);
 
-    self.cardboardUI.renderNoState();
+    if (self.cardboardUI) {
+      self.cardboardUI.renderNoState();
+    }
 
     // Bind the fake default framebuffer again
     self.realBindFramebuffer.call(self.gl, gl.FRAMEBUFFER, self.framebuffer);
