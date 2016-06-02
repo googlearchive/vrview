@@ -125,4 +125,18 @@ Util.isIE11 = function() {
   return navigator.userAgent.match(/Trident/);
 };
 
+Util.getRectCenter = function(rect) {
+  return new THREE.Vector2(rect.x + rect.width/2, rect.y + rect.height/2);
+};
+
+Util.getScreenWidth = function() {
+  return Math.max(window.screen.width, window.screen.height) *
+      window.devicePixelRatio;
+};
+
+Util.getScreenHeight = function() {
+  return Math.min(window.screen.width, window.screen.height) *
+      window.devicePixelRatio;
+};
+
 module.exports = Util;

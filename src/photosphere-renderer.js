@@ -50,17 +50,12 @@ PhotosphereRenderer.prototype.init = function() {
   this.renderer = renderer;
   this.effect = effect;
   this.controls = controls;
-  this.manager = new WebVRManager(renderer, effect, {isUndistorted: true});
+  this.manager = new WebVRManager(renderer, effect, {predistorted: true});
 
   this.initScenes_();
 
   // The vertex distorter.
-  //this.distorter = new VertexDistorter(this.manager.getDeviceInfo());
   this.distorter = new VertexDistorter();
-
-  // TODO: Remove these, they are deprecated in 1.0.
-  //this.manager.on('modechange', this.onModeChange_.bind(this));
-  //this.manager.on('viewerchange', this.onViewerChange_.bind(this));
 
   // Watch the resize event.
   window.addEventListener('resize', this.onResize_.bind(this));
@@ -72,11 +67,11 @@ PhotosphereRenderer.prototype.init = function() {
 
   window.addEventListener('vrdisplaypresentchange',
                           this.onVRDisplayPresentChange_.bind(this));
-  var that = this;
+  var self = this;
   navigator.getVRDisplays().then(function(displays) {
     displays.forEach(function(display) {
       if (display instanceof VRDisplay) {
-        that.hmd = display;
+        self.vrDisplay = display;
       }
     });
   });
@@ -216,35 +211,19 @@ PhotosphereRenderer.prototype.updateMaterial_ = function(material_FOO) {
   }
 };
 
-PhotosphereRenderer.prototype.updateRenderRect_ = function() {
-  if (this.hmd && this.hmd.setRenderRect) {
-    var deviceInfo = this.manager.getDeviceInfo();
-    var leftRect = deviceInfo.getUndistortedViewportLeftEye();
-    var dpr = window.devicePixelRatio;
-    leftRect.x /= dpr;
-    leftRect.y /= dpr;
-    leftRect.width /= dpr;
-    leftRect.height /= dpr;
-
-    var rightRect = Util.clone(leftRect);
-    rightRect.x = (window.innerWidth - leftRect.x) - leftRect.width;
-
-    this.hmd.setRenderRect(leftRect, rightRect);
-  }
-};
-
 PhotosphereRenderer.prototype.onModeChange_ = function(newMode, oldMode) {
   console.log('onModeChange_', newMode);
 
-  var coefficients;
-  if (newMode == WebVRManager.Modes.VR) {
-    // Entering VR mode.
-    this.distorter.setEnabled(true);
-    this.updateMaterial_();
-  } else if (oldMode == WebVRManager.Modes.VR) {
-    // Leaving VR mode.
-    this.distorter.setEnabled(false);
-    this.updateMaterial_();
+  if (this.vrDisplay.isPolyfilled) {
+    if (newMode == WebVRManager.Modes.VR) {
+      // Entering VR mode.
+      this.distorter.setEnabled(true);
+      this.updateMaterial_();
+    } else if (oldMode == WebVRManager.Modes.VR) {
+      // Leaving VR mode.
+      this.distorter.setEnabled(false);
+      this.updateMaterial_();
+    }
   }
 
   if (window.analytics) {
@@ -257,12 +236,9 @@ PhotosphereRenderer.prototype.onViewerChange_ = function(newViewer) {
 
   // Reset the photosphere with new coefficients.
   this.updateMaterial_();
-  this.updateRenderRect_();
 };
 
 PhotosphereRenderer.prototype.onResize_ = function() {
-  this.updateRenderRect_();
-
   this.effect.setSize(window.innerWidth, window.innerHeight);
   this.camera.aspect = window.innerWidth / window.innerHeight;
   this.camera.updateProjectionMatrix();
@@ -276,10 +252,12 @@ PhotosphereRenderer.prototype.onVRDisplayParamsChange_ = function(e) {
 PhotosphereRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
   console.log('onVRDisplayPresentChange_');
   var isVRMode = e.detail.vrdisplay.isPresenting;
-  this.distorter.setEnabled(isVRMode);
-  this.updateMaterial_();
+  if (e.detail.vrdisplay.isPolyfilled) {
+    this.distorter.setEnabled(isVRMode);
+    this.updateMaterial_();
+  }
 
-  // Resize the thing for good measure.
+  // Resize the renderer for good measure.
   this.onResize_();
 };
 
