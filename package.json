@@ -12,7 +12,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "copy": "cp ../webvr-boilerplate/build/webvr-manager.js node_modules/webvr-boilerplate/build/",
+    "copybp": "cp ../webvr-boilerplate/build/webvr-manager.js node_modules/webvr-boilerplate/build/",
+    "copyp": "cp ../webvr-polyfill/build/webvr-polyfill.js node_modules/webvr-polyfill/build/",
     "build": "browserify src/main.js | derequire > build/vrview.js",
     "build-min": "browserify src/main.js | derequire | uglifyjs -c > build/vrview.min.js",
     "build-analytics": "browserify src/with-analytics.js | derequire > build/vrview-analytics.js",
