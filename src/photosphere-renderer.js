@@ -127,11 +127,6 @@ PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
 PhotosphereRenderer.prototype.initScenes_ = function() {
   this.scene = this.createScene_();
   this.scene.add(this.camera.parent);
-  /*
-  this.sceneLeft = this.createScene_();
-  this.sceneRight = this.createScene_();
-  this.sceneLeft.add(this.camera.parent);
-  */
 
   this.eyes = [Eyes.LEFT, Eyes.RIGHT];
 };
@@ -154,10 +149,6 @@ PhotosphereRenderer.prototype.onTextureLoaded_ = function(texture) {
   sphereRight.eye = Eyes.RIGHT;
 
   this.scene.getObjectByName('photo').children = [sphereLeft, sphereRight];
-  /*
-  this.sceneLeft.getObjectByName('photo').children = [sphereLeft];
-  this.sceneRight.getObjectByName('photo').children = [sphereRight];
-  */
 
   this.emit('load');
 };
