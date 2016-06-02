@@ -53,6 +53,7 @@ VertexDistorter.prototype.getVertexShader_ = function() {
     'varying vec2 vUV;',
 
     this.getDistortionInclude_(),
+    this.getViewportInclude_(),
 
     'void main() {',
       // Pass through texture coordinates to the fragment shader.
@@ -63,7 +64,10 @@ VertexDistorter.prototype.getVertexShader_ = function() {
       // guarantee this.
       'vec4 pos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
 
-      'gl_Position = Distort(pos);',
+      // First we apply distortion.
+      'vec4 distortedPos = Distort(pos);',
+      // Then constrain in a viewport.
+      'gl_Position = Viewport(distortedPos);',
     '}'
   ].join('\n');
 };
@@ -160,6 +164,16 @@ VertexDistorter.prototype.getDistortionInclude_ = function() {
   ].join('\n');
 };
 
+VertexDistorter.prototype.getViewportInclude_ = function() {
+  return [
+    'uniform mat4 uViewportTransform;',
+
+    'vec4 Viewport(vec4 point) {',
+      'return uViewportTransform * point;',
+    '}'
+  ].join('\n');
+};
+
 VertexDistorter.prototype.getDistortionMaxFovSquared_ = function() {
   var fov = this.getFov_();
   var maxFov = Util.hypot(
@@ -215,6 +229,10 @@ VertexDistorter.prototype.getUniforms_ = function(eye) {
     uDistortionFovScale: {
       type: 'v2',
       value: this.getDistortionFovScale_()
+    },
+    uViewportTransform: {
+      type: 'm4',
+      value: this.getViewportTransform_(eye)
     }
   };
 };
@@ -238,6 +256,42 @@ VertexDistorter.prototype.getFov_ = function(opt_eye) {
     return this.deviceInfo.getFieldOfViewRightEye(true);
   }
   return null;
+};
+
+/**
+ * Returns the 4x4 transformation matrix to transform the viewport into NDC.
+ */
+VertexDistorter.prototype.getViewportTransform_ = function(opt_eye) {
+  var eye = opt_eye || Eyes.LEFT;
+
+  var leftRect = this.deviceInfo.getUndistortedViewportLeftEye();
+
+  if (eye == Eyes.RIGHT) {
+    leftRect.x = (Util.getScreenWidth() / 2 - leftRect.x) - leftRect.width;
+  }
+
+  var fullLeftRect = {
+    x: 0,
+    y: 0,
+    width: Util.getScreenWidth() / 2,
+    height: Util.getScreenHeight()
+  };
+
+  // Calculate the scaling from full to squashed rectangle.
+  var scale = new THREE.Matrix4();
+  scale.makeScale(leftRect.width / fullLeftRect.width,
+                  leftRect.height / fullLeftRect.height, 1);
+
+  // Calculate the translation of the eye center in NDC.
+  var center = Util.getRectCenter(leftRect);
+  var targetCenter = Util.getRectCenter(fullLeftRect);
+  center.sub(targetCenter);
+  var translate = new THREE.Matrix4();
+  translate.makeTranslation(center.x / fullLeftRect.width,
+                            center.y / fullLeftRect.height, 0);
+
+  console.log('Translate x by %s, scaled by %s', center.x / fullLeftRect.width, scale.x);
+  return scale.multiply(translate);
 };
 
 module.exports = VertexDistorter;
