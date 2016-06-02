@@ -30,6 +30,8 @@ PhotosphereRenderer.prototype = new Emitter();
 PhotosphereRenderer.prototype.init = function() {
   var container = document.querySelector('body');
   var camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.layers.enable(1);
+
   var cameraDummy = new THREE.Object3D();
   cameraDummy.add(camera);
 
@@ -79,7 +81,7 @@ PhotosphereRenderer.prototype.init = function() {
 
 PhotosphereRenderer.prototype.render = function(timestamp) {
   this.controls.update();
-  this.manager.render(this.scenes, this.camera, timestamp);
+  this.manager.render(this.scene, this.camera, timestamp);
 };
 
 PhotosphereRenderer.prototype.setDefaultLookDirection = function(phi) {
@@ -123,11 +125,14 @@ PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
 };
 
 PhotosphereRenderer.prototype.initScenes_ = function() {
+  this.scene = this.createScene_();
+  this.scene.add(this.camera.parent);
+  /*
   this.sceneLeft = this.createScene_();
   this.sceneRight = this.createScene_();
   this.sceneLeft.add(this.camera.parent);
+  */
 
-  this.scenes = [this.sceneLeft, this.sceneRight];
   this.eyes = [Eyes.LEFT, Eyes.RIGHT];
 };
 
@@ -142,8 +147,17 @@ PhotosphereRenderer.prototype.onTextureLoaded_ = function(texture) {
     sphereRight = this.createPhotosphere_(texture);
   }
 
+  // Display in left and right eye respectively.
+  sphereLeft.layers.set(Eyes.LEFT);
+  sphereLeft.eye = Eyes.LEFT;
+  sphereRight.layers.set(Eyes.RIGHT);
+  sphereRight.eye = Eyes.RIGHT;
+
+  this.scene.getObjectByName('photo').children = [sphereLeft, sphereRight];
+  /*
   this.sceneLeft.getObjectByName('photo').children = [sphereLeft];
   this.sceneRight.getObjectByName('photo').children = [sphereRight];
+  */
 
   this.emit('load');
 };
@@ -197,17 +211,13 @@ PhotosphereRenderer.prototype.createScene_ = function(opt_params) {
   return scene;
 };
 
-PhotosphereRenderer.prototype.updateMaterial_ = function(material_FOO) {
-  for (var i = 0; i < this.scenes.length; i++) {
-    var eye = this.eyes[i];
-    var material = this.distorter.getShaderMaterial(eye);
-    var scene = this.scenes[i];
-    var children = scene.getObjectByName('photo').children;
-    for (var j = 0; j < children.length; j++) {
-      var child = children[j];
-      child.material = material;
-      child.material.needsUpdate = true;
-    }
+PhotosphereRenderer.prototype.updateMaterial_ = function() {
+  var children = this.scene.getObjectByName('photo').children;
+  for (var j = 0; j < children.length; j++) {
+    var child = children[j];
+    var material = this.distorter.getShaderMaterial(child.eye);
+    child.material = material;
+    child.material.needsUpdate = true;
   }
 };
 

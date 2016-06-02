@@ -189,10 +189,6 @@ VertexDistorter.prototype.getDistortionCoefficients_ = function() {
 
 VertexDistorter.prototype.getDistortionFovOffset_ = function(eye) {
   var fov = this.getFov_(eye);
-  /*
-  var sideDegrees = Math.min(fov.leftDegrees, fov.rightDegrees);
-  var left = Math.tan(THREE.Math.degToRad(sideDegrees));
-  */
   var left = Math.tan(THREE.Math.degToRad(fov.leftDegrees));
   var down = Math.tan(THREE.Math.degToRad(fov.downDegrees));
   return new THREE.Vector2(left, down);
@@ -290,7 +286,8 @@ VertexDistorter.prototype.getViewportTransform_ = function(opt_eye) {
   translate.makeTranslation(center.x / fullLeftRect.width,
                             center.y / fullLeftRect.height, 0);
 
-  console.log('Translate x by %s, scaled by %s', center.x / fullLeftRect.width, scale.x);
+  console.log('Translated x by %s, scaled by %s', center.x / fullLeftRect.width,
+              leftRect.width / fullLeftRect.width);
   return scale.multiply(translate);
 };
 
