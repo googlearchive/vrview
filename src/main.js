@@ -28,6 +28,7 @@ var PhotosphereRenderer = require('./photosphere-renderer');
 var SceneLoader = require('./scene-loader');
 var Stats = require('../node_modules/stats-js/build/stats.min');
 var Util = require('./util');
+var VideoProxy = require('./video-proxy');
 
 // Include the DeviceMotionReceiver for the iOS cross domain iframe workaround.
 // This is a workaround for https://bugs.webkit.org/show_bug.cgi?id=150072.
@@ -47,6 +48,7 @@ var renderer = new PhotosphereRenderer();
 renderer.on('error', onRenderError);
 
 var videoElement = null;
+var videoProxy = null;
 // TODO: Make this not global.
 // Currently global in order to allow callbacks.
 var loadedScene = null;
@@ -110,6 +112,9 @@ function onSceneLoad(scene) {
       videoElement.setAttribute('crossorigin', 'anonymous');
       videoElement.addEventListener('canplaythrough', onVideoLoad);
       videoElement.addEventListener('error', onVideoError);
+
+      videoProxy = new VideoProxy(videoElement);
+      window.videoProxy = videoProxy;
     }
   } else if (scene.image) {
     // Otherwise, just render the photosphere.
@@ -131,7 +136,7 @@ function onVideoLoad() {
     // Hide loading indicator.
     loadIndicator.hide();
     // Autoplay the video on desktop.
-    videoElement.play();
+    videoProxy.play();
   } else {
     // Tell user to tap to start.
     showError('Tap to start video', 'Play');
@@ -144,7 +149,7 @@ function onVideoLoad() {
 
 function onVideoTap() {
   hideError();
-  videoElement.play();
+  videoProxy.play();
 
   // Prevent multiple play() calls on the video element.
   document.body.removeEventListener('touchend', onVideoTap);
@@ -197,6 +202,10 @@ function showStats() {
 
 function loop(time) {
   stats.begin();
+  // Update the video if needed.
+  if (videoProxy) {
+    videoProxy.update(time);
+  }
   renderer.render(time);
   stats.end();
   requestAnimationFrame(loop);
