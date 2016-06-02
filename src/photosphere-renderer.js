@@ -46,6 +46,8 @@ PhotosphereRenderer.prototype.init = function() {
 
   var controls = new THREE.VRControls(camera);
   var effect = new THREE.VREffect(renderer);
+  // Disable eye separation.
+  effect.scale = 0;
   effect.setSize(window.innerWidth, window.innerHeight);
 
   this.camera = camera;
@@ -81,6 +83,9 @@ PhotosphereRenderer.prototype.init = function() {
 
 PhotosphereRenderer.prototype.render = function(timestamp) {
   this.controls.update();
+  if (this.videoTexture) {
+    this.videoTexture.needsUpdate = true;
+  }
   this.manager.render(this.scene, this.camera, timestamp);
 };
 
@@ -120,6 +125,8 @@ PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
   videoTexture.format = THREE.RGBFormat;
   videoTexture.generateMipmaps = false;
   videoTexture.needsUpdate = true;
+
+  this.videoTexture = videoTexture;
 
   this.onTextureLoaded_(videoTexture);
 };
