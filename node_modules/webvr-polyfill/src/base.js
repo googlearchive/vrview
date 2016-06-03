@@ -69,6 +69,10 @@ VRDisplay.prototype.cancelAnimationFrame = function(id) {
 };
 
 VRDisplay.prototype.wrapForFullscreen = function(element) {
+  // Don't wrap in iOS.
+  if (Util.isIOS()) {
+    return element;
+  }
   if (!this.fullscreenWrapper_) {
     this.fullscreenWrapper_ = document.createElement('div');
     var cssProperties = [
@@ -86,8 +90,9 @@ VRDisplay.prototype.wrapForFullscreen = function(element) {
     this.fullscreenWrapper_.classList.add('webvr-polyfill-fullscreen-wrapper');
   }
 
-  if (this.fullscreenElement_ == element)
+  if (this.fullscreenElement_ == element) {
     return this.fullscreenWrapper_;
+  }
 
   // Remove any previously applied wrappers
   this.removeFullscreenWrapper();
@@ -101,8 +106,9 @@ VRDisplay.prototype.wrapForFullscreen = function(element) {
 
   var self = this;
   function applyFullscreenElementStyle() {
-    if (!self.fullscreenElement_)
+    if (!self.fullscreenElement_) {
       return;
+    }
 
     var cssProperties = [
       'position: absolute',
