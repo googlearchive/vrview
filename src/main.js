@@ -94,7 +94,7 @@ function onSceneLoad(scene) {
     renderer.on('load', onPreviewLoad);
     renderer.setPhotosphere(scene.preview, params);
   } else if (scene.video) {
-    if (Util.isIOS() || Util.isIE11()) {
+    if (Util.isIE11()) {
       // On iOS and IE 11, if an 'image' param is provided, load it instead of
       // showing an error.
       //
@@ -102,18 +102,25 @@ function onSceneLoad(scene) {
       if (scene.image) {
         loadImage(scene.image, params);
       } else {
-        showError('Video is not supported on this platform (iOS or IE11).');
+        showError('Video is not supported on IE11.');
       }
     } else {
       // Load the video element.
       videoElement = document.createElement('video');
-      videoElement.src = scene.video;
       videoElement.loop = true;
+      videoElement.src = scene.video;
       videoElement.setAttribute('crossorigin', 'anonymous');
       videoElement.addEventListener('canplaythrough', onVideoLoad);
       videoElement.addEventListener('error', onVideoError);
+      videoElement.load();
+
+      if (!Util.isMobile()) {
+        videoElement.play();
+        renderer.set360Video(videoElement, params);
+      }
 
       videoProxy = new VideoProxy(videoElement);
+      // Debug only.
       window.videoProxy = videoProxy;
     }
   } else if (scene.image) {
@@ -125,21 +132,18 @@ function onSceneLoad(scene) {
 }
 
 function onVideoLoad() {
+  console.log('onVideoLoad');
   // Render the stereo video.
   var params = {
     isStereo: loadedScene.isStereo,
   }
-  renderer.set360Video(videoElement, params);
+  loadIndicator.hide();
 
   // On mobile, tell the user they need to tap to start. Otherwise, autoplay.
-  if (!Util.isMobile()) {
-    // Hide loading indicator.
-    loadIndicator.hide();
-    // Autoplay the video on desktop.
-    videoProxy.play();
-  } else {
+  if (Util.isMobile()) {
     // Tell user to tap to start.
-    showError('Tap to start video', 'Play');
+    renderer.set360Video(videoElement, params);
+    showPlayButton();
     document.body.addEventListener('touchend', onVideoTap);
   }
 
@@ -148,8 +152,8 @@ function onVideoLoad() {
 }
 
 function onVideoTap() {
-  hideError();
   videoProxy.play();
+  hidePlayButton();
 
   // Prevent multiple play() calls on the video element.
   document.body.removeEventListener('touchend', onVideoTap);
@@ -188,6 +192,16 @@ function showError(message, opt_title) {
 function hideError() {
   var error = document.querySelector('#error');
   error.classList.remove('visible');
+}
+
+function showPlayButton() {
+  var playButton = document.querySelector('#play-overlay');
+  playButton.classList.add('visible');
+}
+
+function hidePlayButton() {
+  var playButton = document.querySelector('#play-overlay');
+  playButton.classList.remove('visible');
 }
 
 function showStats() {
