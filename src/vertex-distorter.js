@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-THREE = require('../node_modules/three/three');
 var Eyes = require('./eyes');
 var Util = require('./util');
 
