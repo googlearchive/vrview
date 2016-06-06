@@ -15,7 +15,7 @@
 
 var Emitter = require('./emitter');
 var Eyes = require('./eyes');
-var THREE = require('../node_modules/three/three');
+window.THREE = require('three');
 THREE.VRControls = require('../node_modules/three/examples/js/controls/VRControls');
 THREE.VREffect = require('../node_modules/three/examples/js/effects/VREffect');
 var Util = require('./util');
@@ -29,7 +29,7 @@ PhotosphereRenderer.prototype = new Emitter();
 
 PhotosphereRenderer.prototype.init = function() {
   var container = document.querySelector('body');
-  var camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100);
+  var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
   camera.layers.enable(1);
 
   var cameraDummy = new THREE.Object3D();
@@ -39,9 +39,8 @@ PhotosphereRenderer.prototype.init = function() {
   var renderer = new THREE.WebGLRenderer({antialias: false});
   renderer.setClearColor(0x000000, 0);
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
 
-  // Round down fractional DPR values for better performance.
-  renderer.setPixelRatio(Math.floor(window.devicePixelRatio));
   container.appendChild(renderer.domElement);
 
   var controls = new THREE.VRControls(camera);
@@ -71,22 +70,11 @@ PhotosphereRenderer.prototype.init = function() {
 
   window.addEventListener('vrdisplaypresentchange',
                           this.onVRDisplayPresentChange_.bind(this));
-  var self = this;
-  navigator.getVRDisplays().then(function(displays) {
-    displays.forEach(function(display) {
-      if (display instanceof VRDisplay) {
-        self.vrDisplay = display;
-      }
-    });
-  });
 };
 
 PhotosphereRenderer.prototype.render = function(timestamp) {
   this.controls.update();
-  if (this.videoTexture) {
-    this.videoTexture.needsUpdate = true;
-  }
-  this.manager.render(this.scene, this.camera, timestamp);
+  this.effect.render(this.scene, this.camera);
 };
 
 PhotosphereRenderer.prototype.setDefaultLookDirection = function(phi) {
@@ -120,13 +108,11 @@ PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
 
   // Load the video texture.
   var videoTexture = new THREE.VideoTexture(videoElement);
-  videoTexture.minFilter = THREE.LinearFilter;
-  videoTexture.magFilter = THREE.LinearFilter;
+  videoTexture.minFilter = THREE.NearestFilter;
+  videoTexture.magFilter = THREE.NearestFilter;
   videoTexture.format = THREE.RGBFormat;
   videoTexture.generateMipmaps = false;
   videoTexture.needsUpdate = true;
-
-  this.videoTexture = videoTexture;
 
   this.onTextureLoaded_(videoTexture);
 };
@@ -134,8 +120,6 @@ PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
 PhotosphereRenderer.prototype.initScenes_ = function() {
   this.scene = this.createScene_();
   this.scene.add(this.camera.parent);
-
-  this.eyes = [Eyes.LEFT, Eyes.RIGHT];
 };
 
 PhotosphereRenderer.prototype.onTextureLoaded_ = function(texture) {
@@ -198,8 +182,6 @@ PhotosphereRenderer.prototype.createPhotosphere_ = function(texture, opt_params)
 
 PhotosphereRenderer.prototype.createScene_ = function(opt_params) {
   var scene = new THREE.Scene();
-  // Add a light.
-  scene.add(new THREE.PointLight(0xFFFFFF));
 
   // Add a group for the photosphere.
   var photoGroup = new THREE.Object3D();
@@ -216,26 +198,6 @@ PhotosphereRenderer.prototype.updateMaterial_ = function() {
     var material = this.distorter.getShaderMaterial(child.eye);
     child.material = material;
     child.material.needsUpdate = true;
-  }
-};
-
-PhotosphereRenderer.prototype.onModeChange_ = function(newMode, oldMode) {
-  console.log('onModeChange_', newMode);
-
-  if (this.vrDisplay.isPolyfilled) {
-    if (newMode == WebVRManager.Modes.VR) {
-      // Entering VR mode.
-      this.distorter.setEnabled(true);
-      this.updateMaterial_();
-    } else if (oldMode == WebVRManager.Modes.VR) {
-      // Leaving VR mode.
-      this.distorter.setEnabled(false);
-      this.updateMaterial_();
-    }
-  }
-
-  if (window.analytics) {
-    analytics.logModeChanged(newMode);
   }
 };
 
@@ -259,14 +221,20 @@ PhotosphereRenderer.prototype.onVRDisplayParamsChange_ = function(e) {
 
 PhotosphereRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
   console.log('onVRDisplayPresentChange_');
-  var isVRMode = e.detail.vrdisplay.isPresenting;
-  if (e.detail.vrdisplay.isPolyfilled) {
+  var vrDisplay = e.detail.vrdisplay;
+  var isVRMode = vrDisplay.isPresenting;
+  if (vrDisplay.isPolyfilled) {
     this.distorter.setEnabled(isVRMode);
     this.updateMaterial_();
   }
 
   // Resize the renderer for good measure.
   this.onResize_();
+
+  // Analytics.
+  if (window.analytics) {
+    analytics.logModeChanged(isVRMode ? 3 : 1);
+  }
 };
 
 module.exports = PhotosphereRenderer;
