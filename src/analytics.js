@@ -13,13 +13,6 @@
  * limitations under the License.
  */
 
-var MODE_LABELS = {
-  0: 'UNKNOWN',
-  1: 'NORMAL',
-  2: 'MAGIC_WINDOW',
-  3: 'VR'
-};
-
 function Analytics() {
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -33,9 +26,17 @@ function Analytics() {
   this.lastModeLabel = WebVRManager.Modes.UNKNOWN;
 }
 
+Analytics.MODE_LABELS = {
+  0: 'UNKNOWN',
+  1: 'NORMAL',
+  2: 'MAGIC_WINDOW',
+  3: 'VR'
+};
+
+
 Analytics.prototype.logModeChanged = function(mode) {
-  var modeLabel = MODE_LABELS[mode];
-  var lastModeLabel = MODE_LABELS[this.lastMode];
+  var modeLabel = Analytics.MODE_LABELS[mode];
+  var lastModeLabel = Analytics.MODE_LABELS[this.lastMode];
 
   console.log('Analytics: going from mode %s to %s', lastModeLabel, modeLabel);
 
