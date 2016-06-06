@@ -3,6 +3,10 @@ var Util = require('./util');
 /**
  * A proxy class for working around the fact that as soon as a video is play()ed
  * on iOS, Safari auto-fullscreens the video.
+ *
+ * TODO(smus): The entire raison d'etre for this class is to work around this
+ * issue. Once Safari implements some way to suppress this fullscreen player, we
+ * can remove this code.
  */
 function VideoProxy(videoElement) {
   this.videoElement = videoElement;
@@ -23,7 +27,9 @@ VideoProxy.prototype.play = function() {
     this.audioElement.src = this.videoElement.src;
     this.audioElement.play();
   } else {
-    this.videoElement.play();
+    this.videoElement.play().then(function(e) {
+      console.log('Playing video.', e);
+    });
   }
 };
 
@@ -42,12 +48,22 @@ VideoProxy.prototype.stop = function() {
  */
 VideoProxy.prototype.update = function() {
   // Fakes playback for iOS only.
-  if (this.isFakePlayback) {
+  if (!this.isFakePlayback) {
     return;
   }
-  var delta = performance.now() - this.startTime;
+  var duration = this.videoElement.duration;
+  var now = performance.now();
+  var delta = now - this.startTime;
   var deltaS = delta / 1000;
-  this.videoElement.currentTime += deltaS;
+  this.videoElement.currentTime = deltaS;
+
+  // Loop through the video
+  if (deltaS > duration) {
+    this.startTime = now;
+    this.videoElement.currentTime = 0;
+    // Also restart the audio.
+    this.audioElement.currentTime = 0;
+  }
 };
 
 module.exports = VideoProxy;
