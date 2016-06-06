@@ -123,16 +123,7 @@ VRDisplay.prototype.wrapForFullscreen = function(element) {
     self.fullscreenElement_.setAttribute('style', cssProperties.join('; ') + ';');
   }
 
-  if (Util.isIOS()) {
-    // "To the last I grapple with thee;
-    //  from hell's heart I stab at thee;
-    //  for hate's sake I spit my last breath at thee."
-    // -- Moby Dick, by Herman Melville
-    this.fullscreenElement_.setAttribute('style', 'width: ' + (Math.max(screen.width, screen.height) - 1) + 'px;');
-    setTimeout(applyFullscreenElementStyle, 1000);
-  } else {
-    applyFullscreenElementStyle();
-  }
+  applyFullscreenElementStyle();
 
   return this.fullscreenWrapper_;
 };
@@ -160,6 +151,10 @@ VRDisplay.prototype.removeFullscreenWrapper = function() {
 };
 
 VRDisplay.prototype.requestPresent = function(layers) {
+  if (this.isPresenting) {
+    console.error('Already presenting!');
+    return;
+  }
   var self = this;
 
   if (!(layers instanceof Array)) {

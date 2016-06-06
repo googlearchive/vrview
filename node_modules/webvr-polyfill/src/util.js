@@ -192,6 +192,11 @@ Util.extend = objectAssign;
 Util.safariCssSizeWorkaround = function(canvas) {
   // TODO(smus): Remove this workaround when Safari for iOS is fixed.
   // iOS only workaround (for https://bugs.webkit.org/show_bug.cgi?id=152556).
+  //
+  // "To the last I grapple with thee;
+  //  from hell's heart I stab at thee;
+  //  for hate's sake I spit my last breath at thee."
+  // -- Moby Dick, by Herman Melville
   if (Util.isIOS()) {
     var width = canvas.style.width;
     var height = canvas.style.height;

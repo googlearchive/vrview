@@ -56,8 +56,10 @@ function CardboardVRDisplay() {
     this.rotateInstructions_ = new RotateInstructions();
   }
 
-  // Listen for resize events to workaround this awful Safari bug.
-  window.addEventListener('resize', this.onResize_.bind(this));
+  if (Util.isIOS()) {
+    // Listen for resize events to workaround this awful Safari bug.
+    window.addEventListener('resize', this.onResize_.bind(this));
+  }
 }
 CardboardVRDisplay.prototype = new VRDisplay();
 
@@ -222,6 +224,19 @@ CardboardVRDisplay.prototype.onOrientationChange_ = function(e) {
 CardboardVRDisplay.prototype.onResize_ = function(e) {
   if (this.layer_) {
     var gl = this.layer_.source.getContext('webgl');
+    // Size the CSS canvas.
+    var cssProperties = [
+      'position: absolute',
+      'top: 0',
+      'left: 0',
+      'width: ' + Math.max(screen.width, screen.height) + 'px',
+      'height: ' + Math.min(screen.height, screen.width) + 'px',
+      'border: 0',
+      'margin: 0',
+      'padding: 0',
+    ];
+    gl.canvas.setAttribute('style', cssProperties.join('; ') + ';');
+
     Util.safariCssSizeWorkaround(gl.canvas);
   }
 };
