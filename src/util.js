@@ -139,4 +139,19 @@ Util.getScreenHeight = function() {
       window.devicePixelRatio;
 };
 
+Util.isIOS9OrLess = function() {
+  if (!Util.isIOS()) {
+    return false;
+  }
+  var re = /(iPhone|iPad|iPod) OS ([\d_]+)/;
+  var iOSVersion = navigator.userAgent.match(re);
+  if (!iOSVersion) {
+    return false;
+  }
+  // Get the last group.
+  var versionString = iOSVersion[iOSVersion.length - 1];
+  var majorVersion = parseFloat(versionString);
+  return majorVersion <= 9;
+};
+
 module.exports = Util;

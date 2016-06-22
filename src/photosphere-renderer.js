@@ -102,6 +102,11 @@ PhotosphereRenderer.prototype.setPhotosphere = function(src, opt_params) {
 };
 
 PhotosphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
+  // Disable video VR mode in iOS9 and below.
+  if (Util.isIOS9OrLess()) {
+    this.manager.setVRCompatibleOverride(false);
+  }
+
   var params = opt_params || {};
 
   this.isStereo = !!params.isStereo;

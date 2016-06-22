@@ -109,6 +109,8 @@ function onSceneLoad(scene) {
       videoElement = document.createElement('video');
       videoElement.loop = true;
       videoElement.src = scene.video;
+      // Enable inline video playback in iOS 10+.
+      videoElement.setAttribute('webkit-playsinline', true);
       videoElement.setAttribute('crossorigin', 'anonymous');
       videoElement.addEventListener('canplaythrough', onVideoLoad);
       videoElement.addEventListener('error', onVideoError);

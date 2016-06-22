@@ -18,7 +18,7 @@ function VideoProxy(videoElement) {
 }
 
 VideoProxy.prototype.play = function() {
-  if (Util.isIOS()) {
+  if (Util.isIOS9OrLess()) {
     this.startTime = performance.now();
     this.isFakePlayback = true;
 
@@ -34,7 +34,7 @@ VideoProxy.prototype.play = function() {
 };
 
 VideoProxy.prototype.stop = function() {
-  if (Util.isIOS() && this.isFakePlayback) {
+  if (Util.isIOS9OrLess() && this.isFakePlayback) {
     this.isFakePlayback = true;
 
     this.audioElement.stop();
