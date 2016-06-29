@@ -79,7 +79,8 @@ PhotosphereRenderer.prototype.render = function(timestamp) {
 
 PhotosphereRenderer.prototype.setDefaultLookDirection = function(phi) {
   // Rotate the camera parent to take into account the scene's rotation.
-  this.camera.parent.rotation.y = phi;
+  // By default, it should be at the center of the image.
+  this.camera.parent.rotation.y = Math.PI / 2 + phi;
 };
 
 /**
