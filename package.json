@@ -6,6 +6,7 @@
   "//": "TODO: Re-add dependencies once vanilla versions can be used again.",
   "dependencies": {
     "es6-promise": "^3.0.2",
+    "shaka-player": "^2.0.0-beta2",
     "three": "^0.77.1",
     "webvr-boilerplate": "^0.4.1",
     "webvr-polyfill": "^0.9.4"

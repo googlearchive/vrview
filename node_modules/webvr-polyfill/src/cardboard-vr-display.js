@@ -225,6 +225,10 @@ CardboardVRDisplay.prototype.onResize_ = function(e) {
   if (this.layer_) {
     var gl = this.layer_.source.getContext('webgl');
     // Size the CSS canvas.
+    // Added padding on right and bottom because iPhone 5 will not
+    // hide the URL bar unless content is bigger than the screen.
+    // This will not be visible as long as the container element (e.g. body)
+    // is set to 'overflow: hidden'.
     var cssProperties = [
       'position: absolute',
       'top: 0',
@@ -233,7 +237,7 @@ CardboardVRDisplay.prototype.onResize_ = function(e) {
       'height: ' + Math.min(screen.height, screen.width) + 'px',
       'border: 0',
       'margin: 0',
-      'padding: 0',
+      'padding: 0 10px 10px 0',
     ];
     gl.canvas.setAttribute('style', cssProperties.join('; ') + ';');
 

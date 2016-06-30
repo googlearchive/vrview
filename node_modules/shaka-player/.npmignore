@@ -1,0 +1,6 @@
+.git
+.gitattributes
+.gitignore
+*.pyc
+docs/api/
+coverage/
