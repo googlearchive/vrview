@@ -154,4 +154,8 @@ Util.isIOS9OrLess = function() {
   return majorVersion <= 9;
 };
 
+Util.getExtension = function(url) {
+  return url.split('.').pop();
+};
+
 module.exports = Util;

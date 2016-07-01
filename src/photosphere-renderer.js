@@ -15,12 +15,9 @@
 
 var Emitter = require('./emitter');
 var Eyes = require('./eyes');
-window.THREE = require('three');
-THREE.VRControls = require('../node_modules/three/examples/js/controls/VRControls');
-THREE.VREffect = require('../node_modules/three/examples/js/effects/VREffect');
 var Util = require('./util');
 var VertexDistorter = require('./vertex-distorter');
-require('../node_modules/webvr-boilerplate/build/webvr-manager');
+var WebVRManager = require('webvr-boilerplate');
 
 function PhotosphereRenderer() {
   this.init();
@@ -77,10 +74,10 @@ PhotosphereRenderer.prototype.render = function(timestamp) {
   this.effect.render(this.scene, this.camera);
 };
 
-PhotosphereRenderer.prototype.setDefaultLookDirection = function(phi) {
+PhotosphereRenderer.prototype.setDefaultLookDirection = function(yaw) {
   // Rotate the camera parent to take into account the scene's rotation.
   // By default, it should be at the center of the image.
-  this.camera.parent.rotation.y = Math.PI / 2 + phi;
+  this.camera.parent.rotation.y = (Math.PI / 2.0) + yaw;
 };
 
 /**
@@ -98,7 +95,7 @@ PhotosphereRenderer.prototype.setPhotosphere = function(src, opt_params) {
   // Load texture.
   var loader = new THREE.TextureLoader();
   loader.crossOrigin = 'anonymous';
-  loader.load(src, this.onTextureLoaded_.bind(this), null,
+  loader.load(src, this.onTextureLoaded_.bind(this), undefined,
               this.onTextureError_.bind(this));
 };
 

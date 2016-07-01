@@ -23,7 +23,6 @@ var ES6Promise = require('es6-promise');
 ES6Promise.polyfill();
 
 var AdaptivePlayer = require('./adaptive-player');
-var IFrameMessageReceiver = require('./iframe-message-receiver');
 var PhotosphereRenderer = require('./photosphere-renderer');
 var SceneLoader = require('./scene-loader');
 var Stats = require('../node_modules/stats-js/build/stats.min');
@@ -31,10 +30,10 @@ var Util = require('./util');
 var VideoProxy = require('./video-proxy');
 var WebVRPolyfill = require('webvr-polyfill');
 
-// Include the IFrameMessageReceiver for the iOS cross domain iframe workaround.
-// This facilitates the JS API and provides a workaround for
-// https://bugs.webkit.org/show_bug.cgi?id=150072.
-var receiver = new IFrameMessageReceiver();
+// Include the DeviceMotionReceiver for the iOS cross domain iframe workaround.
+// This is a workaround for https://bugs.webkit.org/show_bug.cgi?id=150072.
+var DeviceMotionReceiver = require('./device-motion-receiver');
+var dmr = new DeviceMotionReceiver();
 
 window.addEventListener('load', init);
 
