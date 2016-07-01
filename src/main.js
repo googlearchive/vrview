@@ -18,23 +18,23 @@
 var LoadingIndicator = require('./loading-indicator');
 var loadIndicator = new LoadingIndicator();
 
-// Include relevant polyfills.
-require('../node_modules/webvr-polyfill/build/webvr-polyfill');
-var ES6Promise = require('../node_modules/es6-promise/dist/es6-promise.min');
+var ES6Promise = require('es6-promise');
 // Polyfill ES6 promises for IE.
 ES6Promise.polyfill();
 
+var AdaptivePlayer = require('./adaptive-player');
+var IFrameMessageReceiver = require('./iframe-message-receiver');
 var PhotosphereRenderer = require('./photosphere-renderer');
 var SceneLoader = require('./scene-loader');
 var Stats = require('../node_modules/stats-js/build/stats.min');
 var Util = require('./util');
 var VideoProxy = require('./video-proxy');
+var WebVRPolyfill = require('webvr-polyfill');
 
-// Include the DeviceMotionReceiver for the iOS cross domain iframe workaround.
-// This is a workaround for https://bugs.webkit.org/show_bug.cgi?id=150072.
-var DeviceMotionReceiver = require('./device-motion-receiver');
-var dmr = new DeviceMotionReceiver();
-
+// Include the IFrameMessageReceiver for the iOS cross domain iframe workaround.
+// This facilitates the JS API and provides a workaround for
+// https://bugs.webkit.org/show_bug.cgi?id=150072.
+var receiver = new IFrameMessageReceiver();
 
 window.addEventListener('load', init);
 
@@ -47,7 +47,6 @@ loader.on('load', onSceneLoad);
 var renderer = new PhotosphereRenderer();
 renderer.on('error', onRenderError);
 
-var videoElement = null;
 var videoProxy = null;
 // TODO: Make this not global.
 // Currently global in order to allow callbacks.
@@ -105,23 +104,12 @@ function onSceneLoad(scene) {
         showError('Video is not supported on IE11.');
       }
     } else {
-      // Load the video element.
-      videoElement = document.createElement('video');
-      videoElement.loop = true;
-      videoElement.src = scene.video;
-      // Enable inline video playback in iOS 10+.
-      videoElement.setAttribute('webkit-playsinline', true);
-      videoElement.setAttribute('crossorigin', 'anonymous');
-      videoElement.addEventListener('canplaythrough', onVideoLoad);
-      videoElement.addEventListener('error', onVideoError);
-      videoElement.load();
+      var player = new AdaptivePlayer();
+      player.on('load', onVideoLoad);
+      player.on('error', onVideoLoad);
+      player.load(scene.video);
 
-      if (!Util.isMobile()) {
-        videoElement.play();
-        renderer.set360Video(videoElement, params);
-      }
-
-      videoProxy = new VideoProxy(videoElement);
+      videoProxy = new VideoProxy(player.video);
       // Debug only.
       window.videoProxy = videoProxy;
     }
@@ -133,7 +121,7 @@ function onSceneLoad(scene) {
   console.log('Loaded scene', scene);
 }
 
-function onVideoLoad() {
+function onVideoLoad(video) {
   console.log('onVideoLoad');
   // Render the stereo video.
   var params = {
@@ -141,16 +129,16 @@ function onVideoLoad() {
   }
   loadIndicator.hide();
 
+  renderer.set360Video(video, params);
+
   // On mobile, tell the user they need to tap to start. Otherwise, autoplay.
   if (Util.isMobile()) {
     // Tell user to tap to start.
-    renderer.set360Video(videoElement, params);
     showPlayButton();
     document.body.addEventListener('touchend', onVideoTap);
+  } else {
+    video.play();
   }
-
-  // Prevent onVideoLoad from firing multiple times.
-  videoElement.removeEventListener('canplaythrough', onVideoLoad);
 }
 
 function onVideoTap() {
