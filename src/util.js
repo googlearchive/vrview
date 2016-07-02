@@ -158,4 +158,15 @@ Util.getExtension = function(url) {
   return url.split('.').pop();
 };
 
+Util.createGetParams = function(params) {
+  var out = '?';
+  for (var k in params) {
+    var paramString = k + '=' + params[k] + '&';
+    out += paramString;
+  }
+  // Remove the trailing ampersand.
+  out.substring(0, params.length - 2);
+  return out;
+};
+
 module.exports = Util;

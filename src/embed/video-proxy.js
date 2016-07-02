@@ -1,4 +1,4 @@
-var Util = require('./util');
+var Util = require('../util');
 
 /**
  * A proxy class for working around the fact that as soon as a video is play()ed

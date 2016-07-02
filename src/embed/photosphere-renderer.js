@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-var Emitter = require('./emitter');
+var Emitter = require('../emitter');
 var Eyes = require('./eyes');
-var Util = require('./util');
+var Util = require('../util');
 var VertexDistorter = require('./vertex-distorter');
 var WebVRManager = require('webvr-boilerplate');
 
@@ -51,6 +51,7 @@ PhotosphereRenderer.prototype.init = function() {
   this.effect = effect;
   this.controls = controls;
   this.manager = new WebVRManager(renderer, effect, {predistorted: true});
+  this.manager.on('modechange', this.onModeChange_.bind(this));
 
   this.initScenes_();
 
@@ -233,11 +234,14 @@ PhotosphereRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
 
   // Resize the renderer for good measure.
   this.onResize_();
+};
 
+PhotosphereRenderer.prototype.onModeChange_ = function(mode) {
   // Analytics.
   if (window.analytics) {
-    analytics.logModeChanged(isVRMode ? 3 : 1);
+    analytics.logModeChanged(mode);
   }
+  this.emit('modechange', mode);
 };
 
 module.exports = PhotosphereRenderer;

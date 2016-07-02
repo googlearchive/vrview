@@ -1,4 +1,4 @@
-var Emitter = require('./emitter');
+var Emitter = require('../emitter');
 var shaka = require('shaka-player');
 
 var Types = {

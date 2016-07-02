@@ -23,19 +23,17 @@ var ES6Promise = require('es6-promise');
 ES6Promise.polyfill();
 
 var AdaptivePlayer = require('./adaptive-player');
+var IFrameMessageReceiver = require('./iframe-message-receiver');
 var PhotosphereRenderer = require('./photosphere-renderer');
 var SceneLoader = require('./scene-loader');
-var Stats = require('../node_modules/stats-js/build/stats.min');
-var Util = require('./util');
+var Stats = require('../../node_modules/stats-js/build/stats.min');
+var Util = require('../util');
 var VideoProxy = require('./video-proxy');
 var WebVRPolyfill = require('webvr-polyfill');
 
-// Include the DeviceMotionReceiver for the iOS cross domain iframe workaround.
-// This is a workaround for https://bugs.webkit.org/show_bug.cgi?id=150072.
-var DeviceMotionReceiver = require('./device-motion-receiver');
-var dmr = new DeviceMotionReceiver();
+var receiver = new IFrameMessageReceiver();
 
-window.addEventListener('load', init);
+window.addEventListener('load', onLoad);
 
 var stats = new Stats();
 
@@ -45,13 +43,12 @@ loader.on('load', onSceneLoad);
 
 var renderer = new PhotosphereRenderer();
 renderer.on('error', onRenderError);
+renderer.on('modechange', onModeChange);
 
 var videoProxy = null;
-// TODO: Make this not global.
-// Currently global in order to allow callbacks.
 var loadedScene = null;
 
-function init() {
+function onLoad() {
   if (!Util.isWebGLEnabled()) {
     showError('WebGL not supported.');
     return;
@@ -62,6 +59,7 @@ function init() {
   if (Util.getQueryParameter('debug')) {
     showStats();
   }
+  requestAnimationFrame(loop);
 }
 
 function loadImage(src, params) {
@@ -109,8 +107,6 @@ function onSceneLoad(scene) {
       player.load(scene.video);
 
       videoProxy = new VideoProxy(player.video);
-      // Debug only.
-      window.videoProxy = videoProxy;
     }
   } else if (scene.image) {
     // Otherwise, just render the photosphere.
@@ -152,6 +148,14 @@ function onRenderLoad() {
   // Hide loading indicator.
   loadIndicator.hide();
 }
+
+function onModeChange(mode) {
+  var message = {
+    type: 'modechange',
+    data: mode
+  }
+  parent.postMessage(message, '*');
+};
 
 function onSceneError(message) {
   showError('Loader: ' + message);
@@ -213,4 +217,3 @@ function loop(time) {
   stats.end();
   requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);

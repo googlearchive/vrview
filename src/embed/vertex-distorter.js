@@ -14,7 +14,7 @@
  */
 
 var Eyes = require('./eyes');
-var Util = require('./util');
+var Util = require('../util');
 
 var DEFAULT_FOV = 40;
 var NO_DISTORTION = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
