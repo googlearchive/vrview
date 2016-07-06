@@ -20,7 +20,8 @@
     "build-analytics": "browserify src/with-analytics.js | derequire > build/vrview-analytics.js",
     "build-analytics-min": "browserify src/with-analytics.js | derequire | uglifyjs -c > build/vrview-analytics.min.js",
     "build-dms": "uglifyjs scripts/js/device-motion-sender.js > build/device-motion-sender.min.js",
-    "watch": "watchify src/main.js -v -d -o build/vrview.js",
+    "watch-embed": "watchify src/embed/main.js -v -d -o build/embed.js",
+    "watch-api": "watchify --standalone VRView src/api/main.js -v -d -o build/vrview.js",
     "deploy": "./scripts/deploy.sh"
   },
   "repository": {
