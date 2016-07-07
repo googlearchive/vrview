@@ -22,16 +22,16 @@ var ES6Promise = require('es6-promise');
 // Polyfill ES6 promises for IE.
 ES6Promise.polyfill();
 
-var AdaptivePlayer = require('./adaptive-player');
 var IFrameMessageReceiver = require('./iframe-message-receiver');
-var PhotosphereRenderer = require('./photosphere-renderer');
 var SceneLoader = require('./scene-loader');
 var Stats = require('../../node_modules/stats-js/build/stats.min');
 var Util = require('../util');
-var VideoProxy = require('./video-proxy');
 var WebVRPolyfill = require('webvr-polyfill');
+var WorldRenderer = require('./world-renderer');
 
 var receiver = new IFrameMessageReceiver();
+receiver.on('play', onPlay);
+receiver.on('pause', onPause);
 
 window.addEventListener('load', onLoad);
 
@@ -41,12 +41,10 @@ var loader = new SceneLoader();
 loader.on('error', onSceneError);
 loader.on('load', onSceneLoad);
 
-var renderer = new PhotosphereRenderer();
-renderer.on('error', onRenderError);
-renderer.on('modechange', onModeChange);
-
-var videoProxy = null;
-var loadedScene = null;
+var worldRenderer = new WorldRenderer();
+worldRenderer.on('error', onRenderError);
+worldRenderer.on('load', onRenderLoad);
+worldRenderer.on('modechange', onModeChange);
 
 function onLoad() {
   if (!Util.isWebGLEnabled()) {
@@ -62,91 +60,40 @@ function onLoad() {
   requestAnimationFrame(loop);
 }
 
-function loadImage(src, params) {
-  renderer.on('load', onRenderLoad);
-  renderer.setPhotosphere(src, params);
-}
-
 function onSceneLoad(scene) {
-  if (!scene || !scene.isComplete()) {
-    showError('Scene failed to load');
-    return;
-  }
-
-  loadedScene = scene;
-
-  var params = {
-    isStereo: scene.isStereo,
-  }
-  renderer.setDefaultLookDirection(scene.yaw || 0);
-
-  if (scene.preview) {
-    var onPreviewLoad = function() {
-      loadIndicator.hide();
-      renderer.removeListener('load', onPreviewLoad);
-      renderer.setPhotosphere(scene.image, params);
-    }
-    renderer.removeListener('load', onRenderLoad);
-    renderer.on('load', onPreviewLoad);
-    renderer.setPhotosphere(scene.preview, params);
-  } else if (scene.video) {
-    if (Util.isIE11()) {
-      // On iOS and IE 11, if an 'image' param is provided, load it instead of
-      // showing an error.
-      //
-      // TODO(smus): Once video textures are supported, remove this fallback.
-      if (scene.image) {
-        loadImage(scene.image, params);
-      } else {
-        showError('Video is not supported on IE11.');
-      }
-    } else {
-      var player = new AdaptivePlayer();
-      player.on('load', onVideoLoad);
-      player.on('error', onVideoLoad);
-      player.load(scene.video);
-
-      videoProxy = new VideoProxy(player.video);
-    }
-  } else if (scene.image) {
-    // Otherwise, just render the photosphere.
-    loadImage(scene.image, params);
-  }
-
-  console.log('Loaded scene', scene);
+  worldRenderer.setScene(scene);
 }
 
-function onVideoLoad(video) {
-  console.log('onVideoLoad');
-  // Render the stereo video.
-  var params = {
-    isStereo: loadedScene.isStereo,
-  }
-  loadIndicator.hide();
-
-  renderer.set360Video(video, params);
-
-  // On mobile, tell the user they need to tap to start. Otherwise, autoplay.
-  if (Util.isMobile()) {
-    // Tell user to tap to start.
-    showPlayButton();
-    document.body.addEventListener('touchend', onVideoTap);
-  } else {
-    video.play();
-  }
-}
 
 function onVideoTap() {
-  videoProxy.play();
+  worldRenderer.videoProxy.play();
   hidePlayButton();
 
   // Prevent multiple play() calls on the video element.
   document.body.removeEventListener('touchend', onVideoTap);
 }
 
-function onRenderLoad() {
+function onRenderLoad(event) {
+  if (event.videoElement) {
+    // On mobile, tell the user they need to tap to start. Otherwise, autoplay.
+    if (Util.isMobile()) {
+      // Tell user to tap to start.
+      showPlayButton();
+      document.body.addEventListener('touchend', onVideoTap);
+    } else {
+      event.videoElement.play();
+    }
+  }
   // Hide loading indicator.
   loadIndicator.hide();
+}
+
+function onPlay() {
+  worldRenderer.videoProxy.play();
+}
+
+function onPause() {
+  worldRenderer.videoProxy.pause();
 }
 
 function onModeChange(mode) {
@@ -155,7 +102,7 @@ function onModeChange(mode) {
     data: mode
   }
   parent.postMessage(message, '*');
-};
+}
 
 function onSceneError(message) {
   showError('Loader: ' + message);
@@ -163,11 +110,6 @@ function onSceneError(message) {
 
 function onRenderError(message) {
   showError('Render: ' + message);
-}
-
-function onVideoError(e) {
-  showError('Video load error');
-  console.log(e);
 }
 
 function showError(message, opt_title) {
@@ -210,10 +152,10 @@ function showStats() {
 function loop(time) {
   stats.begin();
   // Update the video if needed.
-  if (videoProxy) {
-    videoProxy.update(time);
+  if (worldRenderer.videoProxy) {
+    worldRenderer.videoProxy.update(time);
   }
-  renderer.render(time);
+  worldRenderer.render(time);
   stats.end();
   requestAnimationFrame(loop);
 }

@@ -205,13 +205,6 @@ PhotosphereRenderer.prototype.updateMaterial_ = function() {
   }
 };
 
-PhotosphereRenderer.prototype.onViewerChange_ = function(newViewer) {
-  console.log('onViewerChange_', newViewer);
-
-  // Reset the photosphere with new coefficients.
-  this.updateMaterial_();
-};
-
 PhotosphereRenderer.prototype.onResize_ = function() {
   this.effect.setSize(window.innerWidth, window.innerHeight);
   this.camera.aspect = window.innerWidth / window.innerHeight;

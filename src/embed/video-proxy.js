@@ -33,13 +33,13 @@ VideoProxy.prototype.play = function() {
   }
 };
 
-VideoProxy.prototype.stop = function() {
+VideoProxy.prototype.pause = function() {
   if (Util.isIOS9OrLess() && this.isFakePlayback) {
     this.isFakePlayback = true;
 
-    this.audioElement.stop();
+    this.audioElement.pause();
   } else {
-    this.videoElement.stop();
+    this.videoElement.pause();
   }
 };
 
