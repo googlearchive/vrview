@@ -22,8 +22,11 @@ function Player(selector, params) {
 }
 Player.prototype = new Emitter();
 
-Player.prototype.addHotspot = function(p1, p2, callback) {
+Player.prototype.addHotspot = function(coordinate1, coordinate2, hotspotId) {
   var data = {
+    c1: coordinate1.toObject(),
+    c2: coordinate2.toObject(),
+    id: hotspotId
   };
   this.sender.send({type: 'addhotspot', data: data});
 };
