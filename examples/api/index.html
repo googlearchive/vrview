@@ -1,0 +1,32 @@
+API Test
+<div id="vrview">VR View goes here</div>
+
+<script src="../../build/vrview.js"></script>
+
+<script>
+function onVRViewIframeAPIReady() {
+  vrView = new VRView.Player('#vrview', {
+    image: 'examples/pano/andes_2048.jpg',
+    preview: 'examples/pano/andes_512.jpg',
+    is_stereo: true
+  });
+
+  vrView.on('modechange', onModeChange);
+
+  // TODO(smus): Make actual coordinates and actually make this work.
+  var p1 = null;
+  var p2 = null;
+  vrView.addHotspot(p1, p2, onHotspotClick);
+}
+
+function onModeChange(mode) {
+  console.log('onModeChange', mode);
+}
+
+function onHotspotClick() {
+  console.log('onHotspotClick');
+}
+
+// TODO(smus): Make the VR View API call this directly when ready.
+onVRViewIframeAPIReady();
+</script>
