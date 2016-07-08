@@ -1,11 +1,17 @@
 var Emitter = require('../emitter');
 var IFrameMessageSender = require('./iframe-message-sender');
+var Message = require('../message');
 var Util = require('../util');
 
 var EMBED_URL = '../../index.html?';
 
 /**
  * Entry point for the VR View JS API.
+ *
+ * Emits the following events:
+ *    ready: When the player is loaded.
+ *    modechange: When the viewing mode changes (normal, fullscreen, VR).
+ *    click (id): When a hotspot is clicked.
  */
 function Player(selector, params) {
   // Create a VR View iframe depending on the parameters.
@@ -28,15 +34,15 @@ Player.prototype.addHotspot = function(coordinate1, coordinate2, hotspotId) {
     c2: coordinate2.toObject(),
     id: hotspotId
   };
-  this.sender.send({type: 'addhotspot', data: data});
+  this.sender.send({type: Message.ADD_HOTSPOT, data: data});
 };
 
 Player.prototype.play = function() {
-  this.sender.send({type: 'play'});
+  this.sender.send({type: Message.PLAY});
 };
 
 Player.prototype.pause = function() {
-  this.sender.send({type: 'pause'});
+  this.sender.send({type: Message.PAUSE});
 };
 
 /**
@@ -48,6 +54,18 @@ Player.prototype.createIframe_ = function(params) {
   var iframe = document.createElement('iframe');
   iframe.setAttribute('allowfullscreen', true);
   iframe.setAttribute('scrolling', 'no');
+  iframe.style.border = 0;
+
+  // Handle iframe size if width and height are specified.
+  if ('width' in params) {
+    iframe.setAttribute('width', params.width);
+    delete params['width'];
+  }
+  if ('height' in params) {
+    iframe.setAttribute('height', params.height);
+    delete params['height'];
+  }
+
   var url = EMBED_URL + Util.createGetParams(params);
   iframe.src = url;
 
@@ -62,8 +80,9 @@ Player.prototype.onMessage_ = function(event) {
   var data = message.data;
 
   switch (type) {
-    case 'click':
+    case 'ready':
     case 'modechange':
+    case 'click':
       this.emit(type, data);
       break;
     default:

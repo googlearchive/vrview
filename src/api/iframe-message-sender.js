@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var Message = require('../message');
 
 /**
  * Sends events to the embedded VR view IFrame via postMessage. Also handles
@@ -43,7 +44,7 @@ IFrameMessageSender.prototype.send = function(message) {
 
 IFrameMessageSender.prototype.onDeviceMotion_ = function(e) {
   var message = {
-    type: 'devicemotion',
+    type: Message.DEVICE_MOTION,
     deviceMotionEvent: this.cloneDeviceMotionEvent_(e)
   };
 
