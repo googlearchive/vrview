@@ -15,11 +15,17 @@
 var AdaptivePlayer = require('./adaptive-player');
 var Emitter = require('../emitter');
 var Eyes = require('./eyes');
+var HotspotRenderer = require('./hotspot-renderer');
+var ReticleRenderer = require('./reticle-renderer');
 var SphereRenderer = require('./sphere-renderer');
+var TWEEN = require('tween.js');
 var Util = require('../util');
 var VertexDistorter = require('./vertex-distorter');
 var VideoProxy = require('./video-proxy');
 var WebVRManager = require('webvr-boilerplate');
+
+var AUTOPAN_DURATION = 3000;
+var AUTOPAN_ANGLE = 0.4;
 
 /**
  * The main WebGL rendering entry point. Manages the scene, camera, VR-related
@@ -39,13 +45,17 @@ function WorldRenderer() {
   this.init_();
 
   this.sphereRenderer = new SphereRenderer(this.scene, this.distorter);
-  //this.hotspotRenderer = new HotspotRenderer(this.scene);
-  //this.reticleRenderer = new ReticleRenderer(this.scene);
+  this.hotspotRenderer = new HotspotRenderer(this.scene);
+  this.hotspotRenderer.on('focus', this.onHotspotFocus_.bind(this));
+  this.hotspotRenderer.on('blur', this.onHotspotBlur_.bind(this));
+  this.reticleRenderer = new ReticleRenderer(this.camera);
 }
 WorldRenderer.prototype = new Emitter();
 
-WorldRenderer.prototype.render = function() {
+WorldRenderer.prototype.render = function(time) {
   this.controls.update();
+  this.hotspotRenderer.update(this.camera);
+  TWEEN.update(time);
   this.effect.render(this.scene, this.camera);
 };
 
@@ -59,7 +69,13 @@ WorldRenderer.prototype.setScene = function(scene) {
   var params = {
     isStereo: scene.isStereo,
   }
-  this.setDefaultHeading_(scene.yaw || 0);
+  this.setDefaultHeading_(scene.defaultHeading || 0);
+
+  // Disable VR mode if explicitly disabled, or if we're loading a video on iOS
+  // 9 or earlier.
+  if (scene.isVROff || (scene.video && Util.isIOS9OrLess())) {
+    this.manager.setVRCompatibleOverride(false);
+  }
 
   if (scene.image) {
     if (scene.preview) {
@@ -78,11 +94,6 @@ WorldRenderer.prototype.setScene = function(scene) {
       });
     }
   } else if (scene.video) {
-    // Disable video VR mode in iOS9 and below.
-    if (Util.isIOS9OrLess()) {
-      this.manager.setVRCompatibleOverride(false);
-    }
-
     if (Util.isIE11()) {
       // On iOS and IE 11, if an 'image' param is provided, load it instead of
       // showing an error.
@@ -118,6 +129,11 @@ WorldRenderer.prototype.setScene = function(scene) {
 WorldRenderer.prototype.didLoad_ = function(opt_event) {
   var event = opt_event || {};
   this.emit('load', event);
+
+  // Autopan on desktop only.
+  if (!Util.isMobile() && !this.sceneInfo.isAutopanOff) {
+    this.autopan_();
+  }
 };
 
 /**
@@ -128,6 +144,18 @@ WorldRenderer.prototype.setDefaultHeading_ = function(angleRad) {
   // Rotate the camera parent to take into account the scene's rotation.
   // By default, it should be at the center of the image.
   this.camera.parent.rotation.y = (Math.PI / 2.0) + angleRad;
+};
+
+/**
+ * Do the initial camera tween to rotate the camera, giving an indication that
+ * there is live content there (on desktop only).
+ */
+WorldRenderer.prototype.autopan_ = function(duration) {
+  var targetY = this.camera.parent.rotation.y - AUTOPAN_ANGLE;
+  var tween = new TWEEN.Tween(this.camera.parent.rotation)
+      .to({y: targetY}, AUTOPAN_DURATION)
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .start();
 };
 
 WorldRenderer.prototype.init_ = function() {
@@ -222,6 +250,18 @@ WorldRenderer.prototype.onModeChange_ = function(mode) {
     analytics.logModeChanged(mode);
   }
   this.emit('modechange', mode);
+};
+
+WorldRenderer.prototype.onHotspotFocus_ = function(id) {
+  console.log('onHotspotFocus_', id);
+  // Show the reticle.
+  this.reticleRenderer.setVisibility(true);
+};
+
+WorldRenderer.prototype.onHotspotBlur_ = function(id) {
+  console.log('onHotspotBlur_', id);
+  // Hide the reticle.
+  this.reticleRenderer.setVisibility(false);
 };
 
 
