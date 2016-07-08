@@ -24,27 +24,16 @@ function SceneInfo(opt_params) {
   this.image = params.image;
   this.preview = params.preview;
   this.isStereo = !!params.isStereo;
-  this.audio = params.audio;
   this.video = params.video;
-  this.yaw = params.yaw || 0;
+  this.defaultHeading = params.defaultHeading || 0;
   this.isYawOnly = params.isYawOnly;
+  this.isDebug = params.isDebug;
+  this.isVROff = params.isVROff;
+  this.isAutopanOff = params.isAutopanOff;
 }
 
 SceneInfo.prototype.isComplete = function() {
   return !!this.image || !!this.video;
-};
-
-SceneInfo.prototype.toObject = function() {
-  return {
-    id: this.id || null,
-    title: this.title || null,
-    image: this.image,
-    preview: this.preview,
-    isStereo: this.isStereo,
-    audio: this.audio,
-    yaw: this.yaw || null,
-    video: this.video || null,
-  };
 };
 
 SceneInfo.prototype.isImageDataURI = function() {

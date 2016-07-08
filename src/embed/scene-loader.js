@@ -16,49 +16,21 @@ var Emitter = require('../emitter');
 var SceneInfo = require('./scene-info');
 
 var Query = {
-  JSON_URL: 'url',
   VIDEO_URL: 'video',
   OBJECT_URL: 'object',
   IMAGE_URL: 'image',
   PREVIEW_URL: 'preview',
   IS_STEREO: 'is_stereo',
-  AUDIO_URL: 'audio',
-  START_YAW: 'start_yaw',
+  DEFAULT_HEADING: 'default_heading',
   IS_YAW_ONLY: 'is_yaw_only',
+  IS_DEBUG: 'is_debug',
+  IS_VR_OFF: 'is_vr_off',
+  IS_AUTOPAN_OFF: 'is_autopan_off',
 };
 
 function SceneLoader() {
 }
 SceneLoader.prototype = new Emitter();
-
-/**
- * Loads a scene from a JSON file.
- */
-SceneLoader.prototype.loadFromJson_ = function(url, callback) {
-  // XHR to fetch the JSON.
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
-  var that = this;
-  xhr.onload = function(e) {
-    try {
-      var jsonObj = JSON.parse(this.response);
-    } catch (e) {
-      that.emit('error', 'Invalid JSON at ' + url + '.');
-      return;
-    }
-    var labelObjects = {};
-    var labels = jsonObj.labels || [];
-    // Go through the labels in the data and objectify them.
-    for (var i = 0; i < labels.length; i++) {
-      var label = new Label(labels[i]);
-      labelObjects[label.id] = label;
-    }
-    jsonObj.labels = labelObjects;
-    var scene = new SceneInfo(jsonObj);
-    that.emit('load', scene);
-  };
-  xhr.send();
-};
 
 /**
  * Parse out GET parameters from the URL string and load the scene.
@@ -69,10 +41,12 @@ SceneLoader.prototype.loadFromGetParams_ = function() {
     video: Util.getQueryParameter(Query.VIDEO_URL),
     object: Util.getQueryParameter(Query.OBJECT_URL),
     preview: Util.getQueryParameter(Query.PREVIEW_URL),
+    defaultHeading: THREE.Math.degToRad(Util.getQueryParameter(Query.DEFAULT_HEADING)),
     isStereo: this.parseBoolean_(Util.getQueryParameter(Query.IS_STEREO)),
-    audio: Util.getQueryParameter(Query.AUDIO_URL),
     isYawOnly: this.parseBoolean_(Util.getQueryParameter(Query.IS_YAW_ONLY)),
-    yaw: THREE.Math.degToRad(Util.getQueryParameter(Query.START_YAW)),
+    isDebug: this.parseBoolean_(Util.getQueryParameter(Query.IS_DEBUG)),
+    isVROff: this.parseBoolean_(Util.getQueryParameter(Query.IS_VR_OFF)),
+    isAutopanOff: this.parseBoolean_(Util.getQueryParameter(Query.IS_AUTOPAN_OFF)),
   };
 
   var count = 0;
@@ -98,13 +72,10 @@ SceneLoader.prototype.parseBoolean_ = function(value) {
 
 SceneLoader.prototype.loadScene = function(callback) {
   // If there's a url param specified, try loading from JSON.
-  var url = Util.getQueryParameter('url');
   var image = Util.getQueryParameter('image');
   var video = Util.getQueryParameter('video');
   var object = Util.getQueryParameter('object');
-  if (url) {
-    this.loadFromJson_(url);
-  } else if (image || video || object) {
+  if (image || video || object) {
     // Otherwise, try loading from URL parameters.
     this.loadFromGetParams_();
   } else {

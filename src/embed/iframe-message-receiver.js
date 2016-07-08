@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 var Emitter = require('../emitter');
+var Message = require('../message');
 
 
 /**
@@ -39,13 +40,13 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
   var data = message.data;
 
   switch (type) {
-    case 'devicemotion':
+    case Message.DEVICE_MOTION:
       // Synthesize a DeviceMotion event.
       this.synthesizeDeviceMotionEvent_(message.deviceMotionEvent);
       break;
-    case 'addhotspot':
-    case 'play':
-    case 'pause':
+    case Message.ADD_HOTSPOT:
+    case Message.PLAY:
+    case Message.PAUSE:
       // TODO(smus): Emit the event 
       this.emit(type, data);
       break;

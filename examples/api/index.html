@@ -1,32 +1,44 @@
 API Test
-<div id="vrview">VR View goes here</div>
+
+<div id="vrview"></div>
 
 <script src="../../build/vrview.js"></script>
 
 <script>
-function onVRViewIframeAPIReady() {
+var vrView;
+
+function onLoad() {
   vrView = new VRView.Player('#vrview', {
+    width: '100%',
+    height: 480,
     image: 'examples/pano/andes_2048.jpg',
     preview: 'examples/pano/andes_512.jpg',
-    is_stereo: true
+    is_stereo: true,
+    //is_debug: true,
+    //default_heading: 90,
+    //is_yaw_only: true,
+    //is_autopan_off: true,
+    //is_vr_off: true,
   });
-
+  vrView.on('ready', onVRViewReady);
   vrView.on('modechange', onModeChange);
-
-  // TODO(smus): Make actual coordinates and actually make this work.
-  var p1 = null;
-  var p2 = null;
-  vrView.addHotspot(p1, p2, onHotspotClick);
+  vrView.on('click', onHotspotClick);
 }
 
-function onModeChange(mode) {
-  console.log('onModeChange', mode);
+function onVRViewReady(e) {
+  var p1 = new VRView.Coordinate(-0.2, -1.4);
+  var p2 = new VRView.Coordinate(+0.2, +1.4);
+  var id = 'door';
+  vrView.addHotspot(p1, p2, id);
 }
 
-function onHotspotClick() {
-  console.log('onHotspotClick');
+function onModeChange(e) {
+  console.log('onModeChange', e.mode);
 }
 
-// TODO(smus): Make the VR View API call this directly when ready.
-onVRViewIframeAPIReady();
+function onHotspotClick(e) {
+  console.log('onHotspotClick', e.id);
+}
+
+window.addEventListener('load', onLoad);
 </script>

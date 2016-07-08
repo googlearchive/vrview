@@ -169,4 +169,10 @@ Util.createGetParams = function(params) {
   return out;
 };
 
+Util.sendParentMessage = function(message) {
+  if (window.parent) {
+    parent.postMessage(message, '*');
+  }
+};
+
 module.exports = Util;

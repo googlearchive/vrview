@@ -22,7 +22,9 @@ var ES6Promise = require('es6-promise');
 // Polyfill ES6 promises for IE.
 ES6Promise.polyfill();
 
+var Coordinate = require('../coordinate');
 var IFrameMessageReceiver = require('./iframe-message-receiver');
+var Message = require('../message');
 var SceneLoader = require('./scene-loader');
 var Stats = require('../../node_modules/stats-js/build/stats.min');
 var Util = require('../util');
@@ -30,8 +32,9 @@ var WebVRPolyfill = require('webvr-polyfill');
 var WorldRenderer = require('./world-renderer');
 
 var receiver = new IFrameMessageReceiver();
-receiver.on('play', onPlay);
-receiver.on('pause', onPause);
+receiver.on(Message.PLAY, onPlay);
+receiver.on(Message.PAUSE, onPause);
+receiver.on(Message.ADD_HOTSPOT, onAddHotspot);
 
 window.addEventListener('load', onLoad);
 
@@ -41,10 +44,12 @@ var loader = new SceneLoader();
 loader.on('error', onSceneError);
 loader.on('load', onSceneLoad);
 
-var worldRenderer = new WorldRenderer();
+// TODO(smus): Var-ify.
+worldRenderer = new WorldRenderer();
 worldRenderer.on('error', onRenderError);
 worldRenderer.on('load', onRenderLoad);
 worldRenderer.on('modechange', onModeChange);
+worldRenderer.hotspotRenderer.on('click', onHotspotClick);
 
 function onLoad() {
   if (!Util.isWebGLEnabled()) {
@@ -54,14 +59,23 @@ function onLoad() {
   // Load the scene.
   loader.loadScene();
 
-  if (Util.getQueryParameter('debug')) {
-    showStats();
-  }
   requestAnimationFrame(loop);
 }
 
 function onSceneLoad(scene) {
   worldRenderer.setScene(scene);
+
+  if (scene.isDebug) {
+    // Show stats.
+    showStats();
+    // Make hotspots visible.
+    worldRenderer.hotspotRenderer.setVisibility(true);
+  }
+
+  if (scene.isYawOnly) {
+    WebVRConfig = window.WebVRConfig || {};
+    WebVRConfig.YAW_ONLY = true;
+  }
 }
 
 
@@ -86,23 +100,50 @@ function onRenderLoad(event) {
   }
   // Hide loading indicator.
   loadIndicator.hide();
+
+  Util.sendParentMessage({
+    type: 'ready' 
+  });
 }
 
 function onPlay() {
+  if (!worldRenderer.videoProxy) {
+    console.error('Attempt to play, but no video found.');
+    return;
+  }
   worldRenderer.videoProxy.play();
 }
 
 function onPause() {
+  if (!worldRenderer.videoProxy) {
+    console.error('Attempt to pause, but no video found.');
+    return;
+  }
   worldRenderer.videoProxy.pause();
 }
 
-function onModeChange(mode) {
-  var message = {
-    type: 'modechange',
-    data: mode
-  }
-  parent.postMessage(message, '*');
+function onAddHotspot(e) {
+  console.log('onAddHotspot', e);
+
+  var c1 = Coordinate.fromObject(e.c1);
+  var c2 = Coordinate.fromObject(e.c2);
+  var id = e.id;
+  worldRenderer.hotspotRenderer.add(c1, c2, id);
 }
+
+function onModeChange(mode) {
+  Util.sendParentMessage({
+    type: 'modechange',
+    data: {mode: mode}
+  });
+}
+
+function onHotspotClick(id) {
+  Util.sendParentMessage({
+    type: 'click',
+    data: {id: id}
+  });
+};
 
 function onSceneError(message) {
   showError('Loader: ' + message);

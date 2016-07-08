@@ -71,6 +71,9 @@ a, a:visited {
   width: 24px;
   height: 24px;
   padding: 12px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 #watermark img:hover {
   opacity: 1;
