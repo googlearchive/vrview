@@ -125,10 +125,11 @@ function onPause() {
 function onAddHotspot(e) {
   console.log('onAddHotspot', e);
 
-  var c1 = Coordinate.fromObject(e.c1);
-  var c2 = Coordinate.fromObject(e.c2);
+  var pitch = parseFloat(e.pitch);
+  var yaw = parseFloat(e.yaw);
+  var radius = parseFloat(e.radius);
   var id = e.id;
-  worldRenderer.hotspotRenderer.add(c1, c2, id);
+  worldRenderer.hotspotRenderer.add(pitch, yaw, radius, id);
 }
 
 function onModeChange(mode) {

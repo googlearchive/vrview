@@ -190,7 +190,7 @@ WorldRenderer.prototype.init_ = function() {
   this.renderer = renderer;
   this.effect = effect;
   this.controls = controls;
-  this.manager = new WebVRManager(renderer, effect);
+  this.manager = new WebVRManager(renderer, effect, {predistorted: true});
   this.manager.on('modechange', this.onModeChange_.bind(this));
 
   this.scene = this.createScene_();
@@ -256,13 +256,13 @@ WorldRenderer.prototype.onModeChange_ = function(mode) {
 WorldRenderer.prototype.onHotspotFocus_ = function(id) {
   console.log('onHotspotFocus_', id);
   // Show the reticle.
-  this.reticleRenderer.setVisibility(true);
+  //this.reticleRenderer.setVisibility(true);
 };
 
 WorldRenderer.prototype.onHotspotBlur_ = function(id) {
   console.log('onHotspotBlur_', id);
   // Hide the reticle.
-  this.reticleRenderer.setVisibility(false);
+  //this.reticleRenderer.setVisibility(false);
 };
 
 

@@ -14,7 +14,11 @@
  */
 var Coordinate = require('../coordinate');
 var Emitter = require('../emitter');
+var TWEEN = require('tween.js');
 
+var NORMAL_SCALE = new THREE.Vector3(0.5, 0.5, 0.5);
+var FOCUS_SCALE = new THREE.Vector3(0.6, 0.6, 0.6);
+var FOCUS_DURATION = 200;
 /**
  * Responsible for rectangular hot spots that the user can interact with.
  *
@@ -30,11 +34,20 @@ var Emitter = require('../emitter');
  */
 function HotspotRenderer(scene) {
   this.scene = scene;
+  if (!Util.isMobile()) {
+    // Only enable mouse events on desktop.
+    window.addEventListener('mousedown', this.onMouseDown_.bind(this));
+    window.addEventListener('mousemove', this.onMouseMove_.bind(this));
+    window.addEventListener('mouseup', this.onMouseUp_.bind(this));
+  }
+  window.addEventListener('touchstart', this.onTouchStart_.bind(this));
+  window.addEventListener('touchmove', this.onTouchMove_.bind(this));
   window.addEventListener('touchend', this.onTouchEnd_.bind(this));
-  window.addEventListener('keyup', this.onKeyUp_.bind(this));
 
   // Add a placeholder for hotspots.
   this.hotspotRoot = new THREE.Object3D();
+  // Align the center with the center of the camera too.
+  this.hotspotRoot.rotation.y = Math.PI / 2;
   this.scene.add(this.hotspotRoot);
 
   // All hotspot IDs.
@@ -43,8 +56,11 @@ function HotspotRenderer(scene) {
   // Currently selected hotspots.
   this.selectedHotspots = {};
 
+  // Hotspots that the last mousedown event happened for.
+  this.mouseDownHotspots = {};
+
   // For raycasting.
-  this.center = new THREE.Vector2();
+  this.mouse = new THREE.Vector2();
   this.raycaster = new THREE.Raycaster();
 
   // Hide by default.
@@ -53,44 +69,33 @@ function HotspotRenderer(scene) {
 HotspotRenderer.prototype = new Emitter();
 
 /**
- * Adds a new hotspot given two coordinates and an ID.
- *
- * @param c1 {Coordinate} Coordinate of one extreme.
- * @param c2 {Coordinate} Coordinate of another extreme.
- * @param id {String} Identifier of the hotspot.
+ * @param pitch {Number} The latitude of center, specified in degrees, between
+ * -90 and 90, with 0 at the horizon.
+ * @param yaw {Number} The longitude of center, specified in degrees, between
+ * -180 and 180, with 0 at the image center.
+ * @param radius {Number} The radius of the hotspot, specified in degrees.
+ * @param hotspotId {String} The ID of the hotspot.
  */
-HotspotRenderer.prototype.add = function(c1, c2, id) {
-  console.log('HotspotRenderer.add', c1, c2, id);
+HotspotRenderer.prototype.add = function(pitch, yaw, radius, id) {
+  console.log('HotspotRenderer.add', pitch, yaw, radius, id);
   // If a hotspot already exists with this ID, stop.
   if (this.hotspots[id]) {
     console.error('Attempt to add hotspot with existing id %s.', id);
     return;
   }
-
-  // Calculate the appropriate geometry and size corresponding to the specified
-  // coordinates.
-  var top = Math.min(c1.lat, c2.lat) + Math.PI/2;
-  var right = Math.max(c1.lon, c2.lon);
-  // Convert lat to be zero at equator.
-  var bottom = Math.max(c1.lat, c2.lat) + Math.PI/2;
-  var left = Math.min(c1.lon, c2.lon);
-  console.log(top, right, bottom, left);
-
-  var phiStart = left;
-  var phiLength = Math.abs(left - right);
-  var thetaStart = top;
-  var thetaLength = Math.abs(top - bottom);
-  var geometry = new THREE.SphereGeometry(0.99, 48, 48,
-                                          phiStart, phiLength, thetaStart, thetaLength);
-                                          
-  var material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.BackSide});
-  material.transparent = true;
-  material.opacity = 0.5;
-
-  var hotspot = new THREE.Mesh(geometry, material);
+  // Calculate the radius (in m) of the target based on the angular radius
+  // specified.
+  var hotspot = this.createHotspot_(radius);
   hotspot.name = id;
+
+  // Position the hotspot based on the pitch and yaw specified.
+  var quat = new THREE.Quaternion();
+  quat.setFromEuler(new THREE.Euler(THREE.Math.degToRad(pitch), THREE.Math.degToRad(yaw), 0));
+  hotspot.position.applyQuaternion(quat);
+  hotspot.lookAt(new THREE.Vector3());
   
   this.hotspotRoot.add(hotspot);
+  this.hotspots[id] = hotspot;
 }
 
 /**
@@ -110,24 +115,27 @@ HotspotRenderer.prototype.remove = function(id) {
 
 HotspotRenderer.prototype.update = function(camera) {
   // Update the picking ray with the camera and mouse position.
-  this.raycaster.setFromCamera(this.center, camera);	
+  this.raycaster.setFromCamera(this.mouse, camera);	
 
   // Go through all hotspots to see if they are currently selected.
   var hotspots = this.hotspotRoot.children;
   for (var i = 0; i < hotspots.length; i++) {
     var hotspot = hotspots[i];
+    //hotspot.lookAt(camera.position);
     var id = hotspot.name;
     // Check if hotspot is intersected with the picking ray.
-    var intersects = this.raycaster.intersectObject(hotspot);
+    var intersects = this.raycaster.intersectObjects(hotspot.children);
     var isIntersected = (intersects.length > 0);
 
     // If newly selected, emit a focus event.
     if (isIntersected && !this.selectedHotspots[id]) {
       this.emit('focus', id);
+      this.focus_(id);
     }
     // If no longer selected, emit a blur event.
     if (!isIntersected && this.selectedHotspots[id]) {
       this.emit('blur', id);
+      this.blur_(id);
     }
     // Update the set of selected hotspots.
     if (isIntersected) {
@@ -145,19 +153,80 @@ HotspotRenderer.prototype.setVisibility = function(isVisible) {
   this.hotspotRoot.visible = isVisible;
 };
 
-HotspotRenderer.prototype.onTouchEnd_ = function() {
+HotspotRenderer.prototype.onTouchStart_ = function(e) {
+};
+
+HotspotRenderer.prototype.onTouchMove_ = function(e) {
+};
+
+HotspotRenderer.prototype.onTouchEnd_ = function(e) {
   // If a hotspot is selected, emit a click event.
   for (var id in this.selectedHotspots) {
     this.emit('click', id);
   }
 };
 
-HotspotRenderer.prototype.onKeyUp_ = function(e) {
-  if (e.keyCode == 32) { // Space
-    for (var id in this.selectedHotspots) {
+HotspotRenderer.prototype.onMouseDown_ = function(e) {
+  this.mouseDownHotspots = {};
+  for (var id in this.selectedHotspots) {
+    this.mouseDownHotspots[id] = true;
+  }
+};
+
+HotspotRenderer.prototype.onMouseMove_ = function(e) {
+	this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+	this.mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;	
+};
+
+HotspotRenderer.prototype.onMouseUp_ = function(e) {
+  // Only emit a click if the mouse was down on the same hotspot before.
+  for (var id in this.selectedHotspots) {
+    if (id in this.mouseDownHotspots) {
       this.emit('click', id);
     }
   }
+};
+
+HotspotRenderer.prototype.createHotspot_ = function(radius) {
+  var radiusRad = THREE.Math.degToRad(radius);
+  var circleRadius = Math.sin(radiusRad);
+  var innerGeometry = new THREE.CircleGeometry(circleRadius * 0.85, 32);
+
+  var innerMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.FrontSide,
+                                             transparent: true, opacity: 0.9});
+
+  var inner = new THREE.Mesh(innerGeometry, innerMaterial);
+
+  var outerMaterial = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
+  var outerGeometry = new THREE.RingGeometry(circleRadius * 0.85, circleRadius, 32);
+  var outer = new THREE.Mesh(outerGeometry, outerMaterial);
+
+  // Position at the extreme end of the sphere.
+  var hotspot = new THREE.Object3D();
+  hotspot.position.z = -Math.cos(radiusRad) / 2.0;
+  hotspot.scale.set(NORMAL_SCALE);
+
+  hotspot.add(inner);
+  hotspot.add(outer);
+
+  return hotspot;
+};
+
+HotspotRenderer.prototype.focus_ = function(id) {
+  var hotspot = this.hotspots[id];
+
+  // Tween scale of hotspot.
+  this.tween = new TWEEN.Tween(hotspot.scale).to(FOCUS_SCALE, FOCUS_DURATION)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+};
+
+HotspotRenderer.prototype.blur_ = function(id) {
+  var hotspot = this.hotspots[id];
+
+  this.tween = new TWEEN.Tween(hotspot.scale).to(NORMAL_SCALE, FOCUS_DURATION)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
 };
 
 module.exports = HotspotRenderer;

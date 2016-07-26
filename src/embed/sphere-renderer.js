@@ -133,6 +133,7 @@ SphereRenderer.prototype.createPhotosphere_ = function(texture, opt_params) {
   var material = new THREE.MeshBasicMaterial({ map: texture });
   this.distorter.setMap(texture);
   var out = new THREE.Mesh(geometry, material);
+  //out.visible = false;
   out.renderOrder = -1;
   return out;
 };

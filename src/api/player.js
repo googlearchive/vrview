@@ -28,10 +28,19 @@ function Player(selector, params) {
 }
 Player.prototype = new Emitter();
 
-Player.prototype.addHotspot = function(coordinate1, coordinate2, hotspotId) {
+/**
+ * @param pitch {Number} The latitude of center, specified in degrees, between
+ * -90 and 90, with 0 at the horizon.
+ * @param yaw {Number} The longitude of center, specified in degrees, between
+ * -180 and 180, with 0 at the image center.
+ * @param radius {Number} The radius of the hotspot, specified in degrees.
+ * @param hotspotId {String} The ID of the hotspot.
+ */
+Player.prototype.addHotspot = function(pitch, yaw, radius, hotspotId) {
   var data = {
-    c1: coordinate1.toObject(),
-    c2: coordinate2.toObject(),
+    pitch: pitch,
+    yaw: yaw,
+    radius: radius,
     id: hotspotId
   };
   this.sender.send({type: Message.ADD_HOTSPOT, data: data});
@@ -43,6 +52,14 @@ Player.prototype.play = function() {
 
 Player.prototype.pause = function() {
   this.sender.send({type: Message.PAUSE});
+};
+
+Player.prototype.setImage = function(imageUrl) {
+  // TODO(smus): Implement me on the embed side.
+  var data = {
+    imageUrl: imageUrl
+  }
+  this.sender.send({type: Message.SET_IMAGE, data: data});
 };
 
 /**
