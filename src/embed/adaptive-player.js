@@ -18,10 +18,17 @@ var Types = {
  * To play/pause/seek/etc, please use the underlying video element.
  */
 function AdaptivePlayer() {
+  this.video = document.createElement('video');
+
   // Install built-in polyfills to patch browser incompatibilities.
   shaka.polyfill.installAll();
 
-  this.initPlayer_();
+  if (!shaka.player.Player.isBrowserSupported()) {
+    console.error('Shaka is not supported on this browser.');
+  } else {
+    this.initShaka_();
+  }
+
 }
 AdaptivePlayer.prototype = new Emitter();
 
@@ -36,7 +43,13 @@ AdaptivePlayer.prototype.load = function(url) {
   switch (extension) {
     case 'm3u8': // HLS
       this.type = Types.HLS;
-      console.error('HLS is not yet supported.');
+      if (Util.isIOS()) {
+        this.loadVideo_(url).then(function() {
+          self.emit('load', self.video);
+        }).catch(this.onError_.bind(this));
+      } else {
+        console.error('HLS is not yet supported on Android.');
+      }
       break;
     case 'mpd': // MPEG-DASH
       this.type = Types.DASH;
@@ -57,18 +70,12 @@ AdaptivePlayer.prototype.load = function(url) {
 
 /*** PRIVATE API ***/
 
-AdaptivePlayer.prototype.initPlayer_ = function() {
-  // Create a Player instance.
-  var video = document.createElement('video');
-  var player = new shaka.Player(video);
+AdaptivePlayer.prototype.initShaka_ = function() {
+  this.player = new shaka.player.Player(this.video);
 
   // Listen for error events.
-  player.addEventListener('error', this.onError_);
-
-  // Save player.
-  this.player = player;
-  this.video = video;
-}
+  this.player.addEventListener('error', this.onError_);
+};
 
 AdaptivePlayer.prototype.onError_ = function(e) {
   console.error(e);
@@ -81,7 +88,7 @@ AdaptivePlayer.prototype.loadVideo_ = function(url) {
     video.loop = true;
     video.src = url;
     // Enable inline video playback in iOS 10+.
-    video.setAttribute('webkit-playsinline', true);
+    video.setAttribute('playsinline', true);
     video.setAttribute('crossorigin', 'anonymous');
     video.addEventListener('canplaythrough', resolve);
     video.addEventListener('error', reject);

@@ -77,7 +77,8 @@ WorldRenderer.prototype.setScene = function(scene) {
     this.manager.setVRCompatibleOverride(false);
   }
 
-  if (scene.image) {
+  // If we're dealing with an image, and not a video.
+  if (scene.image && !scene.video) {
     if (scene.preview) {
       // First load the preview.
       this.sphereRenderer.setPhotosphere(scene.preview, params).then(function() {
