@@ -14,10 +14,10 @@ function onLoad() {
     image: 'examples/pano/andes_2048.jpg',
     preview: 'examples/pano/andes_512.jpg',
     is_stereo: true,
-    //is_debug: true,
+    is_debug: true,
     //default_heading: 90,
     //is_yaw_only: true,
-    //is_autopan_off: true,
+    is_autopan_off: true,
     //is_vr_off: true,
   });
   vrView.on('ready', onVRViewReady);
@@ -26,10 +26,11 @@ function onLoad() {
 }
 
 function onVRViewReady(e) {
-  var p1 = new VRView.Coordinate(-0.2, -1.4);
-  var p2 = new VRView.Coordinate(+0.2, +1.4);
+  var pitch = 0;
+  var yaw = 30;
+  var radius = 10;
   var id = 'door';
-  vrView.addHotspot(p1, p2, id);
+  vrView.addHotspot(pitch, yaw, radius, id);
 }
 
 function onModeChange(e) {
