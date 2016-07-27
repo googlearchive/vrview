@@ -39,7 +39,8 @@ PhotosphereRenderer.prototype.init = function() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   // Round down fractional DPR values for better performance.
-  renderer.setPixelRatio(Math.floor(window.devicePixelRatio));
+  var pixelRatio = window.devicePixelRatio < 1 ? 1 : Math.floor(window.devicePixelRatio)
+  renderer.setPixelRatio(pixelRatio);
   container.appendChild(renderer.domElement);
 
   var controls = new THREE.VRControls(camera);
