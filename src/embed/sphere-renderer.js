@@ -14,11 +14,15 @@
  */
 
 var Eyes = require('./eyes');
+var TWEEN = require('tween.js');
 var Util = require('../util');
 
 function SphereRenderer(scene, distorter) {
   this.scene = scene;
   this.distorter = distorter;
+
+  // Create a transparent mask.
+  this.createOpacityMask_();
 }
 
 /**
@@ -67,6 +71,31 @@ SphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
 
     this.onTextureLoaded_(videoTexture);
   }.bind(this));
+};
+
+/**
+ * Set the opacity of the panorama.
+ *
+ * @param {Number} opacity How opaque we want the panorama to be. 0 means black,
+ * 1 means full color.
+ * @param {Number} duration Number of milliseconds the transition should take.
+ *
+ * @return {Promise} When the opacity change is complete.
+ */
+SphereRenderer.prototype.setOpacity = function(opacity, duration) {
+  var scene = this.scene;
+  // If we want the opacity
+  var overlayOpacity = 1 - opacity;
+  return new Promise(function(resolve, reject) {
+    var mask = scene.getObjectByName('opacityMask');
+    var tween = new TWEEN.Tween({opacity: mask.material.opacity})
+        .to({opacity: overlayOpacity}, duration)
+        .easing(TWEEN.Easing.Quadratic.InOut);
+    tween.onUpdate(function(e) {
+      mask.material.opacity = this.opacity;
+    });
+    tween.onComplete(resolve).start();
+  });
 };
 
 SphereRenderer.prototype.updateMaterial = function() {
@@ -136,6 +165,18 @@ SphereRenderer.prototype.createPhotosphere_ = function(texture, opt_params) {
   //out.visible = false;
   out.renderOrder = -1;
   return out;
+};
+
+SphereRenderer.prototype.createOpacityMask_ = function() {
+  var geometry = new THREE.SphereGeometry(0.49, 48, 48);
+  var material = new THREE.MeshBasicMaterial({
+    color: 0x000000, side: THREE.DoubleSide, opacity: 0, transparent: true});
+  var opacityMask = new THREE.Mesh(geometry, material);
+  opacityMask.name = 'opacityMask';
+  opacityMask.renderOrder = 1;
+
+  this.scene.add(opacityMask);
+  return opacityMask;
 };
 
 module.exports = SphereRenderer;
