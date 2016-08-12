@@ -43,6 +43,15 @@ VideoProxy.prototype.pause = function() {
   }
 };
 
+VideoProxy.prototype.setVolume = function(volumeLevel) {
+  if (this.videoElement) {
+    this.videoElement.volume = volumeLevel;
+  }
+  if (this.audioElement) {
+    this.audioElement.volume = volumeLevel;
+  }
+};
+
 /**
  * Called on RAF to progress playback.
  */
