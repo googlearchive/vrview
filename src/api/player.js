@@ -1,4 +1,4 @@
-var Emitter = require('../emitter');
+var EventEmitter = require('eventemitter3');
 var IFrameMessageSender = require('./iframe-message-sender');
 var Message = require('../message');
 var Util = require('../util');
@@ -26,7 +26,7 @@ function Player(selector, params) {
   // Listen to messages from the IFrame.
   window.addEventListener('message', this.onMessage_.bind(this), false);
 }
-Player.prototype = new Emitter();
+Player.prototype = new EventEmitter();
 
 /**
  * @param pitch {Number} The latitude of center, specified in degrees, between
@@ -54,12 +54,22 @@ Player.prototype.pause = function() {
   this.sender.send({type: Message.PAUSE});
 };
 
-Player.prototype.setImage = function(imageUrl) {
-  // TODO(smus): Implement me on the embed side.
+// TODO(smus): Maybe setContent to include video and previews?
+Player.prototype.setContent = function(contentInfo) {
   var data = {
-    imageUrl: imageUrl
+    contentInfo: contentInfo
   }
-  this.sender.send({type: Message.SET_IMAGE, data: data});
+  this.sender.send({type: Message.SET_CONTENT, data: data});
+};
+
+/**
+ * Sets the software volume of the video. 0 is mute, 1 is max.
+ */
+Player.prototype.setVolume = function(volumeLevel) {
+  var data = {
+    volumeLevel: volumeLevel
+  };
+  this.sender.send({type: Message.SET_VOLUME, data: data});
 };
 
 /**
@@ -99,6 +109,7 @@ Player.prototype.onMessage_ = function(event) {
   switch (type) {
     case 'ready':
     case 'modechange':
+    case 'error':
     case 'click':
       this.emit(type, data);
       break;
