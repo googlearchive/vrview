@@ -6,6 +6,7 @@
   "//": "TODO: Re-add dependencies once vanilla versions can be used again.",
   "dependencies": {
     "es6-promise": "^3.0.2",
+    "eventemitter3": "^1.2.0",
     "shaka-player": "^1.6.5",
     "three": "^0.78.0",
     "tween.js": "^16.3.4",
