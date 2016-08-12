@@ -13,12 +13,23 @@
  * limitations under the License.
  */
 var Coordinate = require('../coordinate');
-var Emitter = require('../emitter');
+var EventEmitter = require('eventemitter3');
 var TWEEN = require('tween.js');
 
+// Constants for the focus/blur animation.
 var NORMAL_SCALE = new THREE.Vector3(0.5, 0.5, 0.5);
 var FOCUS_SCALE = new THREE.Vector3(0.6, 0.6, 0.6);
 var FOCUS_DURATION = 200;
+
+// Constants for the active/inactive animation.
+var INACTIVE_COLOR = new THREE.Color(1, 1, 1);
+var ACTIVE_COLOR = new THREE.Color(0.8, 0, 0);
+var ACTIVE_DURATION = 100;
+
+// Constants for opacity.
+var MAX_INNER_OPACITY = 0.8;
+var FADE_START_ANGLE_DEG = 35;
+var FADE_END_ANGLE_DEG = 60;
 /**
  * Responsible for rectangular hot spots that the user can interact with.
  *
@@ -32,8 +43,11 @@ var FOCUS_DURATION = 200;
  *   focus (id): a hotspot is focused.
  *   blur (id): a hotspot is no longer hovered over.
  */
-function HotspotRenderer(scene) {
-  this.scene = scene;
+function HotspotRenderer(worldRenderer) {
+  this.worldRenderer = worldRenderer;
+  this.scene = worldRenderer.scene;
+
+  // Bind events for hotspot interaction.
   if (!Util.isMobile()) {
     // Only enable mouse events on desktop.
     window.addEventListener('mousedown', this.onMouseDown_.bind(this));
@@ -41,7 +55,6 @@ function HotspotRenderer(scene) {
     window.addEventListener('mouseup', this.onMouseUp_.bind(this));
   }
   window.addEventListener('touchstart', this.onTouchStart_.bind(this));
-  window.addEventListener('touchmove', this.onTouchMove_.bind(this));
   window.addEventListener('touchend', this.onTouchEnd_.bind(this));
 
   // Add a placeholder for hotspots.
@@ -56,17 +69,14 @@ function HotspotRenderer(scene) {
   // Currently selected hotspots.
   this.selectedHotspots = {};
 
-  // Hotspots that the last mousedown event happened for.
-  this.mouseDownHotspots = {};
+  // Hotspots that the last touchstart / mousedown event happened for.
+  this.downHotspots = {};
 
-  // For raycasting.
-  this.mouse = new THREE.Vector2();
+  // For raycasting. Initialize mouse to be off screen initially.
+  this.pointer = new THREE.Vector2(1, 1);
   this.raycaster = new THREE.Raycaster();
-
-  // Hide by default.
-  this.setVisibility(false);
 }
-HotspotRenderer.prototype = new Emitter();
+HotspotRenderer.prototype = new EventEmitter();
 
 /**
  * @param pitch {Number} The latitude of center, specified in degrees, between
@@ -80,6 +90,7 @@ HotspotRenderer.prototype.add = function(pitch, yaw, radius, id) {
   console.log('HotspotRenderer.add', pitch, yaw, radius, id);
   // If a hotspot already exists with this ID, stop.
   if (this.hotspots[id]) {
+    // TODO: Proper error reporting.
     console.error('Attempt to add hotspot with existing id %s.', id);
     return;
   }
@@ -106,19 +117,51 @@ HotspotRenderer.prototype.add = function(pitch, yaw, radius, id) {
 HotspotRenderer.prototype.remove = function(id) {
   // If there's no hotspot with this ID, fail.
   if (!this.hotspots[id]) { 
+    // TODO: Proper error reporting.
     console.error('Attempt to remove non-existing hotspot with id %s.', id);
     return;
   }
-  // TODO(smus): Implement me!
-  //this.hotspotRoot
+  // Remove the mesh from the scene.
+  this.hotspotRoot.remove(this.hotspots[id]);
+
+  // If this hotspot was selected, make sure it gets unselected.
+  delete this.selectedHotspots[id];
+  delete this.downHotspots[id];
+  delete this.hotspots[id];
+  this.emit('blur', id);
+};
+
+/**
+ * Clears all hotspots from the pano. Often called when changing panos.
+ */
+HotspotRenderer.prototype.clearAll = function() {
+  for (var id in this.hotspots) {
+    this.remove(id);
+  }
+};
+
+HotspotRenderer.prototype.getCount = function() {
+  var count = 0;
+  for (var id in this.hotspots) {
+    count += 1;
+  }
+  return count;
 };
 
 HotspotRenderer.prototype.update = function(camera) {
+  if (this.worldRenderer.isVRMode()) {
+    this.pointer.set(0, 0);
+  }
   // Update the picking ray with the camera and mouse position.
-  this.raycaster.setFromCamera(this.mouse, camera);	
+  this.raycaster.setFromCamera(this.pointer, camera);	
+
+  // Fade hotspots out if they are really far from center to avoid overly
+  // distorted visuals.
+  this.fadeOffCenterHotspots_(camera);
+
+  var hotspots = this.hotspotRoot.children;
 
   // Go through all hotspots to see if they are currently selected.
-  var hotspots = this.hotspotRoot.children;
   for (var i = 0; i < hotspots.length; i++) {
     var hotspot = hotspots[i];
     //hotspot.lookAt(camera.position);
@@ -154,37 +197,73 @@ HotspotRenderer.prototype.setVisibility = function(isVisible) {
 };
 
 HotspotRenderer.prototype.onTouchStart_ = function(e) {
-};
+  // In VR mode, don't touch the pointer position.
+  if (!this.worldRenderer.isVRMode()) {
+    this.updateTouch_(e);
+  }
 
-HotspotRenderer.prototype.onTouchMove_ = function(e) {
+  // Force a camera update to see if any hotspots were selected.
+  this.update(this.worldRenderer.camera);
+
+  this.downHotspots = {};
+  for (var id in this.selectedHotspots) {
+    this.downHotspots[id] = true;
+    this.down_(id);
+  }
+  return false;
 };
 
 HotspotRenderer.prototype.onTouchEnd_ = function(e) {
-  // If a hotspot is selected, emit a click event.
-  for (var id in this.selectedHotspots) {
+  // Only emit a click if the finger was down on the same hotspot before.
+  for (var id in this.downHotspots) {
     this.emit('click', id);
+    this.up_(id);
+    e.preventDefault();
   }
 };
 
+HotspotRenderer.prototype.updateTouch_ = function(e) {
+  var size = this.getSize_();
+  var touch = e.touches[0];
+	this.pointer.x = (touch.clientX / size.width) * 2 - 1;
+	this.pointer.y = - (touch.clientY / size.height) * 2 + 1;	
+};
+
 HotspotRenderer.prototype.onMouseDown_ = function(e) {
-  this.mouseDownHotspots = {};
+  this.updateMouse_(e);
+
+  this.downHotspots = {};
   for (var id in this.selectedHotspots) {
-    this.mouseDownHotspots[id] = true;
+    this.downHotspots[id] = true;
+    this.down_(id);
   }
 };
 
 HotspotRenderer.prototype.onMouseMove_ = function(e) {
-	this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-	this.mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;	
+  this.updateMouse_(e);
 };
 
 HotspotRenderer.prototype.onMouseUp_ = function(e) {
+  this.updateMouse_(e);
+
   // Only emit a click if the mouse was down on the same hotspot before.
   for (var id in this.selectedHotspots) {
-    if (id in this.mouseDownHotspots) {
+    if (id in this.downHotspots) {
       this.emit('click', id);
+      this.up_(id);
     }
   }
+};
+
+HotspotRenderer.prototype.updateMouse_ = function(e) {
+  var size = this.getSize_();
+	this.pointer.x = (e.clientX / size.width) * 2 - 1;
+	this.pointer.y = - (e.clientY / size.height) * 2 + 1;	
+};
+
+HotspotRenderer.prototype.getSize_ = function() {
+  var canvas = this.worldRenderer.renderer.domElement;
+  return this.worldRenderer.renderer.getSize();
 };
 
 HotspotRenderer.prototype.createHotspot_ = function(radius) {
@@ -192,24 +271,58 @@ HotspotRenderer.prototype.createHotspot_ = function(radius) {
   var circleRadius = Math.sin(radiusRad);
   var innerGeometry = new THREE.CircleGeometry(circleRadius * 0.85, 32);
 
-  var innerMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.FrontSide,
-                                             transparent: true, opacity: 0.9});
+  var innerMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide,
+                                             transparent: true, opacity: MAX_INNER_OPACITY});
 
   var inner = new THREE.Mesh(innerGeometry, innerMaterial);
+  inner.name = 'inner';
 
-  var outerMaterial = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
+  var outerMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide,
+                                                  transparent: true});
   var outerGeometry = new THREE.RingGeometry(circleRadius * 0.85, circleRadius, 32);
   var outer = new THREE.Mesh(outerGeometry, outerMaterial);
+  outer.name = 'outer';
 
   // Position at the extreme end of the sphere.
   var hotspot = new THREE.Object3D();
-  hotspot.position.z = -Math.cos(radiusRad) / 2.0;
+  hotspot.position.z = -Math.cos(radiusRad) * 0.75;
   hotspot.scale.set(NORMAL_SCALE);
 
   hotspot.add(inner);
   hotspot.add(outer);
 
   return hotspot;
+};
+
+/**
+ * Large aspect ratios tend to cause visually jarring distortions on the sides.
+ * Here we fade hotspots out to avoid them.
+ */
+HotspotRenderer.prototype.fadeOffCenterHotspots_ = function(camera) {
+  var lookAt = new THREE.Vector3(0,0, -1);
+  lookAt.applyQuaternion(camera.quaternion);
+  // Go through each hotspot. Calculate how far off center it is.
+  for (var id in this.hotspots) {
+    var hotspot = this.hotspots[id];
+    var angle = hotspot.position.angleTo(lookAt);
+    var angleDeg = THREE.Math.radToDeg(angle);
+    var isVisible = angleDeg < 45;
+    var opacity;
+    if (angleDeg < FADE_START_ANGLE_DEG) {
+      opacity = 1;
+    } else if (angleDeg > FADE_END_ANGLE_DEG) {
+      opacity = 0;
+    } else {
+      // We are in the case START < angle < END. Linearly interpolate.
+      var range = FADE_END_ANGLE_DEG - FADE_START_ANGLE_DEG;
+      var value = FADE_END_ANGLE_DEG - angleDeg;
+      opacity = value / range;
+    }
+
+    // Opacity a function of angle. If angle is large, opacity is zero. At some
+    // point, ramp opacity down.
+    this.setOpacity_(id, opacity);
+  }
 };
 
 HotspotRenderer.prototype.focus_ = function(id) {
@@ -227,6 +340,33 @@ HotspotRenderer.prototype.blur_ = function(id) {
   this.tween = new TWEEN.Tween(hotspot.scale).to(NORMAL_SCALE, FOCUS_DURATION)
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
+};
+
+HotspotRenderer.prototype.down_ = function(id) {
+  // Become active.
+  var hotspot = this.hotspots[id];
+  var outer = hotspot.getObjectByName('inner');
+
+  this.tween = new TWEEN.Tween(outer.material.color).to(ACTIVE_COLOR, ACTIVE_DURATION)
+      .start();
+};
+
+HotspotRenderer.prototype.up_ = function(id) {
+  // Become inactive.
+  var hotspot = this.hotspots[id];
+  var outer = hotspot.getObjectByName('inner');
+
+  this.tween = new TWEEN.Tween(outer.material.color).to(INACTIVE_COLOR, ACTIVE_DURATION)
+      .start();
+};
+
+HotspotRenderer.prototype.setOpacity_ = function(id, opacity) {
+  var hotspot = this.hotspots[id];
+  var outer = hotspot.getObjectByName('inner');
+  var inner = hotspot.getObjectByName('outer');
+
+  outer.material.opacity = opacity;
+  inner.material.opacity = opacity * MAX_INNER_OPACITY;
 };
 
 module.exports = HotspotRenderer;
