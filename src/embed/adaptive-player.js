@@ -1,4 +1,4 @@
-var Emitter = require('../emitter');
+var EventEmitter = require('eventemitter3');
 var shaka = require('shaka-player');
 
 var Types = {
@@ -30,7 +30,7 @@ function AdaptivePlayer() {
   }
 
 }
-AdaptivePlayer.prototype = new Emitter();
+AdaptivePlayer.prototype = new EventEmitter();
 
 AdaptivePlayer.prototype.load = function(url) {
   var self = this;
