@@ -25,7 +25,7 @@ ES6Promise.polyfill();
 var Coordinate = require('../coordinate');
 var IFrameMessageReceiver = require('./iframe-message-receiver');
 var Message = require('../message');
-var SceneLoader = require('./scene-loader');
+var SceneInfo = require('./scene-info');
 var Stats = require('../../node_modules/stats-js/build/stats.min');
 var Util = require('../util');
 var WebVRPolyfill = require('webvr-polyfill');
@@ -35,47 +35,45 @@ var receiver = new IFrameMessageReceiver();
 receiver.on(Message.PLAY, onPlay);
 receiver.on(Message.PAUSE, onPause);
 receiver.on(Message.ADD_HOTSPOT, onAddHotspot);
+receiver.on(Message.SET_CONTENT, onSetContent);
+receiver.on(Message.SET_VOLUME, onSetVolume);
 
 window.addEventListener('load', onLoad);
 
 var stats = new Stats();
 
-var loader = new SceneLoader();
-loader.on('error', onSceneError);
-loader.on('load', onSceneLoad);
-
-// TODO(smus): Var-ify.
-worldRenderer = new WorldRenderer();
+var worldRenderer = new WorldRenderer();
 worldRenderer.on('error', onRenderError);
 worldRenderer.on('load', onRenderLoad);
 worldRenderer.on('modechange', onModeChange);
 worldRenderer.hotspotRenderer.on('click', onHotspotClick);
+
+var isReadySent = false;
 
 function onLoad() {
   if (!Util.isWebGLEnabled()) {
     showError('WebGL not supported.');
     return;
   }
+
   // Load the scene.
-  loader.loadScene();
-
-  requestAnimationFrame(loop);
-}
-
-function onSceneLoad(scene) {
+  var scene = SceneInfo.loadFromGetParams();
+  if (!scene) {
+    showError(scene.errorMessage);
+  }
   worldRenderer.setScene(scene);
 
   if (scene.isDebug) {
     // Show stats.
     showStats();
-    // Make hotspots visible.
-    worldRenderer.hotspotRenderer.setVisibility(true);
   }
 
   if (scene.isYawOnly) {
     WebVRConfig = window.WebVRConfig || {};
     WebVRConfig.YAW_ONLY = true;
   }
+
+  requestAnimationFrame(loop);
 }
 
 
@@ -101,14 +99,24 @@ function onRenderLoad(event) {
   // Hide loading indicator.
   loadIndicator.hide();
 
-  Util.sendParentMessage({
-    type: 'ready' 
-  });
+  // Autopan only on desktop, for photos only, and only if autopan is enabled.
+  if (!Util.isMobile() && !worldRenderer.sceneInfo.video &&
+      !worldRenderer.sceneInfo.isAutopanOff) {
+    worldRenderer.autopan();
+  }
+
+  // Notify the API that we are ready, but only do this once.
+  if (!isReadySent) {
+    Util.sendParentMessage({
+      type: 'ready' 
+    });
+    isReadySent = true;
+  }
 }
 
 function onPlay() {
   if (!worldRenderer.videoProxy) {
-    console.error('Attempt to play, but no video found.');
+    onApiError('Attempt to pause, but no video found.');
     return;
   }
   worldRenderer.videoProxy.play();
@@ -116,7 +124,7 @@ function onPlay() {
 
 function onPause() {
   if (!worldRenderer.videoProxy) {
-    console.error('Attempt to pause, but no video found.');
+    onApiError('Attempt to pause, but no video found.');
     return;
   }
   worldRenderer.videoProxy.pause();
@@ -124,12 +132,45 @@ function onPause() {
 
 function onAddHotspot(e) {
   console.log('onAddHotspot', e);
+  // TODO: Implement some validation?
 
   var pitch = parseFloat(e.pitch);
   var yaw = parseFloat(e.yaw);
   var radius = parseFloat(e.radius);
   var id = e.id;
   worldRenderer.hotspotRenderer.add(pitch, yaw, radius, id);
+}
+
+function onSetContent(e) {
+  console.log('onSetContent', e);
+  // Remove all of the hotspots.
+  worldRenderer.hotspotRenderer.clearAll();
+  // Fade to black.
+  worldRenderer.sphereRenderer.setOpacity(0, 500).then(function() {
+    // Then load the new scene.
+    var scene = SceneInfo.loadFromAPIParams(e.contentInfo);
+    return worldRenderer.setScene(scene);
+  }).then(function() {
+    // Then fade the scene back in.
+    worldRenderer.sphereRenderer.setOpacity(1, 500);
+  });
+}
+
+function onSetVolume(e) {
+  // Only work for video. If there's no video, send back an error.
+  if (!worldRenderer.videoProxy) {
+    onApiError('Attempt to set volume, but no video found.');
+    return;
+  }
+  worldRenderer.videoProxy.setVolume(e.volumeLevel);
+}
+
+function onApiError(message) {
+  console.error(message);
+  Util.sendParentMessage({
+    type: 'error',
+    data: {message: message}
+  });
 }
 
 function onModeChange(mode) {
