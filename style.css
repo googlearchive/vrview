@@ -9,6 +9,12 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
+
+  /* Prevent user selection. */
+  user-select: none;
+  touch-callout: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 .dialog {
   display: none;
@@ -40,22 +46,6 @@ html, body {
 
 a, a:visited {
   color: skyblue;
-}
-
-#title {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  position: absolute;
-  top: 10%;
-  width: 100%;
-  font-size: 3em;
-  font-family: 'Dosis';
-  opacity: 1;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-  margin: 0 0.5rem;
 }
 
 #title.hidden {
