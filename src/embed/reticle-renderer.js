@@ -3,7 +3,7 @@ function ReticleRenderer(camera) {
 
   this.reticle = this.createReticle_();
   // In front of the hotspot itself, which is at r=0.99.
-  this.reticle.position.z = -0.98;
+  this.reticle.position.z = -0.97;
   camera.add(this.reticle);
 
   this.setVisibility(false);
@@ -16,8 +16,8 @@ ReticleRenderer.prototype.setVisibility = function(isVisible) {
 
 ReticleRenderer.prototype.createReticle_ = function() {
   // Make a torus.
-  var geometry = new THREE.TorusGeometry(0.1, 0.01, 10, 20);
-  var material = new THREE.MeshBasicMaterial({color: 0xff00ff});
+  var geometry = new THREE.TorusGeometry(0.02, 0.005, 10, 20);
+  var material = new THREE.MeshBasicMaterial({color: 0x000000});
   var torus = new THREE.Mesh(geometry, material);
 
   return torus;
