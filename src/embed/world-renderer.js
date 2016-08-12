@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 var AdaptivePlayer = require('./adaptive-player');
-var Emitter = require('../emitter');
+var EventEmitter = require('eventemitter3');
 var Eyes = require('./eyes');
 var HotspotRenderer = require('./hotspot-renderer');
 var ReticleRenderer = require('./reticle-renderer');
@@ -39,18 +39,18 @@ var AUTOPAN_ANGLE = 0.4;
  * Emits the following events:
  *   load: when the scene is loaded.
  *   error: if there is an error loading the scene.
- *   modechange: if the mode (eg. VR, fullscreen, etc) changes.
+ *   modechange(Boolean isVR): if the mode (eg. VR, fullscreen, etc) changes.
  */
 function WorldRenderer() {
   this.init_();
 
   this.sphereRenderer = new SphereRenderer(this.scene, this.distorter);
-  this.hotspotRenderer = new HotspotRenderer(this.scene);
+  this.hotspotRenderer = new HotspotRenderer(this);
   this.hotspotRenderer.on('focus', this.onHotspotFocus_.bind(this));
   this.hotspotRenderer.on('blur', this.onHotspotBlur_.bind(this));
   this.reticleRenderer = new ReticleRenderer(this.camera);
 }
-WorldRenderer.prototype = new Emitter();
+WorldRenderer.prototype = new EventEmitter();
 
 WorldRenderer.prototype.render = function(time) {
   this.controls.update();
@@ -59,10 +59,18 @@ WorldRenderer.prototype.render = function(time) {
   this.effect.render(this.scene, this.camera);
 };
 
+/**
+ * @return {Promise} When the scene is fully loaded.
+ */
 WorldRenderer.prototype.setScene = function(scene) {
   var self = this;
+  var promise = new Promise(function(resolve, reject) {
+    self.sceneResolve = resolve;
+    self.sceneReject = reject;
+  });
+
   if (!scene || !scene.isComplete()) {
-    this.emit('error', 'Scene failed to load');
+    this.didLoadFail_('Scene failed to load');
     return;
   }
 
@@ -105,7 +113,7 @@ WorldRenderer.prototype.setScene = function(scene) {
           self.didLoad_();
         });
       } else {
-        this.emit('error', 'Video is not supported on IE11.');
+        this.didLoadFail_('Video is not supported on IE11.');
       }
     } else {
       var player = new AdaptivePlayer();
@@ -115,7 +123,7 @@ WorldRenderer.prototype.setScene = function(scene) {
         });
       });
       player.on('error', function(error) {
-        self.emit('error', 'Video load error: ' + error);
+        self.didLoadFail_('Video load error: ' + error);
       });
       player.load(scene.video);
 
@@ -125,15 +133,26 @@ WorldRenderer.prototype.setScene = function(scene) {
 
   this.sceneInfo = scene;
   console.log('Loaded scene', scene);
+
+  return promise;
+};
+
+WorldRenderer.prototype.isVRMode = function() {
+  return !!this.vrDisplay && this.vrDisplay.isPresenting;
 };
 
 WorldRenderer.prototype.didLoad_ = function(opt_event) {
   var event = opt_event || {};
   this.emit('load', event);
+  if (this.sceneResolve) {
+    this.sceneResolve();
+  }
+};
 
-  // Autopan on desktop only.
-  if (!Util.isMobile() && !this.sceneInfo.isAutopanOff) {
-    this.autopan_();
+WorldRenderer.prototype.didLoadFail_ = function(message) {
+  this.emit('error', message);
+  if (this.sceneReject) {
+    this.sceneReject();
   }
 };
 
@@ -151,7 +170,7 @@ WorldRenderer.prototype.setDefaultHeading_ = function(angleRad) {
  * Do the initial camera tween to rotate the camera, giving an indication that
  * there is live content there (on desktop only).
  */
-WorldRenderer.prototype.autopan_ = function(duration) {
+WorldRenderer.prototype.autopan = function(duration) {
   var targetY = this.camera.parent.rotation.y - AUTOPAN_ANGLE;
   var tween = new TWEEN.Tween(this.camera.parent.rotation)
       .to({y: targetY}, AUTOPAN_DURATION)
@@ -191,7 +210,6 @@ WorldRenderer.prototype.init_ = function() {
   this.effect = effect;
   this.controls = controls;
   this.manager = new WebVRManager(renderer, effect, {predistorted: true});
-  this.manager.on('modechange', this.onModeChange_.bind(this));
 
   this.scene = this.createScene_();
   this.scene.add(this.camera.parent);
@@ -199,6 +217,9 @@ WorldRenderer.prototype.init_ = function() {
 
   // Watch the resize event.
   window.addEventListener('resize', this.onResize_.bind(this));
+
+  // Prevent context menu.
+  window.addEventListener('contextmenu', this.onContextMenu_.bind(this));
 
   // Watch the custom vrdisplaydeviceparamschange event, which fires whenever
   // the viewer parameters change.
@@ -223,15 +244,30 @@ WorldRenderer.prototype.onVRDisplayParamsChange_ = function(e) {
 
 WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
   console.log('onVRDisplayPresentChange_');
-  var vrDisplay = e.detail.vrdisplay;
-  var isVRMode = vrDisplay.isPresenting;
-  if (vrDisplay.isPolyfilled) {
-    this.distorter.setEnabled(isVRMode);
+  this.vrDisplay = e.detail.vrdisplay;
+  var isVR = this.isVRMode();
+
+  // Enable vertex-based distortion, but only if we're polyfilled.
+  if (this.vrDisplay.isPolyfilled) {
+    this.distorter.setEnabled(isVR);
     this.sphereRenderer.updateMaterial();
   }
 
+  // If the mode changed to VR and there is at least one hotspot, show reticle.
+  var isReticleVisible = isVR && this.hotspotRenderer.getCount() > 0;
+  this.reticleRenderer.setVisibility(isReticleVisible);
+  console.log('Mode changed and reticle visibility is now: %s', isReticleVisible);
+
   // Resize the renderer for good measure.
   this.onResize_();
+
+  // Analytics.
+  if (window.analytics) {
+    analytics.logModeChanged(isVR);
+  }
+
+  // Emit a mode change event back to any listeners.
+  this.emit('modechange', isVR);
 };
 
 WorldRenderer.prototype.createScene_ = function(opt_params) {
@@ -245,24 +281,26 @@ WorldRenderer.prototype.createScene_ = function(opt_params) {
   return scene;
 };
 
-WorldRenderer.prototype.onModeChange_ = function(mode) {
-  // Analytics.
-  if (window.analytics) {
-    analytics.logModeChanged(mode);
-  }
-  this.emit('modechange', mode);
-};
-
 WorldRenderer.prototype.onHotspotFocus_ = function(id) {
   console.log('onHotspotFocus_', id);
-  // Show the reticle.
-  //this.reticleRenderer.setVisibility(true);
+  // Set the default cursor to be a pointer.
+  this.setCursor_('pointer');
 };
 
 WorldRenderer.prototype.onHotspotBlur_ = function(id) {
   console.log('onHotspotBlur_', id);
-  // Hide the reticle.
-  //this.reticleRenderer.setVisibility(false);
+  // Reset the default cursor to be the default one.
+  this.setCursor_('');
+};
+
+WorldRenderer.prototype.setCursor_ = function(cursor) {
+  this.renderer.domElement.style.cursor = cursor;
+};
+
+WorldRenderer.prototype.onContextMenu_ = function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  return false;
 };
 
 
