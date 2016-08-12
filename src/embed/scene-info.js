@@ -13,31 +13,77 @@
  * limitations under the License.
  */
 
+var camelToUnderscore = {
+  video: 'video',
+  image: 'image',
+  preview: 'preview',
+  isStereo: 'is_stereo',
+  defaultHeading: 'default_heading',
+  isYawOnly: 'is_yaw_only',
+  isDebug: 'is_debug',
+  isVROff: 'is_vr_off',
+  isAutopanOff: 'is_autopan_off',
+};
+
 /**
- * Contains all information about a given scene, including the photosphere asset,
- * background music.
+ * Contains all information about a given scene.
  */
 function SceneInfo(opt_params) {
   var params = opt_params || {};
-  this.id = params.id;
-  this.title = params.title;
+
   this.image = params.image;
   this.preview = params.preview;
-  this.isStereo = !!params.isStereo;
   this.video = params.video;
-  this.defaultHeading = params.defaultHeading || 0;
-  this.isYawOnly = params.isYawOnly;
-  this.isDebug = params.isDebug;
-  this.isVROff = params.isVROff;
-  this.isAutopanOff = params.isAutopanOff;
+  this.defaultHeading = THREE.Math.degToRad(params.defaultHeading || 0);
+
+  this.isStereo = Util.parseBoolean(params.isStereo);
+  this.isYawOnly = Util.parseBoolean(params.isYawOnly);
+  this.isDebug = Util.parseBoolean(params.isDebug);
+  this.isVROff = Util.parseBoolean(params.isVROff);
+  this.isAutopanOff = Util.parseBoolean(params.isAutopanOff);
 }
+
+SceneInfo.loadFromGetParams = function() {
+  var params = {};
+  for (var camelCase in camelToUnderscore) {
+    var underscore = camelToUnderscore[camelCase];
+    params[camelCase] = Util.getQueryParameter(underscore);
+  }
+  var scene = new SceneInfo(params);
+  if (!scene.isValid()) {
+    return false;
+  }
+  return scene;
+};
+
+SceneInfo.loadFromAPIParams = function(underscoreParams) {
+  var params = {};
+  for (var camelCase in camelToUnderscore) {
+    var underscore = camelToUnderscore[camelCase];
+    if (underscoreParams[underscore]) {
+      params[camelCase] = underscoreParams[underscore];
+    }
+  }
+  var scene = new SceneInfo(params);
+  if (!scene.isValid()) {
+    return false;
+  }
+  return scene;
+};
 
 SceneInfo.prototype.isComplete = function() {
   return !!this.image || !!this.video;
 };
 
-SceneInfo.prototype.isImageDataURI = function() {
-  return this.image.indexOf('data:') == 0;
+SceneInfo.prototype.isValid = function() {
+  // Either it's an image or a video.
+  var imageXorVideo = (this.image && !this.video) || (!this.image && this.video);
+  if (!imageXorVideo) {
+    this.errorMessage = 'Image or video (and not both) must be specified.';
+    return false;
+  }
+  this.errorMessage = null;
+  return true;
 };
 
 
