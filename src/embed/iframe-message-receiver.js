@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var Emitter = require('../emitter');
+var EventEmitter = require('eventemitter3');
 var Message = require('../message');
 
 
@@ -30,7 +30,7 @@ var Message = require('../message');
 function IFrameMessageReceiver() {
   window.addEventListener('message', this.onMessage_.bind(this), false);
 }
-IFrameMessageReceiver.prototype = new Emitter();
+IFrameMessageReceiver.prototype = new EventEmitter();
 
 IFrameMessageReceiver.prototype.onMessage_ = function(event) {
   console.log('onMessage_', event);
@@ -44,6 +44,8 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
       // Synthesize a DeviceMotion event.
       this.synthesizeDeviceMotionEvent_(message.deviceMotionEvent);
       break;
+    case Message.SET_CONTENT:
+    case Message.SET_VOLUME:
     case Message.ADD_HOTSPOT:
     case Message.PLAY:
     case Message.PAUSE:
