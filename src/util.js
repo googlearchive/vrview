@@ -175,4 +175,14 @@ Util.sendParentMessage = function(message) {
   }
 };
 
+Util.parseBoolean = function(value) {
+  if (value == 'false' || value == 0) {
+    return false;
+  } else if (value == 'true' || value == 1) {
+    return true;
+  } else {
+    return !!value;
+  }
+};
+
 module.exports = Util;
