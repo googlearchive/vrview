@@ -6,8 +6,6 @@ API Test
 <button onclick="onPause()">Pause</button>
 <button onclick="onMute()">Mute</button>
 <button onclick="onUnmute()">Unmute</button>
-<button onclick="onSetPano1()">Set Pano 1</button>
-<button onclick="onSetPano2()">Set Pano 2</button>
 
 <script src="../../build/vrview.js"></script>
 
@@ -34,11 +32,9 @@ function onLoad() {
 }
 
 function onVRViewReady(e) {
-  var pitch = 0;
-  var yaw = 30;
-  var radius = 5;
-  var id = 'door';
-  vrView.addHotspot(pitch, yaw, radius, id);
+  setTimeout(function() {
+    loadScene('coral');
+  }, 3000);
 }
 
 function onModeChange(e) {
@@ -47,6 +43,33 @@ function onModeChange(e) {
 
 function onHotspotClick(e) {
   console.log('onHotspotClick', e.id);
+
+  loadScene(e.id);
+}
+
+function loadScene(id) {
+  switch (id) {
+    case 'coral': 
+      vrView.setContent({
+        image: 'examples/coral.jpg',
+        preview: 'examples/coral-preview.jpg',
+        is_stereo: true,
+        is_autopan_off: true
+      });
+      vrView.addHotspot(30, -50, 10, 'mountain');
+      break;
+    case 'mountain':
+      vrView.setContent({
+        image: 'examples/pano/andes_2048.jpg',
+        preview: 'examples/pano/andes_512.jpg',
+        is_stereo: true,
+        is_autopan_off: true
+      });
+      vrView.addHotspot(0, 30, 10, 'coral');
+      break;
+    default:
+      console.log('Cannot load scene with unknown id: %s.', id);
+  }
 }
 
 function onPlay() {
@@ -63,24 +86,6 @@ function onMute() {
 
 function onUnmute() {
   vrView.setVolume(1);
-}
-
-function onSetPano1() {
-  vrView.setContent({
-    image: 'examples/coral.jpg',
-    preview: 'examples/coral-preview.jpg',
-    is_stereo: true,
-    is_autopan_off: true
-  });
-}
-
-function onSetPano2() {
-  vrView.setContent({
-    image: 'examples/pano/andes_2048.jpg',
-    preview: 'examples/pano/andes_512.jpg',
-    is_stereo: true,
-    is_autopan_off: false 
-  });
 }
 
 function onVRViewError(e) {
