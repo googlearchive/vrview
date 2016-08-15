@@ -152,7 +152,7 @@ WorldRenderer.prototype.didLoad_ = function(opt_event) {
 WorldRenderer.prototype.didLoadFail_ = function(message) {
   this.emit('error', message);
   if (this.sceneReject) {
-    this.sceneReject();
+    this.sceneReject(message);
   }
 };
 
