@@ -67,6 +67,11 @@ AdaptivePlayer.prototype.load = function(url) {
   }
 };
 
+AdaptivePlayer.prototype.destroy = function() {
+  this.video.pause();
+  this.video.src = '';
+  this.video = null;
+};
 
 /*** PRIVATE API ***/
 
