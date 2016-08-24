@@ -1,4 +1,11 @@
-THREE.WebGLClipping = function() {
+/**
+ * @author tschw
+ */
+
+import { Matrix3 } from '../../math/Matrix3';
+import { Plane } from '../../math/Plane';
+
+function WebGLClipping() {
 
 	var scope = this,
 
@@ -7,8 +14,8 @@ THREE.WebGLClipping = function() {
 		localClippingEnabled = false,
 		renderingShadows = false,
 
-		plane = new THREE.Plane(),
-		viewNormalMatrix = new THREE.Matrix3(),
+		plane = new Plane(),
+		viewNormalMatrix = new Matrix3(),
 
 		uniform = { value: null, needsUpdate: false };
 
@@ -148,5 +155,6 @@ THREE.WebGLClipping = function() {
 
 	}
 
-};
+}
 
+export { WebGLClipping };

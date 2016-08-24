@@ -1,22 +1,30 @@
+import { XHRLoader } from './XHRLoader';
+import { DefaultLoadingManager } from './LoadingManager';
+
 /**
  * @author mrdoob / http://mrdoob.com/
  */
 
-THREE.ImageLoader = function ( manager ) {
+function ImageLoader( manager ) {
 
-	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
 
-};
+}
 
-Object.assign( THREE.ImageLoader.prototype, {
+Object.assign( ImageLoader.prototype, {
 
 	load: function ( url, onLoad, onProgress, onError ) {
+
+		var scope = this;
 
 		var image = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'img' );
 		image.onload = function () {
 
 			URL.revokeObjectURL( image.src );
+
 			if ( onLoad ) onLoad( image );
+
+			scope.manager.itemEnd( url );
 
 		};
 
@@ -26,9 +34,10 @@ Object.assign( THREE.ImageLoader.prototype, {
 
 		} else {
 
-			var loader = new THREE.XHRLoader( this.manager );
+			var loader = new XHRLoader();
 			loader.setPath( this.path );
 			loader.setResponseType( 'blob' );
+			loader.setWithCredentials( this.withCredentials );
 			loader.load( url, function ( blob ) {
 
 				image.src = URL.createObjectURL( blob );
@@ -36,6 +45,8 @@ Object.assign( THREE.ImageLoader.prototype, {
 			}, onProgress, onError );
 
 		}
+
+		scope.manager.itemStart( url );
 
 		return image;
 
@@ -48,6 +59,13 @@ Object.assign( THREE.ImageLoader.prototype, {
 
 	},
 
+	setWithCredentials: function ( value ) {
+
+		this.withCredentials = value;
+		return this;
+
+	},
+
 	setPath: function ( value ) {
 
 		this.path = value;
@@ -56,3 +74,6 @@ Object.assign( THREE.ImageLoader.prototype, {
 	}
 
 } );
+
+
+export { ImageLoader };

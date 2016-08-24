@@ -13,9 +13,6 @@
  * limitations under the License.
  */
 
-// Polyfill ES6 Promises (mostly for IE 11).
-require('es6-promise').polyfill();
-
 var CardboardVRDisplay = require('./cardboard-vr-display.js');
 var MouseKeyboardVRDisplay = require('./mouse-keyboard-vr-display.js');
 // Uncomment to add positional tracking via webcam.

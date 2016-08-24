@@ -1,3 +1,10 @@
+import { AnimationAction } from './AnimationAction';
+import { EventDispatcher } from '../core/EventDispatcher';
+import { LinearInterpolant } from '../math/interpolants/LinearInterpolant';
+import { PropertyBinding } from './PropertyBinding';
+import { PropertyMixer } from './PropertyMixer';
+import { AnimationClip } from './AnimationClip';
+
 /**
  *
  * Player for AnimationClips.
@@ -8,7 +15,7 @@
  * @author tschw
  */
 
-THREE.AnimationMixer = function( root ) {
+function AnimationMixer( root ) {
 
 	this._root = root;
 	this._initMemoryManager();
@@ -18,9 +25,9 @@ THREE.AnimationMixer = function( root ) {
 
 	this.timeScale = 1.0;
 
-};
+}
 
-Object.assign( THREE.AnimationMixer.prototype, THREE.EventDispatcher.prototype, {
+Object.assign( AnimationMixer.prototype, EventDispatcher.prototype, {
 
 	// return an action for a clip optionally using a custom root target
 	// object (this method allocates a lot of dynamic memory in case a
@@ -31,7 +38,7 @@ Object.assign( THREE.AnimationMixer.prototype, THREE.EventDispatcher.prototype, 
 			rootUuid = root.uuid,
 
 			clipObject = typeof clip === 'string' ?
-					THREE.AnimationClip.findByName( root, clip ) : clip,
+					AnimationClip.findByName( root, clip ) : clip,
 
 			clipUuid = clipObject !== null ? clipObject.uuid : clip,
 
@@ -63,8 +70,7 @@ Object.assign( THREE.AnimationMixer.prototype, THREE.EventDispatcher.prototype, 
 		if ( clipObject === null ) return null;
 
 		// allocate all resources required to run it
-		var newAction = new THREE.
-				AnimationMixer._Action( this, clipObject, optionalRoot );
+		var newAction = new AnimationAction( this, clipObject, optionalRoot );
 
 		this._bindAction( newAction, prototypeAction );
 
@@ -82,7 +88,7 @@ Object.assign( THREE.AnimationMixer.prototype, THREE.EventDispatcher.prototype, 
 			rootUuid = root.uuid,
 
 			clipObject = typeof clip === 'string' ?
-					THREE.AnimationClip.findByName( root, clip ) : clip,
+					AnimationClip.findByName( root, clip ) : clip,
 
 			clipUuid = clipObject ? clipObject.uuid : clip,
 
@@ -269,11 +275,9 @@ Object.assign( THREE.AnimationMixer.prototype, THREE.EventDispatcher.prototype, 
 
 } );
 
-THREE.AnimationMixer._Action = THREE.AnimationAction._new;
-
 // Implementation details:
 
-Object.assign( THREE.AnimationMixer.prototype, {
+Object.assign( AnimationMixer.prototype, {
 
 	_bindAction: function( action, prototypeAction ) {
 
@@ -325,8 +329,8 @@ Object.assign( THREE.AnimationMixer.prototype, {
 				var path = prototypeAction && prototypeAction.
 						_propertyBindings[ i ].binding.parsedPath;
 
-				binding = new THREE.PropertyMixer(
-						THREE.PropertyBinding.create( root, trackName, path ),
+				binding = new PropertyMixer(
+						PropertyBinding.create( root, trackName, path ),
 						track.ValueTypeName, track.getValueSize() );
 
 				++ binding.referenceCount;
@@ -420,8 +424,8 @@ Object.assign( THREE.AnimationMixer.prototype, {
 		this._actionsByClip = {};
 		// inside:
 		// {
-		// 		knownActions: Array< _Action >	- used as prototypes
-		// 		actionByRoot: _Action			- lookup
+		// 		knownActions: Array< AnimationAction >	- used as prototypes
+		// 		actionByRoot: AnimationAction			- lookup
 		// }
 
 
@@ -455,7 +459,7 @@ Object.assign( THREE.AnimationMixer.prototype, {
 
 	},
 
-	// Memory management for _Action objects
+	// Memory management for AnimationAction objects
 
 	_isActiveAction: function( action ) {
 
@@ -703,7 +707,7 @@ Object.assign( THREE.AnimationMixer.prototype, {
 
 		if ( interpolant === undefined ) {
 
-			interpolant = new THREE.LinearInterpolant(
+			interpolant = new LinearInterpolant(
 					new Float32Array( 2 ), new Float32Array( 2 ),
 						1, this._controlInterpolantsResultBuffer );
 
@@ -736,3 +740,6 @@ Object.assign( THREE.AnimationMixer.prototype, {
 	_controlInterpolantsResultBuffer: new Float32Array( 1 )
 
 } );
+
+
+export { AnimationMixer };

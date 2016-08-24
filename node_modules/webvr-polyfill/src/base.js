@@ -20,6 +20,9 @@ var WakeLock = require('./wakelock.js');
 var nextDisplayId = 1000;
 var hasShowDeprecationWarning = false;
 
+var defaultLeftBounds = [0, 0, 0.5, 1];
+var defaultRightBounds = [0.5, 0, 0.5, 1];
+
 /**
  * The base class for all VR displays.
  */
@@ -151,10 +154,7 @@ VRDisplay.prototype.removeFullscreenWrapper = function() {
 };
 
 VRDisplay.prototype.requestPresent = function(layers) {
-  if (this.isPresenting) {
-    console.error('Already presenting!');
-    return;
-  }
+  var wasPresenting = this.isPresenting;
   var self = this;
 
   if (!(layers instanceof Array)) {
@@ -176,7 +176,51 @@ VRDisplay.prototype.requestPresent = function(layers) {
       return;
     }
 
-    self.layer_ = layers[0];
+    var incomingLayer = layers[0];
+    if (!incomingLayer.source) {
+      /*
+      todo: figure out the correct behavior if the source is not provided.
+      see https://github.com/w3c/webvr/issues/58
+      */
+      resolve();
+      return;
+    }
+
+    var leftBounds = incomingLayer.leftBounds || defaultLeftBounds;
+    var rightBounds = incomingLayer.rightBounds || defaultRightBounds;
+    if (wasPresenting) {
+      // Already presenting, just changing configuration
+      var changed = false;
+      var layer = self.layer_;
+      if (layer.source !== incomingLayer.source) {
+        layer.source = incomingLayer.source;
+        changed = true;
+      }
+
+      for (var i = 0; i < 4; i++) {
+        if (layer.leftBounds[i] !== leftBounds[i]) {
+          layer.leftBounds[i] = leftBounds[i];
+          changed = true;
+        }
+        if (layer.rightBounds[i] !== rightBounds[i]) {
+          layer.rightBounds[i] = rightBounds[i];
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        self.fireVRDisplayPresentChange_();
+      }
+      resolve();
+      return;
+    }
+
+    // Was not already presenting
+    self.layer_ = {
+      source: incomingLayer.source,
+      leftBounds: leftBounds.slice(0),
+      rightBounds: rightBounds.slice(0)
+    };
 
     self.waitingForPresent_ = false;
     if (self.layer_ && self.layer_.source) {

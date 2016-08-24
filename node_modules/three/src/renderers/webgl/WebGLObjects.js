@@ -1,10 +1,13 @@
 /**
-* @author mrdoob / http://mrdoob.com/
-*/
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-THREE.WebGLObjects = function ( gl, properties, info ) {
+import { BufferAttribute } from '../../core/BufferAttribute';
+import { WebGLGeometries } from './WebGLGeometries';
 
-	var geometries = new THREE.WebGLGeometries( gl, properties, info );
+function WebGLObjects( gl, properties, info ) {
+
+	var geometries = new WebGLGeometries( gl, properties, info );
 
 	//
 
@@ -14,7 +17,7 @@ THREE.WebGLObjects = function ( gl, properties, info ) {
 
 		var geometry = geometries.get( object );
 
-		if ( object.geometry instanceof THREE.Geometry ) {
+		if ( object.geometry.isGeometry ) {
 
 			geometry.updateFromObject( object );
 
@@ -57,7 +60,7 @@ THREE.WebGLObjects = function ( gl, properties, info ) {
 
 	function updateAttribute( attribute, bufferType ) {
 
-		var data = ( attribute instanceof THREE.InterleavedBufferAttribute ) ? attribute.data : attribute;
+		var data = ( attribute.isInterleavedBufferAttribute ) ? attribute.data : attribute;
 
 		var attributeProperties = properties.get( data );
 
@@ -115,7 +118,7 @@ THREE.WebGLObjects = function ( gl, properties, info ) {
 
 	function getAttributeBuffer( attribute ) {
 
-		if ( attribute instanceof THREE.InterleavedBufferAttribute ) {
+		if ( attribute.isInterleavedBufferAttribute ) {
 
 			return properties.get( attribute.data ).__webglBuffer;
 
@@ -179,7 +182,7 @@ THREE.WebGLObjects = function ( gl, properties, info ) {
 		// console.timeEnd( 'wireframe' );
 
 		var TypeArray = position.count > 65535 ? Uint32Array : Uint16Array;
-		var attribute = new THREE.BufferAttribute( new TypeArray( indices ), 1 );
+		var attribute = new BufferAttribute( new TypeArray( indices ), 1 );
 
 		updateAttribute( attribute, gl.ELEMENT_ARRAY_BUFFER );
 
@@ -217,9 +220,16 @@ THREE.WebGLObjects = function ( gl, properties, info ) {
 
 	}
 
-	this.getAttributeBuffer = getAttributeBuffer;
-	this.getWireframeAttribute = getWireframeAttribute;
+	return {
 
-	this.update = update;
+		getAttributeBuffer: getAttributeBuffer,
+		getWireframeAttribute: getWireframeAttribute,
 
-};
+		update: update
+
+	};
+
+}
+
+
+export { WebGLObjects };

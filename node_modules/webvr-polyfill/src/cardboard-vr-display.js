@@ -111,6 +111,12 @@ CardboardVRDisplay.prototype.onDeviceParamsUpdated_ = function(newParams) {
   }
 };
 
+CardboardVRDisplay.prototype.updateBounds_ = function () {
+  if (this.layer_ && this.distorter_ && (this.layer_.leftBounds || this.layer_.rightBounds)) {
+    this.distorter_.setTextureBounds(this.layer_.leftBounds, this.layer_.rightBounds);
+  }
+};
+
 CardboardVRDisplay.prototype.beginPresent_ = function() {
   var gl = this.layer_.source.getContext('webgl');
   if (!gl)
@@ -133,10 +139,6 @@ CardboardVRDisplay.prototype.beginPresent_ = function() {
     this.distorter_ = new CardboardDistorter(gl);
     this.distorter_.updateDeviceInfo(this.deviceInfo_);
     this.cardboardUI_ = this.distorter_.cardboardUI;
-
-    if (this.layer_.leftBounds || this.layer_.rightBounds) {
-      this.distorter_.setTextureBounds(this.layer_.leftBounds, this.layer_.rightBounds);
-    }
   }
 
   if (this.cardboardUI_) {
@@ -167,6 +169,10 @@ CardboardVRDisplay.prototype.beginPresent_ = function() {
   this.orientationHandler = this.onOrientationChange_.bind(this);
   window.addEventListener('orientationchange', this.orientationHandler);
 
+  // Listen for present display change events in order to update distorter dimensions
+  this.vrdisplaypresentchangeHandler = this.updateBounds_.bind(this);
+  window.addEventListener('vrdisplaypresentchange', this.vrdisplaypresentchangeHandler);
+
   // Fire this event initially, to give geometry-distortion clients the chance
   // to do something custom.
   this.fireVRDisplayDeviceParamsChange_();
@@ -188,6 +194,7 @@ CardboardVRDisplay.prototype.endPresent_ = function() {
   this.viewerSelector_.hide();
 
   window.removeEventListener('orientationchange', this.orientationHandler);
+  window.removeEventListener('vrdisplaypresentchange', this.vrdisplaypresentchangeHandler);
 };
 
 CardboardVRDisplay.prototype.submitFrame = function(pose) {
