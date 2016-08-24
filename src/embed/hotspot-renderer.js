@@ -28,6 +28,7 @@ var ACTIVE_DURATION = 100;
 
 // Constants for opacity.
 var MAX_INNER_OPACITY = 0.8;
+var MAX_OUTER_OPACITY = 0.5;
 var FADE_START_ANGLE_DEG = 35;
 var FADE_END_ANGLE_DEG = 60;
 /**
@@ -278,7 +279,7 @@ HotspotRenderer.prototype.createHotspot_ = function(radius) {
   inner.name = 'inner';
 
   var outerMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide,
-                                                  transparent: true});
+                                                  transparent: true, opacity: MAX_OUTER_OPACITY});
   var outerGeometry = new THREE.RingGeometry(circleRadius * 0.85, circleRadius, 32);
   var outer = new THREE.Mesh(outerGeometry, outerMaterial);
   outer.name = 'outer';
@@ -362,10 +363,10 @@ HotspotRenderer.prototype.up_ = function(id) {
 
 HotspotRenderer.prototype.setOpacity_ = function(id, opacity) {
   var hotspot = this.hotspots[id];
-  var outer = hotspot.getObjectByName('inner');
-  var inner = hotspot.getObjectByName('outer');
+  var outer = hotspot.getObjectByName('outer');
+  var inner = hotspot.getObjectByName('inner');
 
-  outer.material.opacity = opacity;
+  outer.material.opacity = opacity * MAX_OUTER_OPACITY;
   inner.material.opacity = opacity * MAX_INNER_OPACITY;
 };
 
