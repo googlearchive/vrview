@@ -22,7 +22,6 @@ var ES6Promise = require('es6-promise');
 // Polyfill ES6 promises for IE.
 ES6Promise.polyfill();
 
-var Coordinate = require('../coordinate');
 var IFrameMessageReceiver = require('./iframe-message-receiver');
 var Message = require('../message');
 var SceneInfo = require('./scene-info');
@@ -32,8 +31,8 @@ var WebVRPolyfill = require('webvr-polyfill');
 var WorldRenderer = require('./world-renderer');
 
 var receiver = new IFrameMessageReceiver();
-receiver.on(Message.PLAY, onPlay);
-receiver.on(Message.PAUSE, onPause);
+receiver.on(Message.PLAY, onPlayRequest);
+receiver.on(Message.PAUSE, onPauseRequest);
 receiver.on(Message.ADD_HOTSPOT, onAddHotspot);
 receiver.on(Message.SET_CONTENT, onSetContent);
 receiver.on(Message.SET_VOLUME, onSetVolume);
@@ -95,6 +94,10 @@ function onRenderLoad(event) {
     } else {
       event.videoElement.play();
     }
+
+    // Attach to pause and play events, to notify the API.
+    event.videoElement.addEventListener('pause', onPause);
+    event.videoElement.addEventListener('play', onPlay);
   }
   // Hide loading indicator.
   loadIndicator.hide();
@@ -114,7 +117,7 @@ function onRenderLoad(event) {
   }
 }
 
-function onPlay() {
+function onPlayRequest() {
   if (!worldRenderer.videoProxy) {
     onApiError('Attempt to pause, but no video found.');
     return;
@@ -122,7 +125,7 @@ function onPlay() {
   worldRenderer.videoProxy.play();
 }
 
-function onPause() {
+function onPauseRequest() {
   if (!worldRenderer.videoProxy) {
     onApiError('Attempt to pause, but no video found.');
     return;
@@ -137,8 +140,9 @@ function onAddHotspot(e) {
   var pitch = parseFloat(e.pitch);
   var yaw = parseFloat(e.yaw);
   var radius = parseFloat(e.radius);
+  var distance = parseFloat(e.distance);
   var id = e.id;
-  worldRenderer.hotspotRenderer.add(pitch, yaw, radius, id);
+  worldRenderer.hotspotRenderer.add(pitch, yaw, radius, distance, id);
 }
 
 function onSetContent(e) {
@@ -185,7 +189,21 @@ function onHotspotClick(id) {
     type: 'click',
     data: {id: id}
   });
-};
+}
+
+function onPlay() {
+  Util.sendParentMessage({
+    type: 'paused',
+    data: false
+  });
+}
+
+function onPause() {
+  Util.sendParentMessage({
+    type: 'paused',
+    data: true
+  });
+}
 
 function onSceneError(message) {
   showError('Loader: ' + message);

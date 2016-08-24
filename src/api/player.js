@@ -25,6 +25,9 @@ function Player(selector, params) {
 
   // Listen to messages from the IFrame.
   window.addEventListener('message', this.onMessage_.bind(this), false);
+
+  // Expose a public .isPaused attribute.
+  this.isPaused = false;
 }
 Player.prototype = new EventEmitter();
 
@@ -33,14 +36,18 @@ Player.prototype = new EventEmitter();
  * -90 and 90, with 0 at the horizon.
  * @param yaw {Number} The longitude of center, specified in degrees, between
  * -180 and 180, with 0 at the image center.
- * @param radius {Number} The radius of the hotspot, specified in degrees.
+ * @param radius {Number} The radius of the hotspot, specified in meters.
+ * @param distance {Number} The distance of the hotspot from camera, specified
+ * in meters.
  * @param hotspotId {String} The ID of the hotspot.
  */
-Player.prototype.addHotspot = function(pitch, yaw, radius, hotspotId) {
+Player.prototype.addHotspot = function(hotspotId, params) {
+  // TODO: Add validation to params.
   var data = {
-    pitch: pitch,
-    yaw: yaw,
-    radius: radius,
+    pitch: params.pitch,
+    yaw: params.yaw,
+    radius: params.radius,
+    distance: params.distance,
     id: hotspotId
   };
   this.sender.send({type: Message.ADD_HOTSPOT, data: data});
@@ -54,11 +61,10 @@ Player.prototype.pause = function() {
   this.sender.send({type: Message.PAUSE});
 };
 
-// TODO(smus): Maybe setContent to include video and previews?
 Player.prototype.setContent = function(contentInfo) {
   var data = {
     contentInfo: contentInfo
-  }
+  };
   this.sender.send({type: Message.SET_CONTENT, data: data});
 };
 
@@ -84,13 +90,13 @@ Player.prototype.createIframe_ = function(params) {
   iframe.style.border = 0;
 
   // Handle iframe size if width and height are specified.
-  if ('width' in params) {
+  if (params.hasOwnProperty('width')) {
     iframe.setAttribute('width', params.width);
-    delete params['width'];
+    delete params.width;
   }
-  if ('height' in params) {
+  if (params.hasOwnProperty('height')) {
     iframe.setAttribute('height', params.height);
-    delete params['height'];
+    delete params.height;
   }
 
   var url = EMBED_URL + Util.createGetParams(params);
@@ -112,6 +118,10 @@ Player.prototype.onMessage_ = function(event) {
     case 'error':
     case 'click':
       this.emit(type, data);
+      break;
+    case 'paused':
+      console.log('isPaused', data);
+      this.isPaused = data;
       break;
     default:
       console.warn('Got unknown message of type %s from %s', message.type, message.origin);

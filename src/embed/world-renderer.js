@@ -77,7 +77,7 @@ WorldRenderer.prototype.setScene = function(scene) {
   var params = {
     isStereo: scene.isStereo,
   }
-  this.setDefaultHeading_(scene.defaultHeading || 0);
+  this.setDefaultYaw_(scene.defaultYaw || 0);
 
   // Disable VR mode if explicitly disabled, or if we're loading a video on iOS
   // 9 or earlier.
@@ -157,10 +157,10 @@ WorldRenderer.prototype.didLoadFail_ = function(message) {
 };
 
 /**
- * Sets the default heading.
- * @param {Number} angleRad The heading in radians.
+ * Sets the default yaw.
+ * @param {Number} angleRad The yaw in radians.
  */
-WorldRenderer.prototype.setDefaultHeading_ = function(angleRad) {
+WorldRenderer.prototype.setDefaultYaw_ = function(angleRad) {
   // Rotate the camera parent to take into account the scene's rotation.
   // By default, it should be at the center of the image.
   this.camera.parent.rotation.y = (Math.PI / 2.0) + angleRad;

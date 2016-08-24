@@ -12,13 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var Coordinate = require('../coordinate');
 var EventEmitter = require('eventemitter3');
 var TWEEN = require('tween.js');
 
 // Constants for the focus/blur animation.
-var NORMAL_SCALE = new THREE.Vector3(0.5, 0.5, 0.5);
-var FOCUS_SCALE = new THREE.Vector3(0.6, 0.6, 0.6);
+var NORMAL_SCALE = new THREE.Vector3(1, 1, 1);
+var FOCUS_SCALE = new THREE.Vector3(1.2, 1.2, 1.2);
 var FOCUS_DURATION = 200;
 
 // Constants for the active/inactive animation.
@@ -84,20 +83,20 @@ HotspotRenderer.prototype = new EventEmitter();
  * -90 and 90, with 0 at the horizon.
  * @param yaw {Number} The longitude of center, specified in degrees, between
  * -180 and 180, with 0 at the image center.
- * @param radius {Number} The radius of the hotspot, specified in degrees.
+ * @param radius {Number} The radius of the hotspot, specified in meters.
+ * @param distance {Number} The distance of the hotspot from camera, specified
+ * in meters.
  * @param hotspotId {String} The ID of the hotspot.
  */
-HotspotRenderer.prototype.add = function(pitch, yaw, radius, id) {
-  console.log('HotspotRenderer.add', pitch, yaw, radius, id);
+HotspotRenderer.prototype.add = function(pitch, yaw, radius, distance, id) {
+  console.log('HotspotRenderer.add', pitch, yaw, radius, distance, id);
   // If a hotspot already exists with this ID, stop.
   if (this.hotspots[id]) {
     // TODO: Proper error reporting.
     console.error('Attempt to add hotspot with existing id %s.', id);
     return;
   }
-  // Calculate the radius (in m) of the target based on the angular radius
-  // specified.
-  var hotspot = this.createHotspot_(radius);
+  var hotspot = this.createHotspot_(radius, distance);
   hotspot.name = id;
 
   // Position the hotspot based on the pitch and yaw specified.
@@ -215,6 +214,12 @@ HotspotRenderer.prototype.onTouchStart_ = function(e) {
 };
 
 HotspotRenderer.prototype.onTouchEnd_ = function(e) {
+  // If no hotspots are pressed, emit an empty click event.
+  if (!this.downHotspots) {
+    this.emit('click');
+    return;
+  }
+
   // Only emit a click if the finger was down on the same hotspot before.
   for (var id in this.downHotspots) {
     this.emit('click', id);
@@ -247,6 +252,12 @@ HotspotRenderer.prototype.onMouseMove_ = function(e) {
 HotspotRenderer.prototype.onMouseUp_ = function(e) {
   this.updateMouse_(e);
 
+  // If no hotspots are pressed, emit an empty click event.
+  if (!this.downHotspots) {
+    this.emit('click');
+    return;
+  }
+
   // Only emit a click if the mouse was down on the same hotspot before.
   for (var id in this.selectedHotspots) {
     if (id in this.downHotspots) {
@@ -267,26 +278,28 @@ HotspotRenderer.prototype.getSize_ = function() {
   return this.worldRenderer.renderer.getSize();
 };
 
-HotspotRenderer.prototype.createHotspot_ = function(radius) {
-  var radiusRad = THREE.Math.degToRad(radius);
-  var circleRadius = Math.sin(radiusRad);
-  var innerGeometry = new THREE.CircleGeometry(circleRadius * 0.85, 32);
+HotspotRenderer.prototype.createHotspot_ = function(radius, distance) {
+  var innerGeometry = new THREE.CircleGeometry(radius, 32);
 
-  var innerMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide,
-                                             transparent: true, opacity: MAX_INNER_OPACITY});
+  var innerMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff, side: THREE.DoubleSide, transparent: true,
+    opacity: MAX_INNER_OPACITY, depthTest: false
+  });
 
   var inner = new THREE.Mesh(innerGeometry, innerMaterial);
   inner.name = 'inner';
 
-  var outerMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide,
-                                                  transparent: true, opacity: MAX_OUTER_OPACITY});
-  var outerGeometry = new THREE.RingGeometry(circleRadius * 0.85, circleRadius, 32);
+  var outerMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff, side: THREE.DoubleSide, transparent: true,
+    opacity: MAX_OUTER_OPACITY, depthTest: false
+  });
+  var outerGeometry = new THREE.RingGeometry(radius * 0.85, radius, 32);
   var outer = new THREE.Mesh(outerGeometry, outerMaterial);
   outer.name = 'outer';
 
   // Position at the extreme end of the sphere.
   var hotspot = new THREE.Object3D();
-  hotspot.position.z = -Math.cos(radiusRad) * 0.75;
+  hotspot.position.z = -distance;
   hotspot.scale.set(NORMAL_SCALE);
 
   hotspot.add(inner);
@@ -300,8 +313,11 @@ HotspotRenderer.prototype.createHotspot_ = function(radius) {
  * Here we fade hotspots out to avoid them.
  */
 HotspotRenderer.prototype.fadeOffCenterHotspots_ = function(camera) {
-  var lookAt = new THREE.Vector3(0,0, -1);
+  var lookAt = new THREE.Vector3(1, 0, 0);
   lookAt.applyQuaternion(camera.quaternion);
+  // Take into account the camera parent too.
+  lookAt.applyQuaternion(camera.parent.quaternion);
+
   // Go through each hotspot. Calculate how far off center it is.
   for (var id in this.hotspots) {
     var hotspot = this.hotspots[id];

@@ -18,7 +18,7 @@ var camelToUnderscore = {
   image: 'image',
   preview: 'preview',
   isStereo: 'is_stereo',
-  defaultHeading: 'default_heading',
+  defaultYaw: 'default_yaw',
   isYawOnly: 'is_yaw_only',
   isDebug: 'is_debug',
   isVROff: 'is_vr_off',
@@ -34,7 +34,7 @@ function SceneInfo(opt_params) {
   this.image = params.image;
   this.preview = params.preview;
   this.video = params.video;
-  this.defaultHeading = THREE.Math.degToRad(params.defaultHeading || 0);
+  this.defaultYaw = THREE.Math.degToRad(params.defaultYaw || 0);
 
   this.isStereo = Util.parseBoolean(params.isStereo);
   this.isYawOnly = Util.parseBoolean(params.isYawOnly);

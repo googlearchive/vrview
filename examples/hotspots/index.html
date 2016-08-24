@@ -19,8 +19,8 @@ function onLoad() {
     image: 'examples/pano/andes_2048.jpg',
     preview: 'examples/pano/andes_512.jpg',
     is_stereo: true,
-    is_debug: true,
-    //default_heading: 90,
+    //is_debug: true,
+    //default_yaw: 90,
     //is_yaw_only: true,
     is_autopan_off: true,
     //is_vr_off: true,
@@ -32,7 +32,12 @@ function onLoad() {
 }
 
 function onVRViewReady(e) {
-  loadScene('coral');
+  vrView.addHotspot('coral', {
+    pitch: 0,
+    yaw: 30,
+    radius: 0.1,
+    distance: 2
+  });
 }
 
 function onModeChange(e) {
@@ -54,7 +59,12 @@ function loadScene(id) {
         is_stereo: true,
         is_autopan_off: true
       });
-      vrView.addHotspot(30, -50, 10, 'mountain');
+      vrView.addHotspot('mountain', {
+        pitch: 30,
+        yaw: -50,
+        radius: 0.05,
+        distance: 1
+      });
       break;
     case 'mountain':
       vrView.setContent({
@@ -63,7 +73,12 @@ function loadScene(id) {
         is_stereo: true,
         is_autopan_off: true
       });
-      vrView.addHotspot(0, 30, 10, 'coral');
+      vrView.addHotspot('coral', {
+        pitch: 0,
+        yaw: 30,
+        radius: 0.1,
+        distance: 2
+      });
       break;
     default:
       console.log('Cannot load scene with unknown id: %s.', id);
