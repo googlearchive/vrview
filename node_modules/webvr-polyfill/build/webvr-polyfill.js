@@ -301,8 +301,9 @@ VRDisplay.prototype.requestPresent = function(layers) {
       return;
     }
 
-    // Was not already presenting
+    // Was not already presenting.
     self.layer_ = {
+      predistorted: incomingLayer.predistorted,
       source: incomingLayer.source,
       leftBounds: leftBounds.slice(0),
       rightBounds: rightBounds.slice(0)
