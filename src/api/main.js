@@ -1,9 +1,7 @@
 var Player = require('./player');
-var Coordinate = require('../coordinate');
 
 var VRView = {
-  Player: Player,
-  Coordinate: Coordinate
+  Player: Player
 };
 
 module.exports = VRView;
