@@ -11,7 +11,7 @@ var Types = {
  * Supports regular video URLs (eg. mp4), as well as adaptive manifests like
  * DASH (.mpd) and soon HLS (.m3u8).
  *
- * Events: 
+ * Events:
  *   load(video): When the video is loaded.
  *   error(message): If an error occurs.
  *
@@ -23,7 +23,7 @@ function AdaptivePlayer() {
   // Install built-in polyfills to patch browser incompatibilities.
   shaka.polyfill.installAll();
 
-  if (!shaka.player.Player.isBrowserSupported()) {
+  if (!shaka.Player.isBrowserSupported()) {
     console.error('Shaka is not supported on this browser.');
   } else {
     this.initShaka_();
@@ -48,7 +48,7 @@ AdaptivePlayer.prototype.load = function(url) {
           self.emit('load', self.video);
         }).catch(this.onError_.bind(this));
       } else {
-        console.error('HLS is not yet supported on Android.');
+        self.onError_('HLS is only supported on iOS.');
       }
       break;
     case 'mpd': // MPEG-DASH
@@ -71,7 +71,7 @@ AdaptivePlayer.prototype.load = function(url) {
 /*** PRIVATE API ***/
 
 AdaptivePlayer.prototype.initShaka_ = function() {
-  this.player = new shaka.player.Player(this.video);
+  this.player = new shaka.Player(this.video);
 
   // Listen for error events.
   this.player.addEventListener('error', this.onError_);
