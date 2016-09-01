@@ -57,9 +57,6 @@ function onLoad() {
 
   // Load the scene.
   var scene = SceneInfo.loadFromGetParams();
-  if (!scene) {
-    showError(scene.errorMessage);
-  }
   worldRenderer.setScene(scene);
 
   if (scene.isDebug) {

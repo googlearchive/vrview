@@ -69,8 +69,8 @@ WorldRenderer.prototype.setScene = function(scene) {
     self.sceneReject = reject;
   });
 
-  if (!scene || !scene.isComplete()) {
-    this.didLoadFail_('Scene failed to load');
+  if (!scene || !scene.isValid()) {
+    this.didLoadFail_(scene.errorMessage);
     return;
   }
 
