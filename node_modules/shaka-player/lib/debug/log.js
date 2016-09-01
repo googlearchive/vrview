@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,17 @@ goog.provide('shaka.log');
 
 /**
  * @namespace shaka.log
- * @summary A console logging framework which is compiled out for deployment.
+ * @summary
+ * A console logging framework which is compiled out for deployment.  This is
+ * only available when using the uncompiled version.
+ * @exportDoc
  */
 
 
 /**
  * Log levels.
  * @enum {number}
+ * @exportDoc
  */
 shaka.log.Level = {
   NONE: 0,
@@ -69,75 +73,53 @@ shaka.log.v1 = function() {};
 shaka.log.v2 = function() {};
 
 
-/**
- * @private
- * @param {string} logName
- */
-shaka.log.patchConsole_ = function(logName) {
-  var nop = function() {};
-  var logFunction = console[logName];
+// IE8 has no console unless it is opened in advance.
+// IE9 console methods are not Functions and have no bind.
+if (window.console && window.console.log.bind) {
+  if (!COMPILED) {
+    /** @type {number} */
+    shaka.log.currentLevel;
 
-  if (!logFunction) {
-    console[logName] = nop;
-  } else if (!logFunction.bind) {
-    // IE 9 does not provide a .bind for the built-in logging functions.
-    console[logName] = function() {
-      logFunction.apply(console, arguments);
+    /**
+     * Change the log level.  Useful for debugging in uncompiled mode.
+     *
+     * @param {number} level
+     * @exportDoc
+     */
+    shaka.log.setLevel = function(level) {
+      var nop = function() {};
+      var log = shaka.log;
+      var Level = shaka.log.Level;
+
+      shaka.log.currentLevel = level;
+
+      log.error = (level >= Level.ERROR) ? console.error.bind(console) : nop;
+      log.warning = (level >= Level.WARNING) ? console.warn.bind(console) : nop;
+      log.info = (level >= Level.INFO) ? console.info.bind(console) : nop;
+      log.debug = (level >= Level.DEBUG) ? console.log.bind(console) : nop;
+      log.v1 = (level >= Level.V1) ? console.debug.bind(console) : nop;
+      log.v2 = (level >= Level.V2) ? console.debug.bind(console) : nop;
     };
+
+    shaka.log.setLevel(shaka.log.MAX_LOG_LEVEL);
+  } else {
+    if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.ERROR) {
+      shaka.log.error = console.error.bind(console);
+    }
+    if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.WARNING) {
+      shaka.log.warning = console.warn.bind(console);
+    }
+    if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.INFO) {
+      shaka.log.info = console.info.bind(console);
+    }
+    if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.DEBUG) {
+      shaka.log.debug = console.log.bind(console);
+    }
+    if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.V1) {
+      shaka.log.v1 = console.debug.bind(console);
+    }
+    if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.V2) {
+      shaka.log.v2 = console.debug.bind(console);
+    }
   }
-};
-
-shaka.log.patchConsole_('error');
-shaka.log.patchConsole_('warn');
-shaka.log.patchConsole_('info');
-shaka.log.patchConsole_('log');
-shaka.log.patchConsole_('debug');
-
-if (!COMPILED) {
-  /**
-   * Change the log level.  Useful for debugging in uncompiled mode.
-   *
-   * @param {number} level
-   */
-  shaka.log.setLevel = function(level) {
-    var nop = function() {};
-    var log = shaka.log;
-    var Level = shaka.log.Level;
-
-    log.error = (level >= Level.ERROR) ? console.error.bind(console) : nop;
-    log.warning = (level >= Level.WARNING) ? console.warn.bind(console) : nop;
-    log.info = (level >= Level.INFO) ? console.info.bind(console) : nop;
-    log.debug = (level >= Level.DEBUG) ? console.log.bind(console) : nop;
-    log.v1 = (level >= Level.V1) ? console.debug.bind(console) : nop;
-    log.v2 = (level >= Level.V2) ? console.debug.bind(console) : nop;
-  };
-}
-
-
-// Although these bindings are redundant with setLevel() above, refactoring to
-// call a method here makes it so that the log messages themselves cannot be
-// compiled out.
-
-if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.ERROR) {
-  shaka.log.error = console.error.bind(console);
-}
-
-if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.WARNING) {
-  shaka.log.warning = console.warn.bind(console);
-}
-
-if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.INFO) {
-  shaka.log.info = console.info.bind(console);
-}
-
-if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.DEBUG) {
-  shaka.log.debug = console.log.bind(console);
-}
-
-if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.V1) {
-  shaka.log.v1 = console.debug.bind(console);
-}
-
-if (shaka.log.MAX_LOG_LEVEL >= shaka.log.Level.V2) {
-  shaka.log.v2 = console.debug.bind(console);
 }

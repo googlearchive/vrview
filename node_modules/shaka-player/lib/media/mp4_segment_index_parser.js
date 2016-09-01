@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,93 +17,41 @@
 
 goog.provide('shaka.media.Mp4SegmentIndexParser');
 
-goog.require('goog.Uri');
-goog.require('shaka.asserts');
+goog.require('goog.asserts');
 goog.require('shaka.log');
 goog.require('shaka.media.SegmentReference');
 goog.require('shaka.util.DataViewReader');
-goog.require('shaka.util.FailoverUri');
-
-
-
-/**
- * Creates an MP4 SIDX parser.
- *
- * @constructor
- * @struct
- */
-shaka.media.Mp4SegmentIndexParser = function() {};
-
-
-/**
- * Parses SegmentReferences from |sidxData|.
- * @param {!DataView} sidxData The MP4's container's SIDX.
- * @param {number} sidxOffset The SIDX's offset, in bytes, from the start of
- *     the MP4 container.
- * @param {!Array.<!goog.Uri>} url The location of each SegmentReference.
- * @param {shaka.util.FailoverUri.NetworkCallback} networkCallback
- * @return {Array.<!shaka.media.SegmentReference>} SegmentReferences on success;
- *     otherwise, return null.
- */
-shaka.media.Mp4SegmentIndexParser.prototype.parse = function(
-    sidxData, sidxOffset, url, networkCallback) {
-  var references = null;
-
-  try {
-    references = this.parseInternal_(
-        sidxData, sidxOffset, url, networkCallback);
-  } catch (exception) {
-    if (!(exception instanceof RangeError)) {
-      throw exception;
-    }
-  }
-
-  return references;
-};
-
-
-/**
- * Indicates the SIDX box structure. It is equal to the string 'sidx' as a
- * 32-bit unsigned integer.
- * @const {number}
- */
-shaka.media.Mp4SegmentIndexParser.SIDX_INDICATOR = 0x73696478;
+goog.require('shaka.util.Error');
+goog.require('shaka.util.Mp4Parser');
 
 
 /**
  * Parses SegmentReferences from an ISO BMFF SIDX structure.
- * @param {!DataView} sidxData
- * @param {number} sidxOffset
- * @param {!Array.<!goog.Uri>} url
- * @param {shaka.util.FailoverUri.NetworkCallback} networkCallback
- * @return {Array.<!shaka.media.SegmentReference>} SegmentReferences on success;
- *     otherwise, return null.
- * @throws {RangeError}
- * @private
- * @see ISO/IEC 14496-12:2012 section 4.2 and 8.16.3
+ * @param {!ArrayBuffer} sidxData The MP4's container's SIDX.
+ * @param {number} sidxOffset The SIDX's offset, in bytes, from the start of
+ *   the MP4 container.
+ * @param {!Array.<string>} uris The possible locations of the MP4 file that
+ *   contains the segments.
+ * @param {number} presentationTimeOffset
+ * @return {!Array.<!shaka.media.SegmentReference>}
+ * @throws {shaka.util.Error}
  */
-shaka.media.Mp4SegmentIndexParser.prototype.parseInternal_ = function(
-    sidxData, sidxOffset, url, networkCallback) {
+shaka.media.Mp4SegmentIndexParser = function(
+    sidxData, sidxOffset, uris, presentationTimeOffset) {
   var references = [];
 
   var reader = new shaka.util.DataViewReader(
-      sidxData,
+      new DataView(sidxData),
       shaka.util.DataViewReader.Endianness.BIG_ENDIAN);
 
-  // A SIDX structure is contained within a FullBox structure, which itself is
-  // contained within a Box structure.
+  var boxSize = shaka.util.Mp4Parser.findBox(
+      shaka.media.Mp4SegmentIndexParser.BOX_TYPE, reader);
 
-  // Parse the Box structure.
-  var boxSize = reader.readUint32();
-  var boxType = reader.readUint32();
-
-  if (boxType != shaka.media.Mp4SegmentIndexParser.SIDX_INDICATOR) {
+  if (boxSize == shaka.util.Mp4Parser.BOX_NOT_FOUND) {
     shaka.log.error('Invalid box type, expected "sidx".');
-    return null;
-  }
-
-  if (boxSize == 1) {
-    boxSize = reader.readUint64();
+    throw new shaka.util.Error(
+        shaka.util.Error.Category.MEDIA,
+        shaka.util.Error.Code.MP4_SIDX_WRONG_BOX_TYPE);
   }
 
   // Parse the FullBox structure.
@@ -117,10 +65,12 @@ shaka.media.Mp4SegmentIndexParser.prototype.parseInternal_ = function(
   reader.skip(4);
 
   var timescale = reader.readUint32();
-  shaka.asserts.assert(timescale != 0);
+  goog.asserts.assert(timescale != 0, 'timescale cannot be 0');
   if (timescale == 0) {
     shaka.log.error('Invalid timescale.');
-    return null;
+    throw new shaka.util.Error(
+        shaka.util.Error.Category.MEDIA,
+        shaka.util.Error.Code.MP4_SIDX_INVALID_TIMESCALE);
   }
 
   var earliestPresentationTime;
@@ -139,7 +89,9 @@ shaka.media.Mp4SegmentIndexParser.prototype.parseInternal_ = function(
 
   // Add references.
   var referenceCount = reader.readUint16();
-  var unscaledStartTime = earliestPresentationTime;
+
+  // Substract the presentationTimeOffset
+  var unscaledStartTime = earliestPresentationTime - presentationTimeOffset;
   var startByte = sidxOffset + boxSize + firstOffset;
 
   for (var i = 0; i < referenceCount; i++) {
@@ -150,28 +102,27 @@ shaka.media.Mp4SegmentIndexParser.prototype.parseInternal_ = function(
 
     var subsegmentDuration = reader.readUint32();
 
-    // |chunk| is 1 bit for |startsWithSap|, 3 bits for |sapType|, and 28 bits
+    // Skipping 1 bit for |startsWithSap|, 3 bits for |sapType|, and 28 bits
     // for |sapDelta|.
-    // TODO(story 1891508): Handle stream access point (SAP)?
-    chunk = reader.readUint32();
-    var startsWithSap = (chunk & 0x80000000) >>> 31;
-    var sapType = (chunk & 0x70000000) >>> 28;
-    var sapDelta = chunk & 0x0FFFFFFF;
+    reader.skip(4);
 
     // If |referenceType| is 1 then the reference is to another SIDX.
     // We do not support this.
     if (referenceType == 1) {
       shaka.log.error('Heirarchical SIDXs are not supported.');
-      return null;
+      throw new shaka.util.Error(
+          shaka.util.Error.Category.MEDIA,
+          shaka.util.Error.Code.MP4_SIDX_TYPE_NOT_SUPPORTED);
     }
 
-    var failover = new shaka.util.FailoverUri(
-        networkCallback, url, startByte, startByte + referenceSize - 1);
     references.push(
         new shaka.media.SegmentReference(
+            references.length,
             unscaledStartTime / timescale,
             (unscaledStartTime + subsegmentDuration) / timescale,
-            failover));
+            function() { return uris; },
+            startByte,
+            startByte + referenceSize - 1));
 
     unscaledStartTime += subsegmentDuration;
     startByte += referenceSize;
@@ -180,3 +131,10 @@ shaka.media.Mp4SegmentIndexParser.prototype.parseInternal_ = function(
   return references;
 };
 
+
+/**
+ * Indicates the SIDX box structure. It is equal to the string 'sidx' as a
+ * 32-bit unsigned integer.
+ * @const {number}
+ */
+shaka.media.Mp4SegmentIndexParser.BOX_TYPE = 0x73696478;

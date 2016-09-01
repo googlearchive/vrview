@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,39 @@
  */
 
 
-/** @typedef {{contentType: string, robustness: string}} */
+/**
+ * @typedef {string}
+ * 'optional', 'required', 'not-allowed'
+ */
+var MediaKeysRequirement;
+
+
+/**
+ * @typedef {string}
+ * 'temporary', 'persistent-license', 'persistent-usage-record'
+ */
+var MediaKeySessionType;
+
+
+/**
+ * @typedef {{contentType: string, robustness: string}}
+ * gjslint: disable=900
+ */
 var MediaKeySystemMediaCapability;
 
 
-/** @typedef {{
+/**
+ * @typedef {{
  *   initDataTypes: (Array.<string>|undefined),
  *   audioCapabilities: (Array.<!MediaKeySystemMediaCapability>|undefined),
  *   videoCapabilities: (Array.<!MediaKeySystemMediaCapability>|undefined),
- *   distinctiveIdentifier: (string|undefined),
- *   persistentState: (string|undefined),
- *   sessionTypes: (Array.<string>|undefined)
- * }} */
+ *   distinctiveIdentifier: (MediaKeysRequirement|undefined),
+ *   persistentState: (MediaKeysRequirement|undefined),
+ *   sessionTypes: (Array.<MediaKeySessionType>|undefined),
+ *   label: (string|undefined)
+ * }}
+ * gjslint: disable=900
+ */
 var MediaKeySystemConfiguration;
 
 
@@ -81,7 +102,7 @@ function MediaKeys() {}
 
 
 /**
- * @param {string=} opt_sessionType defaults to "temporary"
+ * @param {MediaKeySessionType=} opt_sessionType defaults to "temporary"
  * @return {!MediaKeySession}
  * @throws {TypeError} if opt_sessionType is invalid.
  */
@@ -107,8 +128,8 @@ MediaKeyStatusMap.prototype.size;
 
 
 /**
- * The functor is called with each key ID and status.
- * @param {function(BufferSource, string)} fn
+ * The functor is called with each status and key ID.
+ * @param {function(string, BufferSource)} fn
  */
 MediaKeyStatusMap.prototype.forEach = function(fn) {};
 

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ goog.provide('shaka.util.PublicPromise');
  * methods.
  *
  * @constructor
+ * @struct
  * @extends {Promise.<T>}
+ * @return {Promise.<T>}
  * @template T
  */
 shaka.util.PublicPromise = function() {
@@ -47,7 +49,6 @@ shaka.util.PublicPromise = function() {
 
   promise.resolve = resolvePromise;
   promise.reject = rejectPromise;
-  promise.destroy = shaka.util.PublicPromise.prototype.destroy;
 
   return promise;
 };
@@ -57,19 +58,5 @@ shaka.util.PublicPromise = function() {
 shaka.util.PublicPromise.prototype.resolve;
 
 
-/** @type {function(*)} */
+/** @type {function(*=)} */
 shaka.util.PublicPromise.prototype.reject;
-
-
-/**
- * Rejects the promise and silences errors about uncaught exceptions.
- */
-shaka.util.PublicPromise.prototype.destroy = function() {
-  // To avoid spurious errors in Chrome's console if nobody is listening:
-  this.catch(function() {});
-
-  var error = new Error('Destroyed!');
-  error.type = 'destroy';
-  this.reject(error);
-};
-

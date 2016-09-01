@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,3 +124,7 @@ MSMediaKeyError.MS_MEDIA_KEYERR_HARDWARECHANGE;
 
 /** @type {number} */
 MSMediaKeyError.MS_MEDIA_KEYERR_DOMAIN;
+
+
+/** @type {number} */
+MediaError.prototype.msExtendedCode;

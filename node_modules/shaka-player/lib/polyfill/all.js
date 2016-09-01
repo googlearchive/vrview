@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,14 @@
  */
 
 goog.provide('shaka.polyfill.installAll');
-
-goog.require('shaka.polyfill.CustomEvent');
-goog.require('shaka.polyfill.Fullscreen');
-goog.require('shaka.polyfill.MediaKeys');
-goog.require('shaka.polyfill.Promise');
-goog.require('shaka.polyfill.VideoPlaybackQuality');
+goog.provide('shaka.polyfill.register');
 
 
 /**
  * @namespace shaka.polyfill
  * @summary A one-stop installer for all polyfills.
  * @see http://enwp.org/polyfill
- * @export
+ * @exportDoc
  */
 
 
@@ -37,12 +32,25 @@ goog.require('shaka.polyfill.VideoPlaybackQuality');
  * @export
  */
 shaka.polyfill.installAll = function() {
-  shaka.polyfill.CustomEvent.install();
-  shaka.polyfill.Fullscreen.install();
-  shaka.polyfill.VideoPlaybackQuality.install();
-
-  // Promise must come before other polyfills that use Promises.
-  shaka.polyfill.Promise.install();
-  shaka.polyfill.MediaKeys.install();
+  for (var i = 0; i < shaka.polyfill.polyfills_.length; ++i) {
+    shaka.polyfill.polyfills_[i]();
+  }
 };
 
+
+/**
+ * Contains the polyfills that will be installed.
+ * @private {!Array.<function()>}
+ */
+shaka.polyfill.polyfills_ = [];
+
+
+/**
+ * Registers a new polyfill to be installed.
+ *
+ * @param {function()} polyfill
+ * @export
+ */
+shaka.polyfill.register = function(polyfill) {
+  shaka.polyfill.polyfills_.push(polyfill);
+};

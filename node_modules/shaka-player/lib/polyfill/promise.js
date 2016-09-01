@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,18 @@
 
 goog.provide('shaka.polyfill.Promise');
 
-goog.require('shaka.asserts');
+goog.require('goog.asserts');
 goog.require('shaka.log');
+goog.require('shaka.polyfill.register');
+
 
 
 /**
- * @namespace shaka.polyfill.Promise
- * @export
- *
  * @summary A polyfill to implement Promises, primarily for IE.
- * Does not support thenables, but otherwise passes the A+ conformance tests.
+ * Only partially supports thenables, but otherwise passes the A+ conformance
+ * tests.
  * Note that Promise.all() and Promise.race() are not tested by that suite.
- */
-
-
-
-/**
+ *
  * @constructor
  * @struct
  * @param {function(function(*), function(*))=} opt_callback
@@ -68,6 +64,14 @@ shaka.polyfill.Promise = function(opt_callback) {
  *   promise: !shaka.polyfill.Promise,
  *   callback: (function(*)|undefined)
  * }}
+ *
+ * @summary A child promise, used for chaining.
+ * @description
+ *   Only exists in the context of a then or catch chain.
+ * @property {!shaka.polyfill.Promise} promise
+ *   The child promise.
+ * @property {(function(*)|undefined)} callback
+ *   The then or catch callback to be invoked as part of this chain.
  */
 shaka.polyfill.Promise.Child;
 
@@ -84,7 +88,6 @@ shaka.polyfill.Promise.State = {
 
 /**
  * Install the polyfill if needed.
- * @export
  */
 shaka.polyfill.Promise.install = function() {
   if (window.Promise) {
@@ -169,7 +172,8 @@ shaka.polyfill.Promise.all = function(others) {
   var count = 0;
   var values = new Array(others.length);
   var resolve = function(p, i, newValue) {
-    shaka.asserts.assert(p.state_ != shaka.polyfill.Promise.State.RESOLVED);
+    goog.asserts.assert(p.state_ != shaka.polyfill.Promise.State.RESOLVED,
+                        'Invalid Promise state in Promise.all');
     // If one of the Promises in the array was rejected, this Promise was
     // rejected and new values are ignored.  In such a case, the values array
     // and its contents continue to be alive in memory until all of the Promises
@@ -303,7 +307,8 @@ shaka.polyfill.Promise.prototype.reject_ = function(reason) {
  * @private
  */
 shaka.polyfill.Promise.prototype.schedule_ = function(child, callback) {
-  shaka.asserts.assert(this.state_ != shaka.polyfill.Promise.State.PENDING);
+  goog.asserts.assert(this.state_ != shaka.polyfill.Promise.State.PENDING,
+                      'Invalid Promise state in Promise.schedule_');
   var Promise = shaka.polyfill.Promise;
 
   var wrapper = function() {
@@ -317,6 +322,17 @@ shaka.polyfill.Promise.prototype.schedule_ = function(child, callback) {
         return;
       }
 
+      // According to the spec, 'then' in a thenable may only be accessed once
+      // and any thrown exceptions in the getter must cause the Promise chain
+      // to fail.
+      var then;
+      try {
+        then = value && value.then;
+      } catch (exception) {
+        child.reject_(exception);
+        return;
+      }
+
       if (value instanceof Promise) {
         // If the returned value is a Promise, we bind it's state to the child.
         if (value == child) {
@@ -325,6 +341,9 @@ shaka.polyfill.Promise.prototype.schedule_ = function(child, callback) {
         } else {
           value.then(child.resolve_.bind(child), child.reject_.bind(child));
         }
+      } else if (then) {
+        // If the returned value is thenable, chain it to the child.
+        Promise.handleThenable_(value, then, child);
       } else {
         // If the returned value is not a Promise, the child is resolved with
         // that value.
@@ -343,6 +362,40 @@ shaka.polyfill.Promise.prototype.schedule_ = function(child, callback) {
   Promise.q_.push(wrapper.bind(this));
   if (Promise.flushTimer_ == null) {
     Promise.flushTimer_ = Promise.setImmediate_(Promise.flush_);
+  }
+};
+
+
+/**
+ * @param {!Object} thenable
+ * @param {Function} then
+ * @param {!shaka.polyfill.Promise} child
+ * @private
+ */
+shaka.polyfill.Promise.handleThenable_ = function(thenable, then, child) {
+  var Promise = shaka.polyfill.Promise;
+  try {
+    var sealed = false;
+    then.call(thenable, function(value) {
+      if (sealed) return;
+      sealed = true;
+
+      var nextThen;
+      try {
+        nextThen = value && value.then;
+      } catch (exception) {
+        child.reject_(exception);
+        return;
+      }
+
+      if (nextThen) {
+        Promise.handleThenable_(value, nextThen, child);
+      } else {
+        child.resolve_(value);
+      }
+    }, child.reject_.bind(child));
+  } catch (exception) {
+    child.reject_(exception);
   }
 };
 
@@ -407,3 +460,6 @@ shaka.polyfill.Promise.flushTimer_ = null;
  * @private {!Array.<function()>}
  */
 shaka.polyfill.Promise.q_ = [];
+
+
+shaka.polyfill.register(shaka.polyfill.Promise.install);

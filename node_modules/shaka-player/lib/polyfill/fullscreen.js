@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 
 goog.provide('shaka.polyfill.Fullscreen');
 
+goog.require('shaka.polyfill.register');
+
 
 /**
  * @namespace shaka.polyfill.Fullscreen
- * @export
  *
  * @summary A polyfill to unify fullscreen APIs across browsers.
  * Many browsers have prefixed fullscreen methods on Element and document.
@@ -31,9 +32,13 @@ goog.provide('shaka.polyfill.Fullscreen');
 
 /**
  * Install the polyfill if needed.
- * @export
  */
 shaka.polyfill.Fullscreen.install = function() {
+  if (!window.Document) {
+    // Avoid errors on very old browsers.
+    return;
+  }
+
   var proto = Element.prototype;
   proto.requestFullscreen = proto.requestFullscreen ||
                             proto.mozRequestFullScreen ||
@@ -70,6 +75,7 @@ shaka.polyfill.Fullscreen.install = function() {
  * Proxy fullscreen events after changing their name.
  * @param {!Event} event
  * @private
+ * @suppress {unnecessaryCasts}
  */
 shaka.polyfill.Fullscreen.proxyEvent_ = function(event) {
   var type2 = event.type.replace(/^(webkit|moz|MS)/, '').toLowerCase();
@@ -77,3 +83,5 @@ shaka.polyfill.Fullscreen.proxyEvent_ = function(event) {
   event.target.dispatchEvent(event2);
 };
 
+
+shaka.polyfill.register(shaka.polyfill.Fullscreen.install);
