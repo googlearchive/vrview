@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>VR View - hotspot example</title>
+    <title>VR View - API example</title>
     <meta name=viewport content="width=device-width, initial-scale=1">
     <meta charset="utf-8" />
-    <link href="//fonts.googleapis.com/css?family=Lora|Open+Sans" rel="stylesheet" type="text/css">
     <link href="../style.css" rel="stylesheet" type="text/css">
-    <style>
-    </style>
   </head>
-
   <body>
-
     <div id="vrview"></div>
 
     <button onclick="onPlay()">Play</button>
@@ -20,7 +15,6 @@
     <button onclick="onUnmute()">Unmute</button>
 
     <script src="../../build/vrview.js"></script>
-
     <script>
 var vrView;
 
@@ -66,8 +60,8 @@ function onUnmute() {
 
 function onSetPano1() {
   vrView.setContent({
-    image: 'examples/coral.jpg',
-    preview: 'examples/coral-preview.jpg',
+    image: 'examples/api/coral.jpg',
+    preview: 'examples/api/coral-preview.jpg',
     is_stereo: true,
     is_autopan_off: true
   });
@@ -75,8 +69,8 @@ function onSetPano1() {
 
 function onSetPano2() {
   vrView.setContent({
-    image: 'examples/pano/andes_2048.jpg',
-    preview: 'examples/pano/andes_512.jpg',
+    image: 'examples/api/andes_2048.jpg',
+    preview: 'examples/api/andes_512.jpg',
     is_stereo: true,
     is_autopan_off: false 
   });
