@@ -116,18 +116,18 @@ WorldRenderer.prototype.setScene = function(scene) {
         this.didLoadFail_('Video is not supported on IE11.');
       }
     } else {
-      var player = new AdaptivePlayer();
-      player.on('load', function(videoElement) {
+      this.player = new AdaptivePlayer();
+      this.player.on('load', function(videoElement) {
         self.sphereRenderer.set360Video(videoElement, params).then(function() {
           self.didLoad_({videoElement: videoElement});
         });
       });
-      player.on('error', function(error) {
+      this.player.on('error', function(error) {
         self.didLoadFail_('Video load error: ' + error);
       });
-      player.load(scene.video);
+      this.player.load(scene.video);
 
-      this.videoProxy = new VideoProxy(player.video);
+      this.videoProxy = new VideoProxy(this.player.video);
     }
   }
 
@@ -140,6 +140,14 @@ WorldRenderer.prototype.setScene = function(scene) {
 WorldRenderer.prototype.isVRMode = function() {
   return !!this.vrDisplay && this.vrDisplay.isPresenting;
 };
+
+WorldRenderer.prototype.destroy = function() {
+  if (this.player) {
+    this.player.removeAllListeners();
+    this.player.destroy();
+    this.player = null;
+  }
+}
 
 WorldRenderer.prototype.didLoad_ = function(opt_event) {
   var event = opt_event || {};

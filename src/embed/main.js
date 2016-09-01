@@ -150,6 +150,7 @@ function onSetContent(e) {
   worldRenderer.sphereRenderer.setOpacity(0, 500).then(function() {
     // Then load the new scene.
     var scene = SceneInfo.loadFromAPIParams(e.contentInfo);
+    worldRenderer.destroy();
     return worldRenderer.setScene(scene);
   }).then(function() {
     // Then fade the scene back in.
