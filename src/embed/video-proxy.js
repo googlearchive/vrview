@@ -45,7 +45,13 @@ VideoProxy.prototype.pause = function() {
 
 VideoProxy.prototype.setVolume = function(volumeLevel) {
   if (this.videoElement) {
-    this.videoElement.volume = volumeLevel;
+    // On iOS 10, the VideoElement.volume property is read-only. So we special
+    // case muting and unmuting.
+    if (Util.isIOS()) {
+      this.videoElement.muted = (volumeLevel === 0);
+    } else {
+      this.videoElement.volume = volumeLevel;
+    }
   }
   if (this.audioElement) {
     this.audioElement.volume = volumeLevel;
