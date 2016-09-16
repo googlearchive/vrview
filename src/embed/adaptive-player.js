@@ -25,16 +25,6 @@ function AdaptivePlayer() {
   // Enable inline video playback in iOS 10+.
   this.video.setAttribute('playsinline', true);
   this.video.setAttribute('crossorigin', 'anonymous');
-
-  // Install built-in polyfills to patch browser incompatibilities.
-  shaka.polyfill.installAll();
-
-  if (!shaka.Player.isBrowserSupported()) {
-    console.error('Shaka is not supported on this browser.');
-  } else {
-    this.initShaka_();
-  }
-
 }
 AdaptivePlayer.prototype = new EventEmitter();
 
@@ -59,7 +49,7 @@ AdaptivePlayer.prototype.load = function(url) {
       break;
     case 'mpd': // MPEG-DASH
       this.type = Types.DASH;
-      this.player.load(url).then(function() {
+      this.loadShakaVideo_(url).then(function() {
         console.log('The video has now been loaded!');
         self.emit('load', self.video);
       }).catch(this.onError_.bind(this));
@@ -81,17 +71,6 @@ AdaptivePlayer.prototype.destroy = function() {
 
 /*** PRIVATE API ***/
 
-AdaptivePlayer.prototype.initShaka_ = function() {
-  this.player = new shaka.Player(this.video);
-
-  this.player.configure({
-    abr: { defaultBandwidthEstimate: DEFAULT_BITS_PER_SECOND }
-  });
-
-  // Listen for error events.
-  this.player.addEventListener('error', this.onError_);
-};
-
 AdaptivePlayer.prototype.onError_ = function(e) {
   console.error(e);
   this.emit('error', e);
@@ -105,6 +84,19 @@ AdaptivePlayer.prototype.loadVideo_ = function(url) {
     video.addEventListener('error', reject);
     video.load();
   });
+};
+
+AdaptivePlayer.prototype.loadShakaVideo_ = function(url) {
+  // Install built-in polyfills to patch browser incompatibilities.
+  shaka.polyfill.installAll();
+
+  if (!shaka.Player.isBrowserSupported()) {
+    console.error('Shaka is not supported on this browser.');
+    return;
+  }
+
+  this.initShaka_();
+  return this.player.load(url);
 };
 
 module.exports = AdaptivePlayer;

@@ -47,6 +47,8 @@ worldRenderer.on('load', onRenderLoad);
 worldRenderer.on('modechange', onModeChange);
 worldRenderer.hotspotRenderer.on('click', onHotspotClick);
 
+window.worldRenderer = worldRenderer;
+
 var isReadySent = false;
 
 function onLoad() {
