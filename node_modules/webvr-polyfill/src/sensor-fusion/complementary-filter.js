@@ -44,8 +44,8 @@ function ComplementaryFilter(kFilter) {
   this.currentGyroMeasurement = new SensorSample();
   this.previousGyroMeasurement = new SensorSample();
 
-  // Current filter orientation
-  this.filterQ = new MathUtil.Quaternion();
+  // Set the quaternion to be looking in the -z direction by default.
+  this.filterQ = new MathUtil.Quaternion(1, 0, 0, 1);
   this.previousFilterQ = new MathUtil.Quaternion();
 
   // Orientation based on the accelerometer.
