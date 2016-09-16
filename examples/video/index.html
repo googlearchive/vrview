@@ -19,8 +19,12 @@
 
     <p>The 360 video below shows gorillas in the Congo rainforest.</p>
 
-    <iframe width="100%" scrolling="no" allowfullscreen
-      src="../../index.html?video=examples/video/congo_2048.mp4&is_stereo=true"></iframe>
+    <div id="vrview"></div>
+
+    <div id="controls">
+      <div id="toggleplay" class="paused"></div>
+      <div id="togglemute"></div>
+    </div>
 
 
     <p>The eponymous genus Gorilla is divided into two species: the eastern
@@ -45,4 +49,6 @@
 
   </body>
 
+  <script src="../../build/vrview.js"></script>
+  <script src="index.js"></script>
 </html>
