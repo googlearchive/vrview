@@ -8,7 +8,7 @@
     "es6-promise": "^3.0.2",
     "eventemitter3": "^1.2.0",
     "shaka-player": "^2.0.0-beta3",
-    "three": "^0.80.0",
+    "three": "^0.80.1",
     "tween.js": "^16.3.4",
     "webvr-boilerplate": "^0.4.6",
     "webvr-polyfill": "^0.9.18"
