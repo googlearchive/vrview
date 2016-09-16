@@ -86,6 +86,17 @@ AdaptivePlayer.prototype.loadVideo_ = function(url) {
   });
 };
 
+AdaptivePlayer.prototype.initShaka_ = function() {
+  this.player = new shaka.Player(this.video);
+
+  this.player.configure({
+    abr: { defaultBandwidthEstimate: DEFAULT_BITS_PER_SECOND }
+  });
+
+  // Listen for error events.
+  this.player.addEventListener('error', this.onError_);
+};
+
 AdaptivePlayer.prototype.loadShakaVideo_ = function(url) {
   // Install built-in polyfills to patch browser incompatibilities.
   shaka.polyfill.installAll();
