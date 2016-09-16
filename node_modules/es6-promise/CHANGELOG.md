@@ -1,5 +1,31 @@
 # Master
 
+# 3.3.1
+
+* fix links in readme
+
+# 3.3.0
+
+* support polyfil on WebMAF (playstation env)
+* fix tampering related bug global `constructor` was referenced by mistake.
+* provide TS Typings
+* increase compatibliity with sinon.useFakeTimers();
+* update build tools (use rollup)
+* directly export promise;
+
+# 3.2.2
+
+* IE8: use isArray
+* update build dependencies
+
+# 3.2.1
+
+* fix race tampering issue
+* use eslint
+* fix Promise.all tampering
+* remove unused code
+* fix issues with NWJS/electron
+
 # 3.2.0
 
 * improve tamper resistence of Promise.all Promise.race and
@@ -54,7 +80,8 @@
 
 # 2.1.0
 
-* ? (see the commit log)
+* #59: Automatic polyfill. No need to invoke `ES6Promise.polyfill()` anymore.
+* ... (see the commit log)
 
 # 2.0.0
 
