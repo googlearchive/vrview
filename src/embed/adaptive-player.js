@@ -5,7 +5,9 @@ var Types = {
   HLS: 1,
   DASH: 2,
   VIDEO: 3
-}
+};
+
+var DEFAULT_BITS_PER_SECOND = 1000000;
 
 /**
  * Supports regular video URLs (eg. mp4), as well as adaptive manifests like
@@ -19,6 +21,10 @@ var Types = {
  */
 function AdaptivePlayer() {
   this.video = document.createElement('video');
+  this.video.loop = true;
+  // Enable inline video playback in iOS 10+.
+  this.video.setAttribute('playsinline', true);
+  this.video.setAttribute('crossorigin', 'anonymous');
 
   // Install built-in polyfills to patch browser incompatibilities.
   shaka.polyfill.installAll();
@@ -43,12 +49,12 @@ AdaptivePlayer.prototype.load = function(url) {
   switch (extension) {
     case 'm3u8': // HLS
       this.type = Types.HLS;
-      if (Util.isIOS()) {
+      if (Util.isSafari()) {
         this.loadVideo_(url).then(function() {
           self.emit('load', self.video);
         }).catch(this.onError_.bind(this));
       } else {
-        self.onError_('HLS is only supported on iOS.');
+        self.onError_('HLS is only supported on Safari.');
       }
       break;
     case 'mpd': // MPEG-DASH
@@ -78,6 +84,10 @@ AdaptivePlayer.prototype.destroy = function() {
 AdaptivePlayer.prototype.initShaka_ = function() {
   this.player = new shaka.Player(this.video);
 
+  this.player.configure({
+    abr: { defaultBandwidthEstimate: DEFAULT_BITS_PER_SECOND }
+  });
+
   // Listen for error events.
   this.player.addEventListener('error', this.onError_);
 };
@@ -90,11 +100,7 @@ AdaptivePlayer.prototype.onError_ = function(e) {
 AdaptivePlayer.prototype.loadVideo_ = function(url) {
   var video = this.video;
   return new Promise(function(resolve, reject) {
-    video.loop = true;
     video.src = url;
-    // Enable inline video playback in iOS 10+.
-    video.setAttribute('playsinline', true);
-    video.setAttribute('crossorigin', 'anonymous');
     video.addEventListener('canplaythrough', resolve);
     video.addEventListener('error', reject);
     video.load();
