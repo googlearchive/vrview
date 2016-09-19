@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>VR View - API example</title>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <link href="../style.css" rel="stylesheet" type="text/css">
+    <style>
+      ul.carousel {
+        display: flex;
+        width: 720px;
+        margin: 20px auto;
+        padding: 0;
+        justify-content: center;
+      }
+        ul.carousel li {
+          list-style: none;
+          margin: 0;
+          padding: 0 10px;
+          display: inline-block;
+        }
+          ul.carousel li a {
+            display: inline-block;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            color: #999;
+            text-decoration: none;
+          }
+            ul.carousel li a.current {
+              color: blue;
+              text-decoration: underline;
+            }
+            ul.carousel li a img {
+              width: 124px;
+              height: 80px;
+            }
+            ul.carousel li a small {
+              display: block;
+            }
+    </style>
+  </head>
+  <body>
+    <h1>New7Wonders of World</h1>
+    <h2>A 2001 initiative</h2>
+    <p>Started by the Swiss corporation New7Wonders Foundation to choose the New7Wonders of the World, the finalists were announced at the start of 2006, from a selection of 200 existing monuments.</p>
+
+    <p>Below are five of the seven wonders, as announced in July, 2007.</p>
+
+    <div id="vrview"></div>
+
+    <ul class="carousel">
+      <li>
+        <a href="#petra">
+          <img src="petra-thumbnail.jpg">
+          <small>Petra</small>
+        </a>
+      </li>
+      <li>
+        <a href="#christTheRedeemer">
+          <img src="christ-redeemer-thumbnail.jpg">
+          <small>Christ the Redeemer</small>
+        </a>
+      </li>
+      <li>
+        <a href="#machuPicchu">
+          <img src="machu-picchu-thumbnail.jpg">
+          <small>Machu Picchu</small>
+        </a>
+      </li>
+      <li>
+        <a href="#chichenItza">
+          <img src="chichen-itza-thumbnail.jpg">
+          <small>Chichen Itza</small>
+        </a>
+      </li>
+      <li>
+        <a href="#tajMahal">
+          <img src="taj-mahal-thumbnail.jpg">
+          <small>Taj Mahal</small>
+        </a>
+      </li>
+    </ul>
+
+    <p>Sources: <a href="https://en.wikipedia.org/wiki/Wonders_of_the_World#New7Wonders_of_World">Wikipedia</a> and <a href="https://www.google.com/streetview/">Google Street View</a>.</p>
+
+    <script src="../../build/vrview.js"></script>
+    <script>
+      var vrView;
+      var imageBase = 'examples/api/';
+
+      // All the scenes for the experience
+      var scenes = {
+        petra: {
+          image: imageBase + 'petra.jpg',
+          preview: imageBase + 'petra-preview.jpg'
+        },
+        christTheRedeemer: {
+          image: imageBase + 'christ-redeemer.jpg',
+          preview: imageBase + 'christ-redeemer-preview.jpg'
+        },
+        machuPicchu: {
+          image: imageBase + 'machu-picchu.jpg',
+          preview: imageBase + 'machu-picchu-preview.jpg'
+        },
+        chichenItza: {
+          image: imageBase + 'chichen-itza.jpg',
+          preview: imageBase + 'chichen-itza-preview.jpg'
+        },
+        tajMahal: {
+          image: imageBase + 'taj-mahal.jpg',
+          preview: imageBase + 'taj-mahal-preview.jpg'
+        },
+      };
+
+      function onLoad() {
+        vrView = new VRView.Player('#vrview', {
+          width: '100%',
+          height: 480,
+          image: 'examples/api/blank.png',
+          is_stereo: false,
+          is_autopan_off: true
+        });
+
+        vrView.on('ready', onVRViewReady);
+        vrView.on('modechange', onModeChange);
+        vrView.on('error', onVRViewError);
+      }
+
+      function loadScene(id) {
+        console.log('loadScene', id);
+
+        // Set the image
+        vrView.setContent({
+          image: scenes[id].image,
+          preview: scenes[id].preview,
+          is_autopan_off: true
+        });
+
+        // Unhighlight carousel items
+        var carouselLinks = document.querySelectorAll('ul.carousel li a');
+        for (var i = 0; i < carouselLinks.length; i++) {
+          carouselLinks[i].classList.remove('current');
+        }
+
+        // Highlight current carousel item
+        document.querySelector('ul.carousel li a[href="#' + id + '"]')
+            .classList.add('current');
+      }
+
+      function onVRViewReady(e) {
+        console.log('onVRViewReady');
+
+        // Create the carousel links
+        var carouselItems = document.querySelectorAll('ul.carousel li a');
+        for (var i = 0; i < carouselItems.length; i++) {
+          var item = carouselItems[i];
+          item.disabled = false;
+
+          item.addEventListener('click', function(event) {
+            event.preventDefault();
+            loadScene(event.target.parentNode.getAttribute('href').substring(1));
+          });
+        }
+
+        loadScene('petra');
+      }
+
+      function onModeChange(e) {
+        console.log('onModeChange', e.mode);
+      }
+
+      function onVRViewError(e) {
+        console.log('Error! %s', e.message);
+      }
+
+      window.addEventListener('load', onLoad);
+    </script>
+  </body>
+</html>

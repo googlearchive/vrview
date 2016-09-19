@@ -39,6 +39,10 @@ Util.isIOS = function() {
   return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
 };
 
+Util.isSafari = function() {
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+};
+
 Util.cloneObject = function(obj) {
   var out = {};
   for (key in obj) {

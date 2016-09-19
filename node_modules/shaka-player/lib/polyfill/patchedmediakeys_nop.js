@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-goog.provide('shaka.polyfill.PatchedMediaKeys.nop');
+goog.provide('shaka.polyfill.PatchedMediaKeysNop');
 
-goog.require('shaka.asserts');
+goog.require('goog.asserts');
 goog.require('shaka.log');
 
 
@@ -25,28 +25,28 @@ goog.require('shaka.log');
  * Install a polyfill to stub out {@link http://goo.gl/blgtZZ EME draft
  * 12 March 2015} on browsers without EME.  All methods will fail.
  */
-shaka.polyfill.PatchedMediaKeys.nop.install = function() {
-  shaka.log.debug('PatchedMediaKeys.nop.install');
+shaka.polyfill.PatchedMediaKeysNop.install = function() {
+  shaka.log.debug('PatchedMediaKeysNop.install');
 
   // Alias.
-  var nop = shaka.polyfill.PatchedMediaKeys.nop;
+  var PatchedMediaKeysNop = shaka.polyfill.PatchedMediaKeysNop;
 
   // Install patches.
-  Navigator.prototype.requestMediaKeySystemAccess =
-      nop.requestMediaKeySystemAccess;
+  navigator.requestMediaKeySystemAccess =
+      PatchedMediaKeysNop.requestMediaKeySystemAccess;
   // Delete mediaKeys to work around strict mode compatibility issues.
   delete HTMLMediaElement.prototype['mediaKeys'];
   // Work around read-only declaration for mediaKeys by using a string.
   HTMLMediaElement.prototype['mediaKeys'] = null;
-  HTMLMediaElement.prototype.setMediaKeys = nop.setMediaKeys;
+  HTMLMediaElement.prototype.setMediaKeys = PatchedMediaKeysNop.setMediaKeys;
   // These are not usable, but allow Player.isBrowserSupported to pass.
-  window.MediaKeys = nop.MediaKeys;
-  window.MediaKeySystemAccess = nop.MediaKeySystemAccess;
+  window.MediaKeys = PatchedMediaKeysNop.MediaKeys;
+  window.MediaKeySystemAccess = PatchedMediaKeysNop.MediaKeySystemAccess;
 };
 
 
 /**
- * An implementation of Navigator.prototype.requestMediaKeySystemAccess.
+ * An implementation of navigator.requestMediaKeySystemAccess.
  * Retrieve a MediaKeySystemAccess object.
  *
  * @this {!Navigator}
@@ -54,10 +54,12 @@ shaka.polyfill.PatchedMediaKeys.nop.install = function() {
  * @param {!Array.<!MediaKeySystemConfiguration>} supportedConfigurations
  * @return {!Promise.<!MediaKeySystemAccess>}
  */
-shaka.polyfill.PatchedMediaKeys.nop.requestMediaKeySystemAccess =
+shaka.polyfill.PatchedMediaKeysNop.requestMediaKeySystemAccess =
     function(keySystem, supportedConfigurations) {
-  shaka.log.debug('PatchedMediaKeys.nop.requestMediaKeySystemAccess');
-  shaka.asserts.assert(this instanceof Navigator);
+  shaka.log.debug('PatchedMediaKeysNop.requestMediaKeySystemAccess');
+  goog.asserts.assert(this == navigator,
+                      'bad "this" for requestMediaKeySystemAccess');
+
 
   return Promise.reject(new Error(
       'The key system specified is not supported.'));
@@ -72,9 +74,10 @@ shaka.polyfill.PatchedMediaKeys.nop.requestMediaKeySystemAccess =
  * @param {MediaKeys} mediaKeys
  * @return {!Promise}
  */
-shaka.polyfill.PatchedMediaKeys.nop.setMediaKeys = function(mediaKeys) {
-  shaka.log.debug('PatchedMediaKeys.nop.setMediaKeys');
-  shaka.asserts.assert(this instanceof HTMLMediaElement);
+shaka.polyfill.PatchedMediaKeysNop.setMediaKeys = function(mediaKeys) {
+  shaka.log.debug('PatchedMediaKeysNop.setMediaKeys');
+  goog.asserts.assert(this instanceof HTMLMediaElement,
+                      'bad "this" for setMediaKeys');
 
   if (mediaKeys == null) {
     return Promise.resolve();
@@ -88,20 +91,21 @@ shaka.polyfill.PatchedMediaKeys.nop.setMediaKeys = function(mediaKeys) {
 /**
  * An unusable constructor for MediaKeys.
  * @constructor
+ * @struct
  * @implements {MediaKeys}
  */
-shaka.polyfill.PatchedMediaKeys.nop.MediaKeys = function() {
+shaka.polyfill.PatchedMediaKeysNop.MediaKeys = function() {
   throw new TypeError('Illegal constructor.');
 };
 
 
 /** @override */
-shaka.polyfill.PatchedMediaKeys.nop.MediaKeys.prototype.createSession =
+shaka.polyfill.PatchedMediaKeysNop.MediaKeys.prototype.createSession =
     function() {};
 
 
 /** @override */
-shaka.polyfill.PatchedMediaKeys.nop.MediaKeys.prototype.setServerCertificate =
+shaka.polyfill.PatchedMediaKeysNop.MediaKeys.prototype.setServerCertificate =
     function() {};
 
 
@@ -109,24 +113,25 @@ shaka.polyfill.PatchedMediaKeys.nop.MediaKeys.prototype.setServerCertificate =
 /**
  * An unusable constructor for MediaKeySystemAccess.
  * @constructor
+ * @struct
  * @implements {MediaKeySystemAccess}
  */
-shaka.polyfill.PatchedMediaKeys.nop.MediaKeySystemAccess = function() {
+shaka.polyfill.PatchedMediaKeysNop.MediaKeySystemAccess = function() {
   throw new TypeError('Illegal constructor.');
 };
 
 
 /** @override */
-shaka.polyfill.PatchedMediaKeys.nop.MediaKeySystemAccess.prototype.
+shaka.polyfill.PatchedMediaKeysNop.MediaKeySystemAccess.prototype.
     getConfiguration = function() {};
 
 
 /** @override */
-shaka.polyfill.PatchedMediaKeys.nop.MediaKeySystemAccess.prototype.
+shaka.polyfill.PatchedMediaKeysNop.MediaKeySystemAccess.prototype.
     createMediaKeys = function() {};
 
 
 /** @override */
-shaka.polyfill.PatchedMediaKeys.nop.MediaKeySystemAccess.prototype.
+shaka.polyfill.PatchedMediaKeysNop.MediaKeySystemAccess.prototype.
     keySystem;
 

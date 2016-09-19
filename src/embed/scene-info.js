@@ -51,7 +51,7 @@ SceneInfo.loadFromGetParams = function() {
   }
   var scene = new SceneInfo(params);
   if (!scene.isValid()) {
-    return false;
+    console.warn('Invalid scene: %s', scene.errorMessage);
   }
   return scene;
 };
@@ -66,20 +66,19 @@ SceneInfo.loadFromAPIParams = function(underscoreParams) {
   }
   var scene = new SceneInfo(params);
   if (!scene.isValid()) {
-    return false;
+    console.warn('Invalid scene: %s', scene.errorMessage);
   }
   return scene;
 };
 
-SceneInfo.prototype.isComplete = function() {
-  return !!this.image || !!this.video;
-};
-
 SceneInfo.prototype.isValid = function() {
   // Either it's an image or a video.
-  var imageXorVideo = (this.image && !this.video) || (!this.image && this.video);
-  if (!imageXorVideo) {
-    this.errorMessage = 'Image or video (and not both) must be specified.';
+  if (!this.image && !this.video) {
+    this.errorMessage = 'Either image or video URL must be specified.';
+    return false;
+  }
+  if (this.image && this.video) {
+    this.errorMessage = 'Both image and video URL can\'t be specified.';
     return false;
   }
   this.errorMessage = null;

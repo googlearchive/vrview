@@ -5,13 +5,15 @@ var Types = {
   HLS: 1,
   DASH: 2,
   VIDEO: 3
-}
+};
+
+var DEFAULT_BITS_PER_SECOND = 1000000;
 
 /**
  * Supports regular video URLs (eg. mp4), as well as adaptive manifests like
  * DASH (.mpd) and soon HLS (.m3u8).
  *
- * Events: 
+ * Events:
  *   load(video): When the video is loaded.
  *   error(message): If an error occurs.
  *
@@ -19,16 +21,10 @@ var Types = {
  */
 function AdaptivePlayer() {
   this.video = document.createElement('video');
-
-  // Install built-in polyfills to patch browser incompatibilities.
-  shaka.polyfill.installAll();
-
-  if (!shaka.player.Player.isBrowserSupported()) {
-    console.error('Shaka is not supported on this browser.');
-  } else {
-    this.initShaka_();
-  }
-
+  this.video.loop = true;
+  // Enable inline video playback in iOS 10+.
+  this.video.setAttribute('playsinline', true);
+  this.video.setAttribute('crossorigin', 'anonymous');
 }
 AdaptivePlayer.prototype = new EventEmitter();
 
@@ -43,17 +39,17 @@ AdaptivePlayer.prototype.load = function(url) {
   switch (extension) {
     case 'm3u8': // HLS
       this.type = Types.HLS;
-      if (Util.isIOS()) {
+      if (Util.isSafari()) {
         this.loadVideo_(url).then(function() {
           self.emit('load', self.video);
         }).catch(this.onError_.bind(this));
       } else {
-        console.error('HLS is not yet supported on Android.');
+        self.onError_('HLS is only supported on Safari.');
       }
       break;
     case 'mpd': // MPEG-DASH
       this.type = Types.DASH;
-      this.player.load(url).then(function() {
+      this.loadShakaVideo_(url).then(function() {
         console.log('The video has now been loaded!');
         self.emit('load', self.video);
       }).catch(this.onError_.bind(this));
@@ -67,15 +63,13 @@ AdaptivePlayer.prototype.load = function(url) {
   }
 };
 
+AdaptivePlayer.prototype.destroy = function() {
+  this.video.pause();
+  this.video.src = '';
+  this.video = null;
+};
 
 /*** PRIVATE API ***/
-
-AdaptivePlayer.prototype.initShaka_ = function() {
-  this.player = new shaka.player.Player(this.video);
-
-  // Listen for error events.
-  this.player.addEventListener('error', this.onError_);
-};
 
 AdaptivePlayer.prototype.onError_ = function(e) {
   console.error(e);
@@ -85,15 +79,35 @@ AdaptivePlayer.prototype.onError_ = function(e) {
 AdaptivePlayer.prototype.loadVideo_ = function(url) {
   var video = this.video;
   return new Promise(function(resolve, reject) {
-    video.loop = true;
     video.src = url;
-    // Enable inline video playback in iOS 10+.
-    video.setAttribute('playsinline', true);
-    video.setAttribute('crossorigin', 'anonymous');
     video.addEventListener('canplaythrough', resolve);
     video.addEventListener('error', reject);
     video.load();
   });
+};
+
+AdaptivePlayer.prototype.initShaka_ = function() {
+  this.player = new shaka.Player(this.video);
+
+  this.player.configure({
+    abr: { defaultBandwidthEstimate: DEFAULT_BITS_PER_SECOND }
+  });
+
+  // Listen for error events.
+  this.player.addEventListener('error', this.onError_);
+};
+
+AdaptivePlayer.prototype.loadShakaVideo_ = function(url) {
+  // Install built-in polyfills to patch browser incompatibilities.
+  shaka.polyfill.installAll();
+
+  if (!shaka.Player.isBrowserSupported()) {
+    console.error('Shaka is not supported on this browser.');
+    return;
+  }
+
+  this.initShaka_();
+  return this.player.load(url);
 };
 
 module.exports = AdaptivePlayer;

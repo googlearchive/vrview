@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,36 @@
  * limitations under the License.
  */
 
-// Require all exported classes from the library.
-goog.require('shaka.player.DashVideoSource');
-goog.require('shaka.player.HttpVideoSource');
-goog.require('shaka.player.OfflineVideoSource');
-goog.require('shaka.player.Player');
-goog.require('shaka.player.StreamVideoSource');
+/**
+ * @fileoverview Require all exported classes an app might use.
+ * @suppress {extraRequire}
+ */
+
+goog.require('shaka.Player');
+goog.require('shaka.abr.SimpleAbrManager');
+goog.require('shaka.cast.CastProxy');
+goog.require('shaka.cast.CastReceiver');
+goog.require('shaka.dash.DashParser');
+goog.require('shaka.log');
+goog.require('shaka.media.InitSegmentReference');
+goog.require('shaka.media.ManifestParser');
+goog.require('shaka.media.Mp4TtmlParser');
+goog.require('shaka.media.Mp4VttParser');
+goog.require('shaka.media.PresentationTimeline');
+goog.require('shaka.media.SegmentIndex');
+goog.require('shaka.media.SegmentReference');
+goog.require('shaka.media.TextEngine');
+goog.require('shaka.media.TtmlTextParser');
+goog.require('shaka.media.VttTextParser');
+goog.require('shaka.net.DataUriPlugin');
+goog.require('shaka.net.HttpPlugin');
+goog.require('shaka.offline.OfflineManifestParser');
+goog.require('shaka.offline.OfflineScheme');
+goog.require('shaka.offline.Storage');
+goog.require('shaka.polyfill.Fullscreen');
+goog.require('shaka.polyfill.MediaKeys');
+goog.require('shaka.polyfill.MediaSource');
+goog.require('shaka.polyfill.Promise');
+goog.require('shaka.polyfill.VideoPlaybackQuality');
 goog.require('shaka.polyfill.installAll');
-goog.require('shaka.util.EWMABandwidthEstimator');
-goog.require('shaka.util.FakeEventTarget');
-goog.require('shaka.util.Uint8ArrayUtils');
+goog.require('shaka.util.Error');

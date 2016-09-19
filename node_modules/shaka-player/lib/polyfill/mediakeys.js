@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 goog.provide('shaka.polyfill.MediaKeys');
 
 goog.require('shaka.log');
-goog.require('shaka.polyfill.PatchedMediaKeys.nop');
-goog.require('shaka.polyfill.PatchedMediaKeys.v01b');
-goog.require('shaka.polyfill.PatchedMediaKeys.v20140218');
+goog.require('shaka.polyfill.PatchedMediaKeysMs');
+goog.require('shaka.polyfill.PatchedMediaKeysNop');
+goog.require('shaka.polyfill.PatchedMediaKeysWebkit');
+goog.require('shaka.polyfill.register');
 
 
 /**
  * @namespace shaka.polyfill.MediaKeys
- * @export
  *
  * @summary A polyfill to unify EME APIs across browser versions.
  *
@@ -38,23 +38,29 @@ goog.require('shaka.polyfill.PatchedMediaKeys.v20140218');
 
 /**
  * Install the polyfill if needed.
- * @export
  */
 shaka.polyfill.MediaKeys.install = function() {
   shaka.log.debug('MediaKeys.install');
 
-  if (Navigator.prototype.requestMediaKeySystemAccess &&
+  if (!window.HTMLVideoElement) {
+    // Avoid errors on very old browsers.
+    return;
+  }
+
+  if (navigator.requestMediaKeySystemAccess &&
       MediaKeySystemAccess.prototype.getConfiguration) {
     shaka.log.info('Using native EME as-is.');
   } else if (HTMLMediaElement.prototype.webkitGenerateKeyRequest) {
-    shaka.log.info('Using prefixed EME v0.1b.');
-    shaka.polyfill.PatchedMediaKeys.v01b.install();
+    shaka.log.info('Using webkit-prefixed EME v0.1b');
+    shaka.polyfill.PatchedMediaKeysWebkit.install();
   } else if (window.MSMediaKeys) {
-    shaka.log.info('Using EME v20140218');
-    shaka.polyfill.PatchedMediaKeys.v20140218.install();
+    shaka.log.info('Using ms-prefixed EME v20140218');
+    shaka.polyfill.PatchedMediaKeysMs.install();
   } else {
     shaka.log.info('EME not available.');
-    shaka.polyfill.PatchedMediaKeys.nop.install();
+    shaka.polyfill.PatchedMediaKeysNop.install();
   }
 };
 
+
+shaka.polyfill.register(shaka.polyfill.MediaKeys.install);

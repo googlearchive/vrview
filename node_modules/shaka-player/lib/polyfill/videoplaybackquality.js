@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 
 goog.provide('shaka.polyfill.VideoPlaybackQuality');
 
+goog.require('shaka.polyfill.register');
+
 
 /**
  * @namespace shaka.polyfill.VideoPlaybackQuality
- * @export
  *
  * @summary A polyfill to provide MSE VideoPlaybackQuality metrics.
  * Many browsers do not yet provide this API, and Chrome currently provides
@@ -30,9 +31,13 @@ goog.provide('shaka.polyfill.VideoPlaybackQuality');
 
 /**
  * Install the polyfill if needed.
- * @export
  */
 shaka.polyfill.VideoPlaybackQuality.install = function() {
+  if (!window.HTMLVideoElement) {
+    // Avoid errors on very old browsers.
+    return;
+  }
+
   var proto = HTMLVideoElement.prototype;
   if (proto.getVideoPlaybackQuality) {
     // No polyfill needed.
@@ -61,3 +66,6 @@ shaka.polyfill.VideoPlaybackQuality.webkit_ = function() {
     'totalFrameDelay': 0
   };
 };
+
+
+shaka.polyfill.register(shaka.polyfill.VideoPlaybackQuality.install);

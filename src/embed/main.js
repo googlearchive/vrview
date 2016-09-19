@@ -47,6 +47,8 @@ worldRenderer.on('load', onRenderLoad);
 worldRenderer.on('modechange', onModeChange);
 worldRenderer.hotspotRenderer.on('click', onHotspotClick);
 
+window.worldRenderer = worldRenderer;
+
 var isReadySent = false;
 
 function onLoad() {
@@ -57,9 +59,6 @@ function onLoad() {
 
   // Load the scene.
   var scene = SceneInfo.loadFromGetParams();
-  if (!scene) {
-    showError(scene.errorMessage);
-  }
   worldRenderer.setScene(scene);
 
   if (scene.isDebug) {
@@ -153,6 +152,7 @@ function onSetContent(e) {
   worldRenderer.sphereRenderer.setOpacity(0, 500).then(function() {
     // Then load the new scene.
     var scene = SceneInfo.loadFromAPIParams(e.contentInfo);
+    worldRenderer.destroy();
     return worldRenderer.setScene(scene);
   }).then(function() {
     // Then fade the scene back in.
