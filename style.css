@@ -48,10 +48,6 @@ a, a:visited {
   color: skyblue;
 }
 
-#title.hidden {
-  opacity: 0;
-}
-
 #watermark img {
   position: fixed;
   overflow: hidden;
@@ -87,7 +83,6 @@ canvas:active {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  
   display: none;
 	align-items: center;
   justify-content: center;
@@ -98,4 +93,8 @@ canvas:active {
 #play-overlay img {
   width: 30%;
   height: 30%;
+}
+
+#error .message {
+  font-family: monospace;
 }
