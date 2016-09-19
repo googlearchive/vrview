@@ -11,7 +11,7 @@ p {
   line-height: 1.4rem;
 }
 
-h1, h2, p {
+h1, h2, h3, p {
   margin: 1rem;
 }
 
@@ -41,7 +41,7 @@ iframe {
     height: 400px;
     width: 700px;
   }
-  h1, h2, p {
+  h1, h2, h3, p {
     width: 700px;
     margin: 1rem auto;
   }
