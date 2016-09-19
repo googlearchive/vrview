@@ -81,9 +81,16 @@ SceneInfo.prototype.isValid = function() {
     this.errorMessage = 'Both image and video URL can\'t be specified.';
     return false;
   }
+  if (this.image && !this.isValidImage_(this.image)) {
+    this.errorMessage = 'Invalid image URL: ' + this.image;
+    return false;
+  }
   this.errorMessage = null;
   return true;
 };
 
+SceneInfo.prototype.isValidImage_ = function(imageUrl) {
+  return true;
+};
 
 module.exports = SceneInfo;

@@ -131,7 +131,7 @@ SphereRenderer.prototype.onTextureLoaded_ = function(texture) {
 };
 
 SphereRenderer.prototype.onTextureError_ = function(error) {
-  this.reject('Unable to load texture from ' + this.src);
+  this.reject('Unable to load texture from "' + this.src + '"');
 };
 
 

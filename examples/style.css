@@ -21,6 +21,14 @@ p.caption {
   margin-top: 0;
 }
 
+iframe {
+  display: block;
+  border: none;
+  margin: 10px auto;
+  padding: 0;
+  border: 0;
+}
+
 #controls {
   overflow: hidden;
   background: #eee;

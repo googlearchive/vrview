@@ -95,12 +95,12 @@ WorldRenderer.prototype.setScene = function(scene) {
         self.didLoad_();
         // Then load the full resolution image.
         self.sphereRenderer.setPhotosphere(scene.image, params);
-      });
+      }).catch(self.didLoadFail_.bind(self));
     } else {
       // No preview -- go straight to rendering the full image.
       this.sphereRenderer.setPhotosphere(scene.image, params).then(function() {
         self.didLoad_();
-      });
+      }).catch(self.didLoadFail_.bind(self));
     }
   } else if (scene.video) {
     if (Util.isIE11()) {
@@ -111,7 +111,7 @@ WorldRenderer.prototype.setScene = function(scene) {
       if (scene.image) {
         this.sphereRenderer.setPhotosphere(scene.image, params).then(function() {
           self.didLoad_();
-        });
+        }).catch(self.didLoadFail_.bind(self));
       } else {
         this.didLoadFail_('Video is not supported on IE11.');
       }
@@ -120,7 +120,7 @@ WorldRenderer.prototype.setScene = function(scene) {
       this.player.on('load', function(videoElement) {
         self.sphereRenderer.set360Video(videoElement, params).then(function() {
           self.didLoad_({videoElement: videoElement});
-        });
+        }).catch(self.didLoadFail_.bind(self));
       });
       this.player.on('error', function(error) {
         self.didLoadFail_('Video load error: ' + error);
