@@ -10,6 +10,8 @@ export { PerspectiveCamera } from '../../../node_modules/three/src/cameras/Persp
 export { Object3DIdCount, Object3D } from '../../../node_modules/three/src/core/Object3D.js';
 export { Raycaster } from '../../../node_modules/three/src/core/Raycaster.js';
 export { _Math as Math } from '../../../node_modules/three/src/math/Math.js';
+export { Quaternion } from '../../../node_modules/three/src/math/Quaternion.js';
+export { Euler } from '../../../node_modules/three/src/math/Euler.js';
 export { Matrix4 } from '../../../node_modules/three/src/math/Matrix4.js';
 export { Matrix3 } from '../../../node_modules/three/src/math/Matrix3.js';
 export { Vector4 } from '../../../node_modules/three/src/math/Vector4.js';
@@ -18,6 +20,8 @@ export { Vector2 } from '../../../node_modules/three/src/math/Vector2.js';
 export { ColorKeywords, Color } from '../../../node_modules/three/src/math/Color.js';
 export { TorusGeometry } from '../../../node_modules/three/src/extras/geometries/TorusGeometry.js';
 export { SphereGeometry } from '../../../node_modules/three/src/extras/geometries/SphereGeometry.js';
+export { CircleGeometry } from '../../../node_modules/three/src/extras/geometries/CircleGeometry.js';
+export { RingGeometry } from '../../../node_modules/three/src/extras/geometries/RingGeometry.js';
 export * from '../../../node_modules/three/src/constants.js';
 
 import '../../../node_modules/three/examples/js/controls/VRControls.js';
