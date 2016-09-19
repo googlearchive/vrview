@@ -56,6 +56,13 @@ iframe {
   #toggleplay.paused {
     background: url('img/ic_play_arrow_black_24dp.svg');
   }
+
+#togglemute {
+  float: right;
+  background: url('img/ic_volume_off_black_24dp.svg');
+  width: 24px;
+  height: 24px;
+}
   
   #togglemute.muted {
     background: url('img/ic_volume_up_black_24dp.svg');
