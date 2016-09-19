@@ -15,16 +15,13 @@
   },
   "devDependencies": {},
   "scripts": {
-    "copybp": "cp ../webvr-boilerplate/build/webvr-manager.js node_modules/webvr-boilerplate/build/",
-    "copyp": "cp ../webvr-polyfill/build/webvr-polyfill.js node_modules/webvr-polyfill/build/",
-    "build": "browserify src/main.js | derequire > build/vrview.js",
-    "build-min": "browserify src/main.js | derequire | uglifyjs -c > build/vrview.min.js",
-    "build-analytics": "browserify src/with-analytics.js | derequire > build/vrview-analytics.js",
-    "build-analytics-min": "browserify src/with-analytics.js | derequire | uglifyjs -c > build/vrview-analytics.min.js",
-    "build-dms": "uglifyjs scripts/js/device-motion-sender.js > build/device-motion-sender.min.js",
+    "build": "browserify src/embed/main.js | derequire | uglifyjs -c > build/embed.min.js && npm run build-three-closure",
+    "build-api": "browserify --standalone VRView src/api/main.js | derequire | uglifyjs -c > build/vrview.min.js",
+    "build-analytics": "browserify src/embed/with-analytics.js | derequire | uglifyjs -c > build/embed-analytics.min.js && npm run build-three-closure",
     "watch-embed": "watchify src/embed/main.js -v -d -o build/embed.js",
     "watch-api": "watchify --standalone VRView src/api/main.js -v -d -o build/vrview.js",
-    "deploy": "./scripts/deploy.sh"
+    "build-three-closure": "rollup -c src/third_party/three/rollup.config.js && java -jar src/third_party/three/closure-compiler-v20160713.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs src/third_party/three/externs.js --language_in=ECMASCRIPT5_STRICT --js build/three.js --js_output_file build/three.min.js",
+    "build-dms": "uglifyjs scripts/js/device-motion-sender.js > build/device-motion-sender.min.js"
   },
   "repository": {
     "type": "git",
