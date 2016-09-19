@@ -34,13 +34,13 @@ iframe {
   background: #eee;
   margin: 0 auto;
 }
-  
+
   #controls > * {
     margin: 8px;
     cursor: pointer;
     opacity: 0.5;
   }
-  
+ 
   #controls > *:hover {
     opacity: 1;
   }
@@ -63,7 +63,7 @@ iframe {
   width: 24px;
   height: 24px;
 }
-  
+ 
   #togglemute.muted {
     background: url('img/ic_volume_up_black_24dp.svg');
   }
