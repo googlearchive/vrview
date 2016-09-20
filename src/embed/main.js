@@ -153,6 +153,14 @@ function onSetContent(e) {
     // Then load the new scene.
     var scene = SceneInfo.loadFromAPIParams(e.contentInfo);
     worldRenderer.destroy();
+
+    // Update the URL to reflect the new scene. This is important particularily
+    // on iOS where we use a fake fullscreen mode.
+    var url = scene.getCurrentUrl();
+    console.log('Updating url to be %s', url);
+    window.history.pushState(null, 'VR View', url);
+
+    // And set the new scene.
     return worldRenderer.setScene(scene);
   }).then(function() {
     // Then fade the scene back in.

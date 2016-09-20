@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-var camelToUnderscore = {
+var CAMEL_TO_UNDERSCORE = {
   video: 'video',
   image: 'image',
   preview: 'preview',
@@ -45,8 +45,8 @@ function SceneInfo(opt_params) {
 
 SceneInfo.loadFromGetParams = function() {
   var params = {};
-  for (var camelCase in camelToUnderscore) {
-    var underscore = camelToUnderscore[camelCase];
+  for (var camelCase in CAMEL_TO_UNDERSCORE) {
+    var underscore = CAMEL_TO_UNDERSCORE[camelCase];
     params[camelCase] = Util.getQueryParameter(underscore);
   }
   var scene = new SceneInfo(params);
@@ -58,8 +58,8 @@ SceneInfo.loadFromGetParams = function() {
 
 SceneInfo.loadFromAPIParams = function(underscoreParams) {
   var params = {};
-  for (var camelCase in camelToUnderscore) {
-    var underscore = camelToUnderscore[camelCase];
+  for (var camelCase in CAMEL_TO_UNDERSCORE) {
+    var underscore = CAMEL_TO_UNDERSCORE[camelCase];
     if (underscoreParams[underscore]) {
       params[camelCase] = underscoreParams[underscore];
     }
@@ -87,6 +87,22 @@ SceneInfo.prototype.isValid = function() {
   }
   this.errorMessage = null;
   return true;
+};
+
+/**
+ * Generates a URL to reflect this scene.
+ */
+SceneInfo.prototype.getCurrentUrl = function() {
+  var url = location.protocol + '//' + location.host + location.pathname + '?';
+  for (var camelCase in CAMEL_TO_UNDERSCORE) {
+    var underscore = CAMEL_TO_UNDERSCORE[camelCase];
+    var value = this[camelCase];
+    if (value !== undefined) {
+      url += underscore + '=' + value + '&';
+    }
+  }
+  // Chop off the trailing ampersand.
+  return url.substring(0, url.length - 1);
 };
 
 SceneInfo.prototype.isValidImage_ = function(imageUrl) {
