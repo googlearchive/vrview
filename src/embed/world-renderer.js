@@ -20,7 +20,6 @@ var ReticleRenderer = require('./reticle-renderer');
 var SphereRenderer = require('./sphere-renderer');
 var TWEEN = require('tween.js');
 var Util = require('../util');
-var VertexDistorter = require('./vertex-distorter');
 var VideoProxy = require('./video-proxy');
 var WebVRManager = require('webvr-boilerplate');
 
@@ -44,7 +43,7 @@ var AUTOPAN_ANGLE = 0.4;
 function WorldRenderer() {
   this.init_();
 
-  this.sphereRenderer = new SphereRenderer(this.scene, this.distorter);
+  this.sphereRenderer = new SphereRenderer(this.scene);
   this.hotspotRenderer = new HotspotRenderer(this);
   this.hotspotRenderer.on('focus', this.onHotspotFocus_.bind(this));
   this.hotspotRenderer.on('blur', this.onHotspotBlur_.bind(this));
@@ -76,7 +75,7 @@ WorldRenderer.prototype.setScene = function(scene) {
 
   var params = {
     isStereo: scene.isStereo,
-  }
+  };
   this.setDefaultYaw_(scene.defaultYaw || 0);
 
   // Disable VR mode if explicitly disabled, or if we're loading a video on iOS
@@ -206,9 +205,6 @@ WorldRenderer.prototype.init_ = function() {
   var controls = new THREE.VRControls(camera);
   var effect = new THREE.VREffect(renderer);
 
-  // The vertex distorter.
-  this.distorter = new VertexDistorter();
-
   // Disable eye separation.
   effect.scale = 0;
   effect.setSize(window.innerWidth, window.innerHeight);
@@ -229,11 +225,6 @@ WorldRenderer.prototype.init_ = function() {
   // Prevent context menu.
   window.addEventListener('contextmenu', this.onContextMenu_.bind(this));
 
-  // Watch the custom vrdisplaydeviceparamschange event, which fires whenever
-  // the viewer parameters change.
-  window.addEventListener('vrdisplaydeviceparamschange',
-                          this.onVRDisplayParamsChange_.bind(this));
-
   window.addEventListener('vrdisplaypresentchange',
                           this.onVRDisplayPresentChange_.bind(this));
 };
@@ -244,22 +235,10 @@ WorldRenderer.prototype.onResize_ = function() {
   this.camera.updateProjectionMatrix();
 };
 
-WorldRenderer.prototype.onVRDisplayParamsChange_ = function(e) {
-  console.log('onVRDisplayParamsChange_');
-  this.distorter.setDeviceInfo(e.detail.deviceInfo);
-  this.sphereRenderer.updateMaterial();
-};
-
 WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
   console.log('onVRDisplayPresentChange_');
   this.vrDisplay = e.detail.vrdisplay;
   var isVR = this.isVRMode();
-
-  // Enable vertex-based distortion, but only if we're polyfilled.
-  if (this.vrDisplay.isPolyfilled) {
-    this.distorter.setEnabled(isVR);
-    this.sphereRenderer.updateMaterial();
-  }
 
   // If the mode changed to VR and there is at least one hotspot, show reticle.
   var isReticleVisible = isVR && this.hotspotRenderer.getCount() > 0;

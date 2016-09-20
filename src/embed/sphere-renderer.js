@@ -17,9 +17,8 @@ var Eyes = require('./eyes');
 var TWEEN = require('tween.js');
 var Util = require('../util');
 
-function SphereRenderer(scene, distorter) {
+function SphereRenderer(scene) {
   this.scene = scene;
-  this.distorter = distorter;
 
   // Create a transparent mask.
   this.createOpacityMask_();
@@ -98,16 +97,6 @@ SphereRenderer.prototype.setOpacity = function(opacity, duration) {
   });
 };
 
-SphereRenderer.prototype.updateMaterial = function() {
-  var children = this.scene.getObjectByName('photo').children;
-  for (var j = 0; j < children.length; j++) {
-    var child = children[j];
-    var material = this.distorter.getShaderMaterial(child.eye);
-    child.material = material;
-    child.material.needsUpdate = true;
-  }
-};
-
 SphereRenderer.prototype.onTextureLoaded_ = function(texture) {
   var sphereLeft;
   var sphereRight;
@@ -160,7 +149,6 @@ SphereRenderer.prototype.createPhotosphere_ = function(texture, opt_params) {
   }
 
   var material = new THREE.MeshBasicMaterial({ map: texture });
-  this.distorter.setMap(texture);
   var out = new THREE.Mesh(geometry, material);
   //out.visible = false;
   out.renderOrder = -1;
