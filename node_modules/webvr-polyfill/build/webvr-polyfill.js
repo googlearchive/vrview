@@ -1553,7 +1553,7 @@ CardboardVRDisplay.prototype.onDeviceParamsUpdated_ = function(newParams) {
   this.deviceInfo_.updateDeviceParams(newParams);
 
   if (this.distorter_) {
-    this.distorter.updateDeviceInfo(this.deviceInfo_);
+    this.distorter_.updateDeviceInfo(this.deviceInfo_);
   }
 };
 
