@@ -106,8 +106,6 @@ Player.prototype.createIframe_ = function(params) {
 };
 
 Player.prototype.onMessage_ = function(event) {
-  console.log('onMessage_', event);
-
   var message = event.data;
   var type = message.type.toLowerCase();
   var data = message.data;
