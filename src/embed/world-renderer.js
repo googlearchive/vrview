@@ -84,6 +84,19 @@ WorldRenderer.prototype.setScene = function(scene) {
     this.manager.setVRCompatibleOverride(false);
   }
 
+  // Set various callback overrides in iOS.
+  if (Util.isIOS()) {
+    this.manager.setFullscreenCallback(function() {
+      Util.sendParentMessage({type: 'enter-fullscreen'});
+    });
+    this.manager.setExitFullscreenCallback(function() {
+      Util.sendParentMessage({type: 'exit-fullscreen'});
+    });
+    this.manager.setVRCallback(function() {
+      Util.sendParentMessage({type: 'enter-vr'});
+    });
+  }
+
   // If we're dealing with an image, and not a video.
   if (scene.image && !scene.video) {
     if (scene.preview) {
@@ -103,8 +116,8 @@ WorldRenderer.prototype.setScene = function(scene) {
     }
   } else if (scene.video) {
     if (Util.isIE11()) {
-      // On iOS and IE 11, if an 'image' param is provided, load it instead of
-      // showing an error.
+      // On IE 11, if an 'image' param is provided, load it instead of showing
+      // an error.
       //
       // TODO(smus): Once video textures are supported, remove this fallback.
       if (scene.image) {
@@ -251,6 +264,11 @@ WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
   // Analytics.
   if (window.analytics) {
     analytics.logModeChanged(isVR);
+  }
+
+  // When exiting VR mode, make sure we emit back an exit-fullscreen event.
+  if (!isVR && Util.isIOS()) {
+    Util.sendParentMessage({type: 'exit-fullscreen'});
   }
 
   // Emit a mode change event back to any listeners.

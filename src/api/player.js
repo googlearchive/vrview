@@ -4,6 +4,7 @@ var Message = require('../message');
 var Util = require('../util');
 
 var EMBED_URL = '../../index.html?';
+var FAKE_FULLSCREEN_CLASS = 'vrview-fake-fullscreen'
 
 /**
  * Entry point for the VR View JS API.
@@ -16,6 +17,7 @@ var EMBED_URL = '../../index.html?';
 function Player(selector, params) {
   // Create a VR View iframe depending on the parameters.
   var iframe = this.createIframe_(params);
+  this.iframe = iframe;
 
   var parentEl = document.querySelector(selector);
   parentEl.appendChild(iframe);
@@ -28,6 +30,10 @@ function Player(selector, params) {
 
   // Expose a public .isPaused attribute.
   this.isPaused = false;
+
+  if (Util.isIOS()) {
+    this.injectFullscreenStylesheet_();
+  }
 }
 Player.prototype = new EventEmitter();
 
@@ -79,7 +85,7 @@ Player.prototype.setVolume = function(volumeLevel) {
 };
 
 /**
- * Helper for creating an iframe. 
+ * Helper for creating an iframe.
  *
  * @return {IFrameElement} The iframe.
  */
@@ -121,9 +127,49 @@ Player.prototype.onMessage_ = function(event) {
       console.log('isPaused', data);
       this.isPaused = data;
       break;
+    case 'enter-fullscreen':
+    case 'enter-vr':
+      this.setFakeFullscreen_(true);
+      break;
+    case 'exit-fullscreen':
+      this.setFakeFullscreen_(false);
+      break;
     default:
       console.warn('Got unknown message of type %s from %s', message.type, message.origin);
   }
+};
+
+/**
+ * Note: iOS doesn't support the fullscreen API.
+ * In standalone <iframe> mode, VR View emulates fullscreen by redirecting to
+ * another page.
+ * In JS API mode, we stretch the iframe to cover the extent of the page using
+ * CSS. To do this cleanly, we also inject a stylesheet.
+ */
+Player.prototype.setFakeFullscreen_ = function(isFullscreen) {
+  if (isFullscreen) {
+    this.iframe.classList.add(FAKE_FULLSCREEN_CLASS);
+  } else {
+    this.iframe.classList.remove(FAKE_FULLSCREEN_CLASS);
+  }
+};
+
+Player.prototype.injectFullscreenStylesheet_ = function() {
+  var styleString = [
+    'iframe.' + FAKE_FULLSCREEN_CLASS,
+    '{',
+      'position: fixed !important;',
+      'display: block !important;',
+      'z-index: 9999999999 !important;',
+      'top: 0 !important;',
+      'left: 0 !important;',
+      'width: 100% !important;',
+      'height: 100% !important;',
+    '}',
+  ].join('\n');
+  var style = document.createElement('style');
+  style.innerHTML = styleString;
+  document.body.appendChild(style);
 };
 
 
