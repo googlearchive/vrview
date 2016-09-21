@@ -4,7 +4,7 @@ var Message = require('../message');
 var Util = require('../util');
 
 var EMBED_URL = '../../index.html?';
-var FAKE_FULLSCREEN_CLASS = 'vrview-fake-fullscreen'
+var FAKE_FULLSCREEN_CLASS = 'vrview-fake-fullscreen';
 
 /**
  * Entry point for the VR View JS API.
