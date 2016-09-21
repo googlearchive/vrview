@@ -165,6 +165,7 @@ Player.prototype.injectFullscreenStylesheet_ = function() {
       'left: 0 !important;',
       'width: 100% !important;',
       'height: 100% !important;',
+      'margin: 0 !important;',
     '}',
   ].join('\n');
   var style = document.createElement('style');
