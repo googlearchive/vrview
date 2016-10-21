@@ -1,9 +1,8 @@
 {
   "name": "vrview",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-pre1",
   "description": "Embed VR content into your webpage.",
   "main": "index.js",
-  "//": "TODO: Re-add dependencies once vanilla versions can be used again.",
   "dependencies": {
     "es6-promise": "^3.0.2",
     "eventemitter3": "^1.2.0",
