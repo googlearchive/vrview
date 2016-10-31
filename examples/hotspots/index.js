@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 var vrView;
-var imageBase = 'examples/hotspots/';
 
 // All the scenes for the experience
 var scenes = {
   dolphins: {
-    image: imageBase + 'dolphins.jpg',
-    preview: imageBase + 'dolphins-preview.jpg',
+    image: 'dolphins.jpg',
+    preview: 'dolphins-preview.jpg',
     hotspots: {
       whaleRight: {
         pitch: 0,
@@ -42,8 +41,8 @@ var scenes = {
     }
   },
   whaleLeft: {
-    image: imageBase + 'whale-left.jpg',
-    preview: imageBase + 'whale-left-preview.jpg',
+    image: 'whale-left.jpg',
+    preview: 'whale-left-preview.jpg',
     hotspots: {
       whaleRight: {
         pitch: 0,
@@ -66,8 +65,8 @@ var scenes = {
     }
   },
   whaleRight: {
-    image: imageBase + 'whale-right.jpg',
-    preview: imageBase + 'whale-right-preview.jpg',
+    image: 'whale-right.jpg',
+    preview: 'whale-right-preview.jpg',
     hotspots: {
       dolphins: {
         pitch: 0,
@@ -90,8 +89,8 @@ var scenes = {
     }
   },
   walrus: {
-    image: imageBase + 'walrus.jpg',
-    preview: imageBase + 'walrus-preview.jpg',
+    image: 'walrus.jpg',
+    preview: 'walrus-preview.jpg',
     hotspots: {
       whaleLeft: {
         pitch: 0,
@@ -117,8 +116,8 @@ var scenes = {
 
 function onLoad() {
   vrView = new VRView.Player('#vrview', {
-    image: imageBase + 'blank.png',
-    preview: imageBase + 'blank.png',
+    image: 'blank.png',
+    preview: 'blank.png',
     is_stereo: true,
     is_autopan_off: true
   });
