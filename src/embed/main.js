@@ -259,12 +259,19 @@ function showStats() {
 }
 
 function loop(time) {
+  // Use the VRDisplay RAF if it is present.
+  if (worldRenderer.vrDisplay) {
+    worldRenderer.vrDisplay.requestAnimationFrame(loop);
+  } else {
+    requestAnimationFrame(loop);
+  }
+
   stats.begin();
   // Update the video if needed.
   if (worldRenderer.videoProxy) {
     worldRenderer.videoProxy.update(time);
   }
   worldRenderer.render(time);
+  worldRenderer.submitFrame();
   stats.end();
-  requestAnimationFrame(loop);
 }

@@ -153,6 +153,12 @@ WorldRenderer.prototype.isVRMode = function() {
   return !!this.vrDisplay && this.vrDisplay.isPresenting;
 };
 
+WorldRenderer.prototype.submitFrame = function() {
+  if (this.vrDisplay) {
+    this.vrDisplay.submitFrame();
+  }
+};
+
 WorldRenderer.prototype.destroy = function() {
   if (this.player) {
     this.player.removeAllListeners();
@@ -222,6 +228,10 @@ WorldRenderer.prototype.init_ = function() {
   effect.scale = 0;
   effect.setSize(window.innerWidth, window.innerHeight);
 
+  // Present submission of frames automatically. This is done manually in
+  // submitFrame().
+  effect.autoSubmitFrame = false;
+
   this.camera = camera;
   this.renderer = renderer;
   this.effect = effect;
@@ -250,7 +260,7 @@ WorldRenderer.prototype.onResize_ = function() {
 
 WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
   console.log('onVRDisplayPresentChange_');
-  this.vrDisplay = e.detail.vrdisplay;
+  this.vrDisplay = e.display;
   var isVR = this.isVRMode();
 
   // If the mode changed to VR and there is at least one hotspot, show reticle.
