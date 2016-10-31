@@ -30,9 +30,9 @@ var FAKE_FULLSCREEN_CLASS = 'vrview-fake-fullscreen';
  *    modechange: When the viewing mode changes (normal, fullscreen, VR).
  *    click (id): When a hotspot is clicked.
  */
-function Player(selector, params) {
+function Player(selector, contentInfo) {
   // Create a VR View iframe depending on the parameters.
-  var iframe = this.createIframe_(params);
+  var iframe = this.createIframe_(contentInfo);
   this.iframe = iframe;
 
   var parentEl = document.querySelector(selector);
@@ -84,6 +84,7 @@ Player.prototype.pause = function() {
 };
 
 Player.prototype.setContent = function(contentInfo) {
+  this.absolutifyPaths_(contentInfo);
   var data = {
     contentInfo: contentInfo
   };
@@ -105,23 +106,25 @@ Player.prototype.setVolume = function(volumeLevel) {
  *
  * @return {IFrameElement} The iframe.
  */
-Player.prototype.createIframe_ = function(params) {
+Player.prototype.createIframe_ = function(contentInfo) {
+  this.absolutifyPaths_(contentInfo);
+
   var iframe = document.createElement('iframe');
   iframe.setAttribute('allowfullscreen', true);
   iframe.setAttribute('scrolling', 'no');
   iframe.style.border = 0;
 
   // Handle iframe size if width and height are specified.
-  if (params.hasOwnProperty('width')) {
-    iframe.setAttribute('width', params.width);
-    delete params.width;
+  if (contentInfo.hasOwnProperty('width')) {
+    iframe.setAttribute('width', contentInfo.width);
+    delete contentInfo.width;
   }
-  if (params.hasOwnProperty('height')) {
-    iframe.setAttribute('height', params.height);
-    delete params.height;
+  if (contentInfo.hasOwnProperty('height')) {
+    iframe.setAttribute('height', contentInfo.height);
+    delete contentInfo.height;
   }
 
-  var url = this.getEmbedUrl_() + Util.createGetParams(params);
+  var url = this.getEmbedUrl_() + Util.createGetParams(contentInfo);
   iframe.src = url;
 
   return iframe;
@@ -197,6 +200,33 @@ Player.prototype.getEmbedUrl_ = function() {
   var rootSplit = split.slice(0, split.length - 2);
   var rootPath = rootSplit.join('/');
   return rootPath + '/index.html';
+};
+
+Player.prototype.getDirName_ = function() {
+  var path = window.location.pathname;
+  path = path.substring(0, path.lastIndexOf('/'));
+  return location.protocol + '//' + location.host + path;
+};
+
+/**
+ * Make all of the URLs inside contentInfo absolute instead of relative.
+ */
+Player.prototype.absolutifyPaths_ = function(contentInfo) {
+  var dirName = this.getDirName_();
+  var urlParams = ['image', 'preview', 'video'];
+
+  for (var i = 0; i < urlParams.length; i++) {
+    var name = urlParams[i];
+    var path = contentInfo[name];
+    if (path && Util.isPathAbsolute(path)) {
+      var absolute = Util.relativeToAbsolutePath(dirName, path);
+      contentInfo[name] = absolute;
+      console.log('Converted to absolute: %s', absolute);
+    }
+  }
+
+
+
 };
 
 

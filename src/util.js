@@ -189,4 +189,27 @@ Util.parseBoolean = function(value) {
   }
 };
 
+/**
+ * @param rootPath {String} An absolute directory root.
+ * @param relPath {String} A relative path.
+ *
+ * @returns {String} An absolute path corresponding to the rootPath.
+ */
+Util.relativeToAbsolutePath = function(rootPath, relPath) {
+  if (relPath === undefined) {
+    return undefined;
+  }
+  var link = document.createElement('a');
+  link.href = rootPath + '/' + relPath;
+  return (link.protocol + '//' + link.host + link.pathname + link.search + link.hash);
+};
+
+/**
+ * @return {Boolean} True iff the specified path is an absolute path.
+ */
+Util.isPathAbsolute = function(path) {
+  return ! /^(?:\/|[a-z]+:\/\/)/.test(path);
+}
+
+
 module.exports = Util;
