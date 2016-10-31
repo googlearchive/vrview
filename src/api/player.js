@@ -18,7 +18,8 @@ var IFrameMessageSender = require('./iframe-message-sender');
 var Message = require('../message');
 var Util = require('../util');
 
-var EMBED_URL = '../../index.html?';
+// Save the executing script. This will be used to calculate the embed URL.
+var CURRENT_SCRIPT_SRC = document.currentScript.src;
 var FAKE_FULLSCREEN_CLASS = 'vrview-fake-fullscreen';
 
 /**
@@ -120,7 +121,7 @@ Player.prototype.createIframe_ = function(params) {
     delete params.height;
   }
 
-  var url = EMBED_URL + Util.createGetParams(params);
+  var url = this.getEmbedUrl_() + Util.createGetParams(params);
   iframe.src = url;
 
   return iframe;
@@ -186,6 +187,16 @@ Player.prototype.injectFullscreenStylesheet_ = function() {
   var style = document.createElement('style');
   style.innerHTML = styleString;
   document.body.appendChild(style);
+};
+
+Player.prototype.getEmbedUrl_ = function() {
+  // Assume that the script is in $ROOT/build/something.js, and that the iframe
+  // HTML is in $ROOT.
+  var path = CURRENT_SCRIPT_SRC;
+  var split = path.split('/');
+  var rootSplit = split.slice(0, split.length - 2);
+  var rootPath = rootSplit.join('/');
+  return rootPath + '/index.html';
 };
 
 
