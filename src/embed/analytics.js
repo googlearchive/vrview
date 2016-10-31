@@ -23,7 +23,7 @@ function Analytics() {
   ga('send', 'pageview');
 
   this.lastModeChangeTime = window.performance.now();
-  this.lastModeLabel = WebVRManager.Modes.UNKNOWN;
+  this.lastModeLabel = Analytics.MODE_LABELS[0];
 }
 
 Analytics.MODE_LABELS = {
