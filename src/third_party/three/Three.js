@@ -18,10 +18,10 @@ export { Vector4 } from '../../../node_modules/three/src/math/Vector4.js';
 export { Vector3 } from '../../../node_modules/three/src/math/Vector3.js';
 export { Vector2 } from '../../../node_modules/three/src/math/Vector2.js';
 export { ColorKeywords, Color } from '../../../node_modules/three/src/math/Color.js';
-export { TorusGeometry } from '../../../node_modules/three/src/extras/geometries/TorusGeometry.js';
-export { SphereGeometry } from '../../../node_modules/three/src/extras/geometries/SphereGeometry.js';
-export { CircleGeometry } from '../../../node_modules/three/src/extras/geometries/CircleGeometry.js';
-export { RingGeometry } from '../../../node_modules/three/src/extras/geometries/RingGeometry.js';
+export { TorusGeometry } from '../../../node_modules/three/src/geometries/TorusGeometry.js';
+export { SphereGeometry } from '../../../node_modules/three/src/geometries/SphereGeometry.js';
+export { CircleGeometry } from '../../../node_modules/three/src/geometries/CircleGeometry.js';
+export { RingGeometry } from '../../../node_modules/three/src/geometries/RingGeometry.js';
 export * from '../../../node_modules/three/src/constants.js';
 
 import '../../../node_modules/three/examples/js/controls/VRControls.js';

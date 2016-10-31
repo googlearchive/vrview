@@ -266,7 +266,7 @@ WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
     analytics.logModeChanged(isVR);
   }
 
-  // When exiting VR mode, make sure we emit back an exit-fullscreen event.
+  // When exiting VR mode from iOS, make sure we emit back an exit-fullscreen event.
   if (!isVR && Util.isIOS()) {
     Util.sendParentMessage({type: 'exit-fullscreen'});
   }

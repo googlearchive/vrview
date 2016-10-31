@@ -7,3 +7,4 @@ var WebGL2RenderingContext;
 var VRDisplay;
 var PositionSensorVRDevice;
 var HMDVRDevice;
+var VRFrameData;
