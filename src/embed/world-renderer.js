@@ -48,6 +48,14 @@ function WorldRenderer() {
   this.hotspotRenderer.on('focus', this.onHotspotFocus_.bind(this));
   this.hotspotRenderer.on('blur', this.onHotspotBlur_.bind(this));
   this.reticleRenderer = new ReticleRenderer(this.camera);
+
+  // Get the VR Display as soon as we initialize.
+  navigator.getVRDisplays().then(function(displays) {
+    if (displays.length > 0) {
+      this.vrDisplay = displays[0];
+    }
+  }.bind(this));
+
 }
 WorldRenderer.prototype = new EventEmitter();
 
@@ -154,7 +162,7 @@ WorldRenderer.prototype.isVRMode = function() {
 };
 
 WorldRenderer.prototype.submitFrame = function() {
-  if (this.vrDisplay) {
+  if (this.isVRMode()) {
     this.vrDisplay.submitFrame();
   }
 };
@@ -260,7 +268,6 @@ WorldRenderer.prototype.onResize_ = function() {
 
 WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
   console.log('onVRDisplayPresentChange_');
-  this.vrDisplay = e.display;
   var isVR = this.isVRMode();
 
   // If the mode changed to VR and there is at least one hotspot, show reticle.
