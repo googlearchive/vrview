@@ -211,5 +211,9 @@ Util.isPathAbsolute = function(path) {
   return ! /^(?:\/|[a-z]+:\/\/)/.test(path);
 }
 
+Util.isEmptyObject = function(obj) {
+  return Object.getOwnPropertyNames(obj).length == 0;
+};
+
 
 module.exports = Util;

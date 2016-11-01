@@ -218,7 +218,7 @@ HotspotRenderer.prototype.onTouchStart_ = function(e) {
 
 HotspotRenderer.prototype.onTouchEnd_ = function(e) {
   // If no hotspots are pressed, emit an empty click event.
-  if (!this.downHotspots) {
+  if (Util.isEmptyObject(this.downHotspots)) {
     this.emit('click');
     return;
   }
@@ -256,7 +256,7 @@ HotspotRenderer.prototype.onMouseUp_ = function(e) {
   this.updateMouse_(e);
 
   // If no hotspots are pressed, emit an empty click event.
-  if (!this.downHotspots) {
+  if (Util.isEmptyObject(this.downHotspots)) {
     this.emit('click');
     return;
   }
