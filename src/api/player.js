@@ -221,12 +221,9 @@ Player.prototype.absolutifyPaths_ = function(contentInfo) {
     if (path && Util.isPathAbsolute(path)) {
       var absolute = Util.relativeToAbsolutePath(dirName, path);
       contentInfo[name] = absolute;
-      console.log('Converted to absolute: %s', absolute);
+      //console.log('Converted to absolute: %s', absolute);
     }
   }
-
-
-
 };
 
 

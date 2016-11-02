@@ -139,7 +139,9 @@ function onModeChange(e) {
 
 function onHotspotClick(e) {
   console.log('onHotspotClick', e.id);
-  loadScene(e.id);
+  if (e.id) {
+    loadScene(e.id);
+  }
 }
 
 function loadScene(id) {

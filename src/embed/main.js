@@ -157,7 +157,7 @@ function onSetContent(e) {
     // Update the URL to reflect the new scene. This is important particularily
     // on iOS where we use a fake fullscreen mode.
     var url = scene.getCurrentUrl();
-    console.log('Updating url to be %s', url);
+    //console.log('Updating url to be %s', url);
     window.history.pushState(null, 'VR View', url);
 
     // And set the new scene.
