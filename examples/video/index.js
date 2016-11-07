@@ -23,10 +23,9 @@ function onLoad() {
     height: 480,
     video: 'congo_2048.mp4',
     is_stereo: true,
-    is_debug: true,
+    //is_debug: true,
     //default_heading: 90,
     //is_yaw_only: true,
-    is_autopan_off: true,
     //is_vr_off: true,
   });
   vrView.on('ready', onVRViewReady);
