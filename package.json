@@ -1,6 +1,6 @@
 {
   "name": "vrview",
-  "version": "2.0.0-pre2",
+  "version": "2.0.0",
   "description": "Embed VR content into your webpage.",
   "main": "index.js",
   "dependencies": {

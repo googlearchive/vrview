@@ -13,16 +13,7 @@ This package lives in the npm index.
 
 Relevant commands:
 
-    npm build - builds the module.
-    npm build-analytics - builds the module with analytics support.
-    npm watch - auto-builds the module whenever any source changes.
-
-
-# Updating the npm entry
-
-Once changes are made, a new version can be published to the index using the
-following commands:
-
-    npm version <NEW_VERSION>
-    npm publish
-    git push
+    npm build - builds the iframe embed.
+    npm build-api - builds the JS API.
+    npm watch - auto-builds the iframe embed whenever any source changes.
+    npm watch-api - auto-builds the JS API code whenever any source changes.
