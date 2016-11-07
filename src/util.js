@@ -215,5 +215,9 @@ Util.isEmptyObject = function(obj) {
   return Object.getOwnPropertyNames(obj).length == 0;
 };
 
+Util.isDebug = function() {
+  return Util.parseBoolean(Util.getQueryParameter('debug'));
+};
+
 
 module.exports = Util;

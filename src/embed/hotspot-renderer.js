@@ -37,7 +37,7 @@ var FADE_END_ANGLE_DEG = 60;
  *   Adding and removing hotspots.
  *   Rendering the hotspots (debug mode only).
  *   Notifying when hotspots are interacted with.
- * 
+ *
  * Emits the following events:
  *   click (id): a hotspot is clicked.
  *   focus (id): a hotspot is focused.
@@ -92,7 +92,6 @@ HotspotRenderer.prototype = new EventEmitter();
  * @param hotspotId {String} The ID of the hotspot.
  */
 HotspotRenderer.prototype.add = function(pitch, yaw, radius, distance, id) {
-  console.log('HotspotRenderer.add', pitch, yaw, radius, distance, id);
   // If a hotspot already exists with this ID, stop.
   if (this.hotspots[id]) {
     // TODO: Proper error reporting.

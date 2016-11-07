@@ -133,7 +133,9 @@ function onPauseRequest() {
 }
 
 function onAddHotspot(e) {
-  console.log('onAddHotspot', e);
+  if (Util.isDebug()) {
+    console.log('onAddHotspot', e);
+  }
   // TODO: Implement some validation?
 
   var pitch = parseFloat(e.pitch);
@@ -145,7 +147,9 @@ function onAddHotspot(e) {
 }
 
 function onSetContent(e) {
-  console.log('onSetContent', e);
+  if (Util.isDebug()) {
+    console.log('onSetContent', e);
+  }
   // Remove all of the hotspots.
   worldRenderer.hotspotRenderer.clearAll();
   // Fade to black.

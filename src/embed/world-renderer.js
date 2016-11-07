@@ -152,7 +152,9 @@ WorldRenderer.prototype.setScene = function(scene) {
   }
 
   this.sceneInfo = scene;
-  console.log('Loaded scene', scene);
+  if (Util.isDebug()) {
+    console.log('Loaded scene', scene);
+  }
 
   return promise;
 };
@@ -267,13 +269,14 @@ WorldRenderer.prototype.onResize_ = function() {
 };
 
 WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
-  console.log('onVRDisplayPresentChange_');
+  if (Util.isDebug()) {
+    console.log('onVRDisplayPresentChange_');
+  }
   var isVR = this.isVRMode();
 
   // If the mode changed to VR and there is at least one hotspot, show reticle.
   var isReticleVisible = isVR && this.hotspotRenderer.getCount() > 0;
   //this.reticleRenderer.setVisibility(isReticleVisible);
-  console.log('Mode changed and reticle visibility is now: %s', isReticleVisible);
 
   // Resize the renderer for good measure.
   this.onResize_();
@@ -304,13 +307,11 @@ WorldRenderer.prototype.createScene_ = function(opt_params) {
 };
 
 WorldRenderer.prototype.onHotspotFocus_ = function(id) {
-  console.log('onHotspotFocus_', id);
   // Set the default cursor to be a pointer.
   this.setCursor_('pointer');
 };
 
 WorldRenderer.prototype.onHotspotBlur_ = function(id) {
-  console.log('onHotspotBlur_', id);
   // Reset the default cursor to be the default one.
   this.setCursor_('');
 };

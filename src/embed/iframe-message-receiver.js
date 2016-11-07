@@ -14,6 +14,7 @@
  */
 var EventEmitter = require('eventemitter3');
 var Message = require('../message');
+var Util = require('../util');
 
 
 /**
@@ -33,7 +34,9 @@ function IFrameMessageReceiver() {
 IFrameMessageReceiver.prototype = new EventEmitter();
 
 IFrameMessageReceiver.prototype.onMessage_ = function(event) {
-  console.log('onMessage_', event);
+  if (Util.isDebug()) {
+    console.log('onMessage_', event);
+  }
 
   var message = event.data;
   var type = message.type.toLowerCase();
@@ -53,7 +56,9 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
       this.emit(type, data);
       break;
     default:
-      console.warn('Got unknown message of type %s from %s', message.type, message.origin);
+      if (Util.isDebug()) {
+        console.warn('Got unknown message of type %s from %s', message.type, message.origin);
+      }
   }
 };
 

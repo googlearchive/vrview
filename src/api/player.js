@@ -143,7 +143,6 @@ Player.prototype.onMessage_ = function(event) {
       this.emit(type, data);
       break;
     case 'paused':
-      console.log('isPaused', data);
       this.isPaused = data;
       break;
     case 'enter-fullscreen':
