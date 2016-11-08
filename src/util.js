@@ -190,18 +190,27 @@ Util.parseBoolean = function(value) {
 };
 
 /**
- * @param rootPath {String} An absolute directory root.
- * @param relPath {String} A relative path.
+ * @param base {String} An absolute directory root.
+ * @param relative {String} A relative path.
  *
  * @returns {String} An absolute path corresponding to the rootPath.
+ *
+ * From http://stackoverflow.com/a/14780463/693934.
  */
-Util.relativeToAbsolutePath = function(rootPath, relPath) {
-  if (relPath === undefined) {
-    return undefined;
+Util.relativeToAbsolutePath = function(base, relative) {
+  var stack = base.split('/');
+  var parts = relative.split('/');
+  for (var i = 0; i < parts.length; i++) {
+    if (parts[i] == '.') {
+      continue;
+    }
+    if (parts[i] == '..') {
+      stack.pop();
+    } else {
+      stack.push(parts[i]);
+    }
   }
-  var link = document.createElement('a');
-  link.href = rootPath + '/' + relPath;
-  return (link.protocol + '//' + link.host + link.pathname + link.search + link.hash);
+  return stack.join('/');
 };
 
 /**
