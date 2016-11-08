@@ -19,7 +19,7 @@ var Message = require('../message');
 var Util = require('../util');
 
 // Save the executing script. This will be used to calculate the embed URL.
-var CURRENT_SCRIPT_SRC = document.currentScript.src;
+var CURRENT_SCRIPT_SRC = Util.getCurrentScript().src;
 var FAKE_FULLSCREEN_CLASS = 'vrview-fake-fullscreen';
 
 /**
@@ -193,7 +193,9 @@ Player.prototype.injectFullscreenStylesheet_ = function() {
 
 Player.prototype.getEmbedUrl_ = function() {
   // Assume that the script is in $ROOT/build/something.js, and that the iframe
-  // HTML is in $ROOT.
+  // HTML is in $ROOT/index.html.
+  //
+  // E.g: /vrview/2.0/build/vrview.min.js => /vrview/2.0/index.html.
   var path = CURRENT_SCRIPT_SRC;
   var split = path.split('/');
   var rootSplit = split.slice(0, split.length - 2);

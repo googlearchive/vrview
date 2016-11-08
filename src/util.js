@@ -219,5 +219,11 @@ Util.isDebug = function() {
   return Util.parseBoolean(Util.getQueryParameter('debug'));
 };
 
+Util.getCurrentScript = function() {
+  // Note: in IE11, document.currentScript doesn't work, so we fall back to this
+  // hack, taken from https://goo.gl/TpExuH.
+  return document.currentScript || document.scripts[document.scripts.length - 1];
+}
+
 
 module.exports = Util;
