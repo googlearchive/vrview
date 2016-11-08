@@ -222,6 +222,11 @@ Util.isDebug = function() {
 Util.getCurrentScript = function() {
   // Note: in IE11, document.currentScript doesn't work, so we fall back to this
   // hack, taken from https://goo.gl/TpExuH.
+  if (!document.currentScript) {
+    console.warn('document.currentScript not supported.');
+    var lastScript = document.scripts[document.scripts.length - 1];
+    console.warn('last script src', lastScript.src);
+  }
   return document.currentScript || document.scripts[document.scripts.length - 1];
 }
 
