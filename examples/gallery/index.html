@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>VR View - gallery example</title>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <link href="../style.css" rel="stylesheet" type="text/css">
+    <style>
+      ul.carousel {
+        display: flex;
+        width: 720px;
+        margin: 20px auto;
+        padding: 0;
+        justify-content: center;
+        overflow: auto;
+      }
+
+      /* MOBILE */
+      @media screen and (max-width: 700px) {
+        ul.carousel {
+          width: 100%;
+          justify-content: flex-start;
+        }
+
+          ul.carousel li:first-child {
+            padding-left: 0;
+          }
+
+          ul.carousel li:last-child {
+            padding-right: 0;
+          }
+      }
+
+        ul.carousel li {
+          list-style: none;
+          margin: 0;
+          padding: 0 10px;
+          display: inline-block;
+        }
+          ul.carousel li a {
+            display: inline-block;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            color: #999;
+            text-decoration: none;
+          }
+            ul.carousel li a.current {
+              color: blue;
+              text-decoration: underline;
+            }
+            ul.carousel li a img {
+              width: 124px;
+              height: 80px;
+            }
+            ul.carousel li a small {
+              display: block;
+            }
+    </style>
+  </head>
+  <body>
+    <h1>New7Wonders of World</h1>
+    <h2>A 2001 initiative</h2>
+    <p>Started by the Swiss corporation New7Wonders Foundation to choose the New7Wonders of the World, the finalists were announced at the start of 2006, from a selection of 200 existing monuments.</p>
+
+    <p>Below are five of the seven wonders, as announced in July, 2007.</p>
+
+    <div id="vrview"></div>
+
+    <ul class="carousel">
+      <li>
+        <a href="#petra">
+          <img src="petra-thumbnail.jpg">
+          <small>Petra</small>
+        </a>
+      </li>
+      <li>
+        <a href="#christTheRedeemer">
+          <img src="christ-redeemer-thumbnail.jpg">
+          <small>Christ the Redeemer</small>
+        </a>
+      </li>
+      <li>
+        <a href="#machuPicchu">
+          <img src="machu-picchu-thumbnail.jpg">
+          <small>Machu Picchu</small>
+        </a>
+      </li>
+      <li>
+        <a href="#chichenItza">
+          <img src="chichen-itza-thumbnail.jpg">
+          <small>Chichen Itza</small>
+        </a>
+      </li>
+      <li>
+        <a href="#tajMahal">
+          <img src="taj-mahal-thumbnail.jpg">
+          <small>Taj Mahal</small>
+        </a>
+      </li>
+    </ul>
+
+    <p>Sources: <a href="https://en.wikipedia.org/wiki/Wonders_of_the_World#New7Wonders_of_World">Wikipedia</a> and <a href="https://www.google.com/streetview/">Google Street View</a>.</p>
+
+    <script src="../../build/vrview.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

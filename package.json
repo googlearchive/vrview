@@ -1,22 +1,27 @@
 {
   "name": "vrview",
-  "version": "0.2.0",
+  "version": "2.0.0",
   "description": "Embed VR content into your webpage.",
   "main": "index.js",
-  "//": "TODO: Re-add dependencies once vanilla versions can be used again.",
   "dependencies": {
-    "es6-promise": "^3.0.2"
+    "es6-promise": "^3.0.2",
+    "eventemitter3": "^1.2.0",
+    "shaka-player": "^2.0.0",
+    "stats-js": "^1.0.0-alpha1",
+    "three": "^0.81.0",
+    "tween.js": "^16.3.4",
+    "urijs": "^1.18.2",
+    "webvr-boilerplate": "^0.4.6",
+    "webvr-polyfill": "^0.9.18"
   },
   "devDependencies": {},
   "scripts": {
-    "copy": "cp ../webvr-boilerplate/build/webvr-manager.js node_modules/webvr-boilerplate/build/",
-    "build": "browserify src/main.js | derequire > build/vrview.js",
-    "build-min": "browserify src/main.js | derequire | uglifyjs -c > build/vrview.min.js",
-    "build-analytics": "browserify src/with-analytics.js | derequire > build/vrview-analytics.js",
-    "build-analytics-min": "browserify src/with-analytics.js | derequire | uglifyjs -c > build/vrview-analytics.min.js",
-    "build-dms": "uglifyjs scripts/js/device-motion-sender.js > build/device-motion-sender.min.js",
-    "watch": "watchify src/main.js -v -d -o build/vrview.js",
-    "deploy": "./scripts/deploy.sh"
+    "build": "browserify src/embed/with-analytics.js | derequire | uglifyjs -c > build/embed.min.js && npm run build-three-closure",
+    "build-api": "browserify --standalone VRView src/api/main.js | derequire | uglifyjs -c > build/vrview.min.js",
+    "watch": "watchify src/embed/main.js -v -d -o build/embed.js",
+    "watch-api": "watchify --standalone VRView src/api/main.js -v -d -o build/vrview.js",
+    "build-three-closure": "rollup -c src/third_party/three/rollup.config.js && java -jar src/third_party/three/closure-compiler-v20160713.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs src/third_party/three/externs.js --language_in=ECMASCRIPT5_STRICT --js build/three.js --js_output_file build/three.min.js",
+    "build-dms": "uglifyjs scripts/js/device-motion-sender.js > build/device-motion-sender.min.js"
   },
   "repository": {
     "type": "git",

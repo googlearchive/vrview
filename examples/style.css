@@ -1,48 +1,94 @@
-body {
+html, body {
   margin: 0;
+  padding: 0;
+  font-family: "Roboto", Arial, sans-serif;
 }
-h1, h2 {
-  font-family: 'Lora', serif;
-}
+
 h1 { font-size: 2rem; }
 h2 { font-size: 1.5rem; }
-
 p {
-  font-family: 'Open Sans', sans-serif;
   font-size: 0.9rem;
+  line-height: 1.4rem;
 }
 
-h1, h2, p {
+h1, h2, h3, p {
   margin: 1rem;
 }
 
 p.caption {
-  font-size: 0.7rem
+  font-size: 0.7rem;
   margin-bottom: 0;
   margin-top: 0;
-  font-family: 'Lora', serif;
 }
 
-iframe { border: 0; }
+iframe {
+  display: block;
+  border: none;
+  margin: 10px auto;
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+}
 
+#controls {
+  overflow: hidden;
+  background: #eee;
+  margin: 0 auto;
+}
+
+  #controls > * {
+    margin: 8px;
+    cursor: pointer;
+    opacity: 0.5;
+  }
+ 
+  #controls > *:hover {
+    opacity: 1;
+  }
+
+
+#toggleplay {
+  float: left;
+  background: url('img/ic_pause_black_24dp.svg');
+  width: 24px;
+  height: 24px;
+}
+
+  #toggleplay.paused {
+    background: url('img/ic_play_arrow_black_24dp.svg');
+  }
+
+#togglemute {
+  float: right;
+  background: url('img/ic_volume_up_black_24dp.svg');
+  width: 24px;
+  height: 24px;
+}
+
+  #togglemute.muted {
+    background: url('img/ic_volume_off_black_24dp.svg');
+  }
 
 /* MOBILE */
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 700px) {
   iframe {
+    width: 100%;
     height: 240px;
   }
 }
 /* DESKTOP */
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 700px) {
   iframe {
     height: 400px;
     width: 700px;
-    margin: 1rem auto;
-    display: block;
   }
+
   h1, h2, p {
     width: 700px;
     margin: 1rem auto;
   }
-}
 
+  #controls {
+    width: 700px;
+  }
+}

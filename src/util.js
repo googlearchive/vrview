@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Google Inc. All Rights Reserved.
+ * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +37,10 @@ Util.isMobile = function() {
 
 Util.isIOS = function() {
   return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+};
+
+Util.isSafari = function() {
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 };
 
 Util.cloneObject = function(obj) {
@@ -124,5 +128,114 @@ Util.hypot = Math.hypot || function(x, y) {
 Util.isIE11 = function() {
   return navigator.userAgent.match(/Trident/);
 };
+
+Util.getRectCenter = function(rect) {
+  return new THREE.Vector2(rect.x + rect.width/2, rect.y + rect.height/2);
+};
+
+Util.getScreenWidth = function() {
+  return Math.max(window.screen.width, window.screen.height) *
+      window.devicePixelRatio;
+};
+
+Util.getScreenHeight = function() {
+  return Math.min(window.screen.width, window.screen.height) *
+      window.devicePixelRatio;
+};
+
+Util.isIOS9OrLess = function() {
+  if (!Util.isIOS()) {
+    return false;
+  }
+  var re = /(iPhone|iPad|iPod) OS ([\d_]+)/;
+  var iOSVersion = navigator.userAgent.match(re);
+  if (!iOSVersion) {
+    return false;
+  }
+  // Get the last group.
+  var versionString = iOSVersion[iOSVersion.length - 1];
+  var majorVersion = parseFloat(versionString);
+  return majorVersion <= 9;
+};
+
+Util.getExtension = function(url) {
+  return url.split('.').pop();
+};
+
+Util.createGetParams = function(params) {
+  var out = '?';
+  for (var k in params) {
+    var paramString = k + '=' + params[k] + '&';
+    out += paramString;
+  }
+  // Remove the trailing ampersand.
+  out.substring(0, params.length - 2);
+  return out;
+};
+
+Util.sendParentMessage = function(message) {
+  if (window.parent) {
+    parent.postMessage(message, '*');
+  }
+};
+
+Util.parseBoolean = function(value) {
+  if (value == 'false' || value == 0) {
+    return false;
+  } else if (value == 'true' || value == 1) {
+    return true;
+  } else {
+    return !!value;
+  }
+};
+
+/**
+ * @param base {String} An absolute directory root.
+ * @param relative {String} A relative path.
+ *
+ * @returns {String} An absolute path corresponding to the rootPath.
+ *
+ * From http://stackoverflow.com/a/14780463/693934.
+ */
+Util.relativeToAbsolutePath = function(base, relative) {
+  var stack = base.split('/');
+  var parts = relative.split('/');
+  for (var i = 0; i < parts.length; i++) {
+    if (parts[i] == '.') {
+      continue;
+    }
+    if (parts[i] == '..') {
+      stack.pop();
+    } else {
+      stack.push(parts[i]);
+    }
+  }
+  return stack.join('/');
+};
+
+/**
+ * @return {Boolean} True iff the specified path is an absolute path.
+ */
+Util.isPathAbsolute = function(path) {
+  return ! /^(?:\/|[a-z]+:\/\/)/.test(path);
+}
+
+Util.isEmptyObject = function(obj) {
+  return Object.getOwnPropertyNames(obj).length == 0;
+};
+
+Util.isDebug = function() {
+  return Util.parseBoolean(Util.getQueryParameter('debug'));
+};
+
+Util.getCurrentScript = function() {
+  // Note: in IE11, document.currentScript doesn't work, so we fall back to this
+  // hack, taken from https://goo.gl/TpExuH.
+  if (!document.currentScript) {
+    console.warn('This browser does not support document.currentScript. Trying fallback.');
+  }
+  return document.currentScript || document.scripts[document.scripts.length - 1];
+}
+
 
 module.exports = Util;

@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="stylesheet" href="style.css">
 	</head>
+
 	<body>
     <div id="error" class="dialog">
       <div class="wrap">
@@ -17,10 +18,22 @@
       </div>
     </div>
 
+    <div id="play-overlay">
+      <img src="images/ic_play_arrow_white_24dp.svg"/>
+    </div>
+
     <a id="watermark" href="http://g.co/vr/view" target="_blank">
       <img src="images/ic_info_outline_black_24dp.svg"/>
     </a>
 
-    <script src="build/vrview-analytics.min.js"></script>
+    <script>
+WebVRConfig = {
+  BUFFER_SCALE: 0.5,
+  TOUCH_PANNER_DISABLED: false
+};
+    </script>
+
+    <script src="build/three.js"></script>
+    <script src="build/embed.js"></script>
 	</body>
 </html>

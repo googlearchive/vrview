@@ -9,6 +9,12 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
+
+  /* Prevent user selection. */
+  user-select: none;
+  touch-callout: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 .dialog {
   display: none;
@@ -42,26 +48,6 @@ a, a:visited {
   color: skyblue;
 }
 
-#title {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  position: absolute;
-  top: 10%;
-  width: 100%;
-  font-size: 3em;
-  font-family: 'Dosis';
-  opacity: 1;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-  margin: 0 0.5rem;
-}
-
-#title.hidden {
-  opacity: 0;
-}
-
 #watermark img {
   position: fixed;
   overflow: hidden;
@@ -71,6 +57,9 @@ a, a:visited {
   width: 24px;
   height: 24px;
   padding: 12px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 #watermark img:hover {
   opacity: 1;
@@ -83,4 +72,29 @@ canvas {
 }
 canvas:active {
   cursor: -webkit-grabbing;
+}
+
+#play-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+	align-items: center;
+  justify-content: center;
+}
+#play-overlay.visible {
+	display: flex;
+}
+#play-overlay img {
+  width: 30%;
+  height: 30%;
+}
+
+#error .message {
+  font-family: monospace;
 }
