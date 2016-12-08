@@ -132,6 +132,10 @@ Player.prototype.createIframe_ = function(contentInfo) {
 
 Player.prototype.onMessage_ = function(event) {
   var message = event.data;
+  if (!message || !message.type) {
+    console.warn('Received message with no type.');
+    return;
+  }
   var type = message.type.toLowerCase();
   var data = message.data;
 
