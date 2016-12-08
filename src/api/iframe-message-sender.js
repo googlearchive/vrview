@@ -29,7 +29,7 @@ function IFrameMessageSender(iframe) {
   this.iframe = iframe;
 
   // On iOS, if the iframe is across domains, also send DeviceMotion data.
-  if (this.isIOS_() && this.isCrossDomainIframe_()) {
+  if (this.isIOS_() && this.isCrossDomainIframe_(iframe)) {
     window.addEventListener('devicemotion', this.onDeviceMotion_.bind(this), false);
   }
 }
@@ -68,7 +68,8 @@ IFrameMessageSender.prototype.cloneDeviceMotionEvent_ = function(e) {
       beta: e.rotationRate.beta,
       gamma: e.rotationRate.gamma,
     },
-    interval: e.interval
+    interval: e.interval,
+    timeStamp: e.timeStamp
   };
 };
 
@@ -79,7 +80,7 @@ IFrameMessageSender.prototype.isIOS_ = function() {
 // From http://stackoverflow.com/questions/12381334/foolproof-way-to-detect-if-iframe-is-cross-domain.
 IFrameMessageSender.prototype.isCrossDomainIframe_ = function(iframe) {
   var html = null;
-  try { 
+  try {
     var doc = iframe.contentDocument || iframe.contentWindow.document;
     html = doc.body.innerHTML;
   } catch (err) {
