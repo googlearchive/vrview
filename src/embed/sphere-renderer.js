@@ -62,8 +62,8 @@ SphereRenderer.prototype.set360Video = function(videoElement, opt_params) {
 
     // Load the video texture.
     var videoTexture = new THREE.VideoTexture(videoElement);
-    videoTexture.minFilter = THREE.NearestFilter;
-    videoTexture.magFilter = THREE.NearestFilter;
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
     videoTexture.format = THREE.RGBFormat;
     videoTexture.generateMipmaps = false;
     videoTexture.needsUpdate = true;
