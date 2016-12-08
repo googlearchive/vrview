@@ -36,7 +36,10 @@ var DEFAULT_BITS_PER_SECOND = 1000000;
  */
 function AdaptivePlayer() {
   this.video = document.createElement('video');
-  this.video.loop = true;
+  // Loop by default.
+  this.video.setAttribute('loop', true);
+  // For FF, make sure we enable preload.
+  this.video.setAttribute('preload', 'auto');
   // Enable inline video playback in iOS 10+.
   this.video.setAttribute('playsinline', true);
   this.video.setAttribute('crossorigin', 'anonymous');
