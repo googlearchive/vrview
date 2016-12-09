@@ -77,16 +77,4 @@ IFrameMessageSender.prototype.isIOS_ = function() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 };
 
-// From http://stackoverflow.com/questions/12381334/foolproof-way-to-detect-if-iframe-is-cross-domain.
-IFrameMessageSender.prototype.isCrossDomainIframe_ = function(iframe) {
-  var html = null;
-  try {
-    var doc = iframe.contentDocument || iframe.contentWindow.document;
-    html = doc.body.innerHTML;
-  } catch (err) {
-  }
-
-  return (html === null);
-};
-
 module.exports = IFrameMessageSender;

@@ -25,8 +25,12 @@ var Util = require('../util');
  *    Adding hotspots.
  *    Sending messages back to the containing iframe when hotspot is clicked
  *    Sending analytics events to containing iframe.
- *    Receiving DeviceMotion events and resynthesizing them in this iframe
- *        (workaround for https://bugs.webkit.org/show_bug.cgi?id=150072).
+ *
+ * Note: this script used to also respond to synthetic devicemotion events, but
+ * no longer does so. This is because as of iOS 9.2, Safari disallows listening
+ * for devicemotion events within cross-device iframes. To work around this, the
+ * webvr-polyfill responds to the postMessage event containing devicemotion
+ * information (sent by the iframe-message-sender in the VR View API).
  */
 function IFrameMessageReceiver() {
   window.addEventListener('message', this.onMessage_.bind(this), false);
@@ -43,16 +47,11 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
   var data = message.data;
 
   switch (type) {
-    case Message.DEVICE_MOTION:
-      // Synthesize a DeviceMotion event.
-      this.synthesizeDeviceMotionEvent_(message.deviceMotionEvent);
-      break;
     case Message.SET_CONTENT:
     case Message.SET_VOLUME:
     case Message.ADD_HOTSPOT:
     case Message.PLAY:
     case Message.PAUSE:
-      // TODO(smus): Emit the event 
       this.emit(type, data);
       break;
     default:
@@ -60,21 +59,6 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
         console.warn('Got unknown message of type %s from %s', message.type, message.origin);
       }
   }
-};
-
-IFrameMessageReceiver.prototype.synthesizeDeviceMotionEvent_ = function(eventData) {
-  var type = 'devicemotion-iframe';
-  var canBubble = false;
-  var cancelable = false;
-
-  var dme = document.createEvent('DeviceMotionEvent');
-  dme.initDeviceMotionEvent(type, canBubble, cancelable,
-      eventData.acceleration,
-      eventData.accelerationIncludingGravity,
-      eventData.rotationRate,
-      eventData.interval);
-
-  window.dispatchEvent(dme);
 };
 
 module.exports = IFrameMessageReceiver;
