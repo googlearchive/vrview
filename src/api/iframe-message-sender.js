@@ -29,7 +29,7 @@ function IFrameMessageSender(iframe) {
   this.iframe = iframe;
 
   // On iOS, if the iframe is across domains, also send DeviceMotion data.
-  if (this.isIOS_() && this.isCrossDomainIframe_(iframe)) {
+  if (this.isIOS_()) {
     window.addEventListener('devicemotion', this.onDeviceMotion_.bind(this), false);
   }
 }
