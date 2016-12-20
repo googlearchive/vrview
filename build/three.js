@@ -1704,7 +1704,7 @@ Vector3.prototype = {
 		if ( typeof m === 'number' ) {
 
 			console.warn( 'THREE.Vector3: setFromMatrixColumn now expects ( matrix, index ).' );
-			var temp = m
+			var temp = m;
 			m = index;
 			index = temp;
 
@@ -23942,6 +23942,7 @@ exports.Scene = Scene;
 exports.Mesh = Mesh;
 exports.VideoTexture = VideoTexture;
 exports.MeshBasicMaterial = MeshBasicMaterial;
+exports.ShaderMaterial = ShaderMaterial;
 exports.TextureLoader = TextureLoader;
 exports.PerspectiveCamera = PerspectiveCamera;
 exports.Object3DIdCount = Object3DIdCount;
