@@ -14,7 +14,13 @@
     "webvr-boilerplate": "^0.4.6",
     "webvr-polyfill": "^0.9.18"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "browserify": "^13.1.1",
+    "derequire": "^2.0.6",
+    "rollup": "^0.37.2",
+    "uglifyjs": "^2.4.10",
+    "watchify": "^3.8.0"
+  },
   "scripts": {
     "build": "browserify src/embed/with-analytics.js | derequire | uglifyjs -c > build/embed.min.js && npm run build-three-closure",
     "build-api": "browserify --standalone VRView src/api/main.js | derequire | uglifyjs -c > build/vrview.min.js",
