@@ -13,7 +13,7 @@ This package lives in the npm index.
 
 Relevant commands:
 
-    npm build - builds the iframe embed.
-    npm build-api - builds the JS API.
-    npm watch - auto-builds the iframe embed whenever any source changes.
-    npm watch-api - auto-builds the JS API code whenever any source changes.
+    npm run build - builds the iframe embed.
+    npm run build-api - builds the JS API.
+    npm run watch - auto-builds the iframe embed whenever any source changes.
+    npm run watch-api - auto-builds the JS API code whenever any source changes.
