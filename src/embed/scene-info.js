@@ -17,6 +17,7 @@ var CAMEL_TO_UNDERSCORE = {
   video: 'video',
   image: 'image',
   preview: 'preview',
+  loop: 'loop',
   isStereo: 'is_stereo',
   defaultYaw: 'default_yaw',
   isYawOnly: 'is_yaw_only',
@@ -41,6 +42,7 @@ function SceneInfo(opt_params) {
   this.isDebug = Util.parseBoolean(params.isDebug);
   this.isVROff = Util.parseBoolean(params.isVROff);
   this.isAutopanOff = Util.parseBoolean(params.isAutopanOff);
+  this.loop = Util.parseBoolean(params.loop);
 }
 
 SceneInfo.loadFromGetParams = function() {

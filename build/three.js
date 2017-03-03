@@ -1704,7 +1704,7 @@ Vector3.prototype = {
 		if ( typeof m === 'number' ) {
 
 			console.warn( 'THREE.Vector3: setFromMatrixColumn now expects ( matrix, index ).' );
-			var temp = m
+			var temp = m;
 			m = index;
 			index = temp;
 
@@ -24090,6 +24090,7 @@ exports.BasicDepthPacking = BasicDepthPacking;
 exports.RGBADepthPacking = RGBADepthPacking;
 
 Object.defineProperty(exports, '__esModule', { value: true });
+
 
 Object.defineProperty( exports, 'AudioContext', {
 	get: function () {
