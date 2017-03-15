@@ -8,11 +8,11 @@
     "eventemitter3": "^1.2.0",
     "shaka-player": "^2.0.0",
     "stats-js": "^1.0.0-alpha1",
-    "three": "^0.81.0",
+    "three": "^0.84.0",
     "tween.js": "^16.3.4",
     "urijs": "^1.18.2",
     "webvr-boilerplate": "^0.4.6",
-    "webvr-polyfill": "^0.9.18"
+    "webvr-polyfill": "^0.9.26"
   },
   "devDependencies": {
     "browserify": "^13.1.1",
