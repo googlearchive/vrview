@@ -49,6 +49,7 @@ function onLoad() {
 
   vrView.on('ready', onVRViewReady);
   vrView.on('modechange', onModeChange);
+  vrView.on('getposition', onGetPosition);
   vrView.on('error', onVRViewError);
 }
 
@@ -67,7 +68,7 @@ function loadScene(id) {
   for (var i = 0; i < carouselLinks.length; i++) {
     carouselLinks[i].classList.remove('current');
   }
-
+    vrView.getPosition();
   // Highlight current carousel item
   document.querySelector('ul.carousel li a[href="#' + id + '"]')
       .classList.add('current');
@@ -97,6 +98,10 @@ function onModeChange(e) {
 
 function onVRViewError(e) {
   console.log('Error! %s', e.message);
+}
+
+function onGetPosition(e) {
+    console.log(e)
 }
 
 window.addEventListener('load', onLoad);

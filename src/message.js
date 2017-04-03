@@ -23,6 +23,7 @@ var Message = {
   SET_CONTENT: 'setimage',
   SET_VOLUME: 'setvolume',
   DEVICE_MOTION: 'devicemotion',
+  GET_POSITION: 'getposition',
 };
 
 module.exports = Message;

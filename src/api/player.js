@@ -144,6 +144,7 @@ Player.prototype.onMessage_ = function(event) {
     case 'modechange':
     case 'error':
     case 'click':
+    case 'getposition':
       this.emit(type, data);
       break;
     case 'paused':
@@ -230,6 +231,11 @@ Player.prototype.absolutifyPaths_ = function(contentInfo) {
     }
   }
 };
-
+/**
+ * Get position YAW, PITCH
+ */
+Player.prototype.getPosition = function() {
+    this.sender.send({type: Message.GET_POSITION, data: {}});
+};
 
 module.exports = Player;
