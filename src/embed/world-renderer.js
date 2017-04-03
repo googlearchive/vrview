@@ -175,6 +175,21 @@ WorldRenderer.prototype.destroy = function() {
     this.player.destroy();
     this.player = null;
   }
+  var eyeLeft = this.scene.getObjectByName('eyeLeft'),
+      photo = this.scene.getObjectByName('photo'),
+      eyeRight = this.scene.getObjectByName('eyeRight');
+
+  if(eyeLeft.material.map ) eyeLeft.material.map.dispose();
+     eyeLeft.material.dispose();
+     eyeLeft.geometry.dispose();
+  photo.remove(eyeLeft);
+  this.scene.remove(eyeLeft);
+
+  if(eyeRight.material.map ) eyeRight.material.map.dispose();
+     eyeRight.material.dispose();
+     eyeRight.geometry.dispose();
+  photo.remove(eyeRight);
+  this.scene.remove(eyeRight);
 }
 
 WorldRenderer.prototype.didLoad_ = function(opt_event) {
