@@ -64,6 +64,7 @@ WorldRenderer.prototype.render = function(time) {
   this.hotspotRenderer.update(this.camera);
   TWEEN.update(time);
   this.effect.render(this.scene, this.camera);
+  this.dispose();
 };
 
 /**
@@ -168,7 +169,16 @@ WorldRenderer.prototype.submitFrame = function() {
     this.vrDisplay.submitFrame();
   }
 };
+WorldRenderer.prototype.dispose = function() {
+    var eyeLeft = this.scene.getObjectByName('eyeLeft'),
+        eyeRight = this.scene.getObjectByName('eyeRight');
+    if(!eyeLeft || !eyeRight) return
+    if(eyeLeft.material.map ) eyeLeft.material.map.dispose();
+       eyeLeft.geometry.dispose();
 
+    if(eyeRight.material.map ) eyeRight.material.map.dispose();
+       eyeRight.geometry.dispose();
+}
 WorldRenderer.prototype.destroy = function() {
   if (this.player) {
     this.player.removeAllListeners();
