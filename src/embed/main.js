@@ -106,18 +106,6 @@ function onRenderLoad(event) {
     event.videoElement.addEventListener('play', onPlay);
     event.videoElement.addEventListener('timeupdate', onGetCurrentTime);
     event.videoElement.addEventListener('ended', onEnded);
-
-    // Notify the API that we are ready, but only do this once.
-    if (!isReadySent) {
-      Util.sendParentMessage({
-        type: 'ready',
-        data: {
-          duration: event.videoElement.duration
-        }
-      });
-      isReadySent = true;
-    }
-  
   }
   // Hide loading indicator.
   loadIndicator.hide();
@@ -125,6 +113,17 @@ function onRenderLoad(event) {
   // Autopan only on desktop, for photos only, and only if autopan is enabled.
   if (!Util.isMobile() && !worldRenderer.sceneInfo.video && !worldRenderer.sceneInfo.isAutopanOff) {
     worldRenderer.autopan();
+  }
+
+  // Notify the API that we are ready, but only do this once.
+  if (!isReadySent) {
+    Util.sendParentMessage({
+      type: 'ready',
+      data: {
+        duration: event.videoElement.duration
+      }
+    });
+    isReadySent = true;
   }
 }
 
