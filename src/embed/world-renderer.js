@@ -64,7 +64,10 @@ WorldRenderer.prototype.render = function(time) {
   this.hotspotRenderer.update(this.camera);
   TWEEN.update(time);
   this.effect.render(this.scene, this.camera);
-  this.emit('timeupdate', this.videoProxy.getCurrentTime());
+  // check if we have a video before emitting a timeupdate to remove errors when using a 360 image
+  if (this.scene.video) {
+    this.emit('timeupdate', this.videoProxy.getCurrentTime());
+  }
 };
 
 /**
