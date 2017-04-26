@@ -64,7 +64,6 @@ WorldRenderer.prototype.render = function(time) {
   this.hotspotRenderer.update(this.camera);
   TWEEN.update(time);
   this.effect.render(this.scene, this.camera);
-  this.dispose();
 };
 
 /**
