@@ -31,6 +31,13 @@ function onLoad() {
     //is_yaw_only: true,
     //is_vr_off: true,
   });
+
+  playButton = document.querySelector('#toggleplay');
+  muteButton = document.querySelector('#togglemute');
+
+  playButton.addEventListener('click', onTogglePlay);
+  muteButton.addEventListener('click', onToggleMute);
+
   vrView.on('ready', onVRViewReady);
 
   vrView.on('play', function() {
@@ -46,13 +53,8 @@ function onLoad() {
   });
   vrView.on('ended', function() {
     console.log('media ended');
+    playButton.classList.add('paused');
   });
-
-  playButton = document.querySelector('#toggleplay');
-  muteButton = document.querySelector('#togglemute');
-
-  playButton.addEventListener('click', onTogglePlay);
-  muteButton.addEventListener('click', onToggleMute);
 }
 
 function onVRViewReady() {
