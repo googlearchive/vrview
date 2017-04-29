@@ -111,7 +111,7 @@ Player.prototype.setVolume = function(volumeLevel) {
 };
 
 Player.prototype.getVolume = function() {
-  return this.volume_;
+  return this.volume;
 };
 
 /**
@@ -183,7 +183,7 @@ Player.prototype.onMessage_ = function(event) {
       this.emit(type, data);
       break;
     case 'volumechange':
-      this.volume_ = data;
+      this.volume = data;
       this.emit('timeupdate', data);
       break;
     case 'timeupdate':
