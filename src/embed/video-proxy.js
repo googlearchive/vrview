@@ -74,10 +74,7 @@ VideoProxy.prototype.setVolume = function(volumeLevel) {
 };
 
 VideoProxy.prototype.getCurrentTime = function() {
-  return {
-    currentTime:  Util.isIOS9OrLess() ? this.audioElement.currentTime : this.videoElement.currentTime,
-    duration: Util.isIOS9OrLess() ? this.audioElement.duration : this.videoElement.duration
-  }
+  return Util.isIOS9OrLess() ? this.audioElement.currentTime : this.videoElement.currentTime;
 };
 
 /**

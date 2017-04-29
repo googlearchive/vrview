@@ -84,7 +84,7 @@ WorldRenderer.prototype.setScene = function(scene) {
 
   var params = {
     isStereo: scene.isStereo,
-    loop: scene.loop
+    loop: scene.player.loop
   };
   this.setDefaultYaw_(scene.defaultYaw || 0);
 
@@ -138,7 +138,7 @@ WorldRenderer.prototype.setScene = function(scene) {
         this.didLoadFail_('Video is not supported on IE11.');
       }
     } else {
-      this.player = new AdaptivePlayer(params.loop);
+      this.player = new AdaptivePlayer(params.player);
       this.player.on('load', function(videoElement) {
         self.sphereRenderer.set360Video(videoElement, params).then(function() {
           self.didLoad_({videoElement: videoElement});
@@ -327,6 +327,5 @@ WorldRenderer.prototype.onContextMenu_ = function(e) {
   e.stopPropagation();
   return false;
 };
-
 
 module.exports = WorldRenderer;

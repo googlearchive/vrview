@@ -23,7 +23,9 @@ function onLoad() {
     height: 480,
     video: 'congo_2048.mp4',
     is_stereo: true,
-    loop: false
+    player: {
+      loop: false
+    }
     //is_debug: true,
     //default_heading: 90,
     //is_yaw_only: true,
@@ -61,9 +63,6 @@ function onVRViewReady() {
   } else {
     playButton.classList.remove('paused');
   }
-
-  // Set media on 00:02
-  vrView.setCurrentTime(2);
 }
 
 function onTogglePlay() {
@@ -87,18 +86,16 @@ function onToggleMute() {
 }
 
 function formatTime (time) {
-
   time = !time || typeof time !== 'number' || time < 0 ? 0 : time;
 
   var minutes = Math.floor(time / 60) % 60,
-      seconds = Math.floor(time % 60)
-  ;
+      seconds = Math.floor(time % 60);
+
   minutes = minutes <= 0 ? 0 : minutes;
   seconds = seconds <= 0 ? 0 : seconds;
 
   var result = (minutes < 10 ? '0' + minutes : minutes) + ':';
   result += seconds < 10 ? '0' + seconds : seconds;
-
   return result;
 }
 

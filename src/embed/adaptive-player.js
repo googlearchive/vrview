@@ -34,10 +34,10 @@ var DEFAULT_BITS_PER_SECOND = 1000000;
  *
  * To play/pause/seek/etc, please use the underlying video element.
  */
-function AdaptivePlayer(loop) {
+function AdaptivePlayer(params) {
   this.video = document.createElement('video');
   // Loop by default.
-  if (loop === true) {
+  if (params.loop === true) {
     this.video.setAttribute('loop', true);
   }
   // For FF, make sure we enable preload.

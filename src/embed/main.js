@@ -36,7 +36,7 @@ receiver.on(Message.PAUSE, onPauseRequest);
 receiver.on(Message.ADD_HOTSPOT, onAddHotspot);
 receiver.on(Message.SET_CONTENT, onSetContent);
 receiver.on(Message.SET_VOLUME, onSetVolume);
-receiver.on(Message.SET_CURRENT_TIME, onUpdateTime);
+receiver.on(Message.SET_CURRENT_TIME, onUpdateCurrentTime);
 
 window.addEventListener('load', onLoad);
 
@@ -200,8 +200,7 @@ function onSetVolume(e) {
   });
 }
 
-function onUpdateTime(time) {
-
+function onUpdateCurrentTime(time) {
   if (!worldRenderer.videoProxy) {
     onApiError('Attempt to pause, but no video found.');
     return;

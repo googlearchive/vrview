@@ -42,7 +42,7 @@ function SceneInfo(opt_params) {
   this.isDebug = Util.parseBoolean(params.isDebug);
   this.isVROff = Util.parseBoolean(params.isVROff);
   this.isAutopanOff = Util.parseBoolean(params.isAutopanOff);
-  this.loop = Util.parseBoolean(params.loop);
+  this.loop = Util.parseBoolean(params.player.loop);
 }
 
 SceneInfo.loadFromGetParams = function() {

@@ -48,9 +48,9 @@ function Player(selector, contentInfo) {
   this.isPaused = false;
 
   // Other public attributes
-  this.time_ = {currentTime: 0, duration: 0};
-
-  this.volume_ = 1;
+  this.currentTime = 0;
+  this.duration = 0;
+  this.volume = 1;
 
   if (Util.isIOS()) {
     this.injectFullscreenStylesheet_();
@@ -80,10 +80,6 @@ Player.prototype.addHotspot = function(hotspotId, params) {
   this.sender.send({type: Message.ADD_HOTSPOT, data: data});
 };
 
-/**
- * HTML5 API
- */
-
 Player.prototype.play = function() {
   this.sender.send({type: Message.PLAY});
 };
@@ -93,7 +89,7 @@ Player.prototype.pause = function() {
 };
 
 /**
- * Equivalent of HTML5 setSrc()
+ * Equivalent of HTML5 setSrc().
  * @param {String} contentInfo
  */
 Player.prototype.setContent = function(contentInfo) {
@@ -115,7 +111,7 @@ Player.prototype.setVolume = function(volumeLevel) {
 };
 
 Player.prototype.getVolume = function() {
-	return this.volume_;
+  return this.volume_;
 };
 
 /**
@@ -130,11 +126,11 @@ Player.prototype.setCurrentTime = function(time) {
 };
 
 Player.prototype.getCurrentTime = function() {
-  return this.time_.currentTime;
+  return this.currentTime;
 };
 
 Player.prototype.getDuration = function() {
-  return this.time_.duration;
+  return this.duration;
 };
 
 /**
@@ -182,7 +178,7 @@ Player.prototype.onMessage_ = function(event) {
     case 'click':
     case 'ended':
       if (type === 'ready') {
-        this.time_.duration = data.duration;
+        this.duration = data.duration;
       }
       this.emit(type, data);
       break;
@@ -191,7 +187,7 @@ Player.prototype.onMessage_ = function(event) {
       this.emit('timeupdate', data);
       break;
     case 'timeupdate':
-      this.time_ = data;
+      this.currentTime = data;
       this.emit('timeupdate', data);
       break;
     case 'play':
