@@ -64,7 +64,6 @@ WorldRenderer.prototype.render = function(time) {
   this.hotspotRenderer.update(this.camera);
   TWEEN.update(time);
   this.effect.render(this.scene, this.camera);
-  this.emit('timeupdate', this.videoProxy.getCurrentTime());
 };
 
 /**
@@ -84,7 +83,7 @@ WorldRenderer.prototype.setScene = function(scene) {
 
   var params = {
     isStereo: scene.isStereo,
-    loop: scene.player.loop
+    loop: scene.loop
   };
   this.setDefaultYaw_(scene.defaultYaw || 0);
 
@@ -138,7 +137,7 @@ WorldRenderer.prototype.setScene = function(scene) {
         this.didLoadFail_('Video is not supported on IE11.');
       }
     } else {
-      this.player = new AdaptivePlayer(params.player);
+      this.player = new AdaptivePlayer(params);
       this.player.on('load', function(videoElement) {
         self.sphereRenderer.set360Video(videoElement, params).then(function() {
           self.didLoad_({videoElement: videoElement});

@@ -178,7 +178,9 @@ Player.prototype.onMessage_ = function(event) {
     case 'click':
     case 'ended':
       if (type === 'ready') {
-        this.duration = data.duration;
+        if (data !== undefined) {
+          this.duration = data.duration;
+	}
       }
       this.emit(type, data);
       break;

@@ -117,12 +117,19 @@ function onRenderLoad(event) {
 
   // Notify the API that we are ready, but only do this once.
   if (!isReadySent) {
-    Util.sendParentMessage({
-      type: 'ready',
-      data: {
-        duration: event.videoElement.duration
-      }
-    });
+    if (event.videoElement) {
+      Util.sendParentMessage({
+        type: 'ready',
+        data: {
+          duration: event.videoElement.duration
+        }
+      });
+    } else {
+      Util.sendParentMessage({
+        type: 'ready'
+      });
+    }
+
     isReadySent = true;
   }
 }
