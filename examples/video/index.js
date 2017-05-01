@@ -23,9 +23,7 @@ function onLoad() {
     height: 480,
     video: 'congo_2048.mp4',
     is_stereo: true,
-    player: {
-      loop: false
-    }
+    loop: false,
     //is_debug: true,
     //default_heading: 90,
     //is_yaw_only: true,

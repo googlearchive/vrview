@@ -31,6 +31,9 @@ var CAMEL_TO_UNDERSCORE = {
  */
 function SceneInfo(opt_params) {
   var params = opt_params || {};
+  params.player = {
+    loop: opt_params.loop
+  };
 
   this.image = params.image;
   this.preview = params.preview;
