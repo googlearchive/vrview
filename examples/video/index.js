@@ -32,6 +32,7 @@ function onLoad() {
 
   playButton = document.querySelector('#toggleplay');
   muteButton = document.querySelector('#togglemute');
+  timeContainer = document.querySelector('#time');
 
   playButton.addEventListener('click', onTogglePlay);
   muteButton.addEventListener('click', onToggleMute);
@@ -46,8 +47,10 @@ function onLoad() {
     console.log('media paused');
   });
   vrView.on('timeupdate', function(e) {
-    document.querySelector('#time').innerText = formatTime(e.currentTime) + ' | ' + formatTime(e.duration);
-    console.log('playing ' + e.currentTime + ' of ' + e.duration + ' secs.');
+    var current = formatTime(e.currentTime);
+    var duration = formatTime(e.duration);
+    timeContainer.innerText = current + ' | ' + duration;
+    console.log('currently playing ' + current + ' secs.');
   });
   vrView.on('ended', function() {
     console.log('media ended');
@@ -85,11 +88,11 @@ function onToggleMute() {
   muteButton.classList.toggle('muted');
 }
 
-function formatTime (time) {
+function formatTime(time) {
   time = !time || typeof time !== 'number' || time < 0 ? 0 : time;
 
-  var minutes = Math.floor(time / 60) % 60,
-      seconds = Math.floor(time % 60);
+  var minutes = Math.floor(time / 60) % 60;
+  var seconds = Math.floor(time % 60);
 
   minutes = minutes <= 0 ? 0 : minutes;
   seconds = seconds <= 0 ? 0 : seconds;
