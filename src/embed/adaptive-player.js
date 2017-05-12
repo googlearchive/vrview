@@ -34,10 +34,12 @@ var DEFAULT_BITS_PER_SECOND = 1000000;
  *
  * To play/pause/seek/etc, please use the underlying video element.
  */
-function AdaptivePlayer() {
+function AdaptivePlayer(params) {
   this.video = document.createElement('video');
   // Loop by default.
-  this.video.setAttribute('loop', true);
+  if (params.loop === true) {
+    this.video.setAttribute('loop', true);
+  }
   // For FF, make sure we enable preload.
   this.video.setAttribute('preload', 'auto');
   // Enable inline video playback in iOS 10+.
@@ -95,10 +97,16 @@ AdaptivePlayer.prototype.onError_ = function(e) {
 };
 
 AdaptivePlayer.prototype.loadVideo_ = function(url) {
-  var video = this.video;
+  var self = this, video = self.video;
   return new Promise(function(resolve, reject) {
     video.src = url;
     video.addEventListener('canplaythrough', resolve);
+    video.addEventListener('loadedmetadata', function() {
+      self.emit('timeupdate', {
+        currentTime: video.currentTime,
+        duration: video.duration
+      });
+    });
     video.addEventListener('error', reject);
     video.load();
   });

@@ -73,6 +73,23 @@ VideoProxy.prototype.setVolume = function(volumeLevel) {
   }
 };
 
+VideoProxy.prototype.getCurrentTime = function() {
+  return Util.isIOS9OrLess() ? this.audioElement.currentTime : this.videoElement.currentTime;
+};
+
+/**
+ *
+ * @param {Object} time
+ */
+VideoProxy.prototype.setCurrentTime = function(time) {
+  if (this.videoElement) {
+    this.videoElement.currentTime = time.currentTime;
+  }
+  if (this.audioElement) {
+    this.audioElement.currentTime = time.currentTime;
+  }
+};
+
 /**
  * Called on RAF to progress playback.
  */
