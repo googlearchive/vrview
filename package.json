@@ -22,12 +22,17 @@
     "watchify": "^3.8.0"
   },
   "scripts": {
-    "build": "browserify src/embed/with-analytics.js | derequire | uglifyjs -c > build/embed.min.js && npm run build-three-closure",
-    "build-api": "browserify --standalone VRView src/api/main.js | derequire | uglifyjs -c > build/vrview.min.js",
-    "watch": "watchify src/embed/main.js -v -d -o build/embed.js",
-    "watch-api": "watchify --standalone VRView src/api/main.js -v -d -o build/vrview.js",
-    "build-three-closure": "rollup -c src/third_party/three/rollup.config.js && java -jar src/third_party/three/closure-compiler-v20160713.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs src/third_party/three/externs.js --language_in=ECMASCRIPT5_STRICT --js build/three.js --js_output_file build/three.min.js",
-    "build-dms": "uglifyjs scripts/js/device-motion-sender.js > build/device-motion-sender.min.js"
+    "_mkdir": "mkdir -p build",
+    "build-min": "npm run _mkdir && browserify src/embed/with-analytics.js | derequire | uglifyjs -c > build/embed.min.js && npm run build-three-closure",
+    "build-dev": "npm run _mkdir && browserify src/embed/with-analytics.js | derequire > build/embed.js && npm run build-three-closure",
+    "build-api-min": "npm run _mkdir && browserify --standalone VRView src/api/main.js | derequire | uglifyjs -c > build/vrview.min.js",
+    "build-api-dev": "npm run _mkdir && browserify --standalone VRView src/api/main.js | derequire > build/vrview.js",
+    "build": "npm run build-min; npm run build-dev; npm run build-api",
+    "build-api": "npm run build-api-min; npm run build-api-dev",
+    "watch": "npm run _mkdir && watchify src/embed/main.js -v -d -o build/embed.js",
+    "watch-api": "npm run _mkdir && watchify --standalone VRView src/api/main.js -v -d -o build/vrview.js",
+    "build-three-closure": "npm run _mkdir && rollup -c src/third_party/three/rollup.config.js && java -jar src/third_party/three/closure-compiler-v20160713.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs src/third_party/three/externs.js --language_in=ECMASCRIPT5_STRICT --js build/three.js --js_output_file build/three.min.js",
+    "build-dms": "npm run _mkdir && uglifyjs scripts/js/device-motion-sender.js > build/device-motion-sender.min.js"
   },
   "repository": {
     "type": "git",
