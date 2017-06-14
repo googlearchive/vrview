@@ -138,8 +138,8 @@ WorldRenderer.prototype.setScene = function(scene) {
       }
     } else {
       this.player = new AdaptivePlayer(params);
-      this.player.on('load', function(videoElement) {
-        self.sphereRenderer.set360Video(videoElement, params).then(function() {
+      this.player.on('load', function(videoElement, videoType) {
+        self.sphereRenderer.set360Video(videoElement, videoType, params).then(function() {
           self.didLoad_({videoElement: videoElement});
         }).catch(self.didLoadFail_.bind(self));
       });
