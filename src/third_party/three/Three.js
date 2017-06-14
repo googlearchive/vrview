@@ -5,6 +5,7 @@ export { Scene } from '../../../node_modules/three/src/scenes/Scene.js';
 export { Mesh } from '../../../node_modules/three/src/objects/Mesh.js';
 export { VideoTexture } from '../../../node_modules/three/src/textures/VideoTexture.js';
 export { MeshBasicMaterial } from '../../../node_modules/three/src/materials/MeshBasicMaterial.js';
+export { ShaderMaterial } from '../../../node_modules/three/src/materials/ShaderMaterial.js';
 export { TextureLoader } from '../../../node_modules/three/src/loaders/TextureLoader.js';
 export { PerspectiveCamera } from '../../../node_modules/three/src/cameras/PerspectiveCamera.js';
 export { Object3D } from '../../../node_modules/three/src/core/Object3D.js';

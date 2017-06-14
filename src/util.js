@@ -159,7 +159,7 @@ Util.isIOS9OrLess = function() {
 };
 
 Util.getExtension = function(url) {
-  return url.split('.').pop();
+  return url.split('.').pop().split('?')[0];
 };
 
 Util.createGetParams = function(params) {
