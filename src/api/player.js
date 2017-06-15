@@ -186,11 +186,14 @@ Player.prototype.onMessage_ = function(event) {
       break;
     case 'volumechange':
       this.volume = data;
-      this.emit('timeupdate', data);
+      this.emit('volumechange', data);
       break;
     case 'timeupdate':
       this.currentTime = data;
-      this.emit('timeupdate', data);
+      this.emit('timeupdate', {
+        currentTime: this.currentTime,
+	duration: this.duration
+      });
       break;
     case 'play':
     case 'paused':
