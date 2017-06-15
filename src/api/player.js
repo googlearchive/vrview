@@ -192,7 +192,7 @@ Player.prototype.onMessage_ = function(event) {
       this.currentTime = data;
       this.emit('timeupdate', {
         currentTime: this.currentTime,
-	duration: this.duration
+        duration: this.duration
       });
       break;
     case 'play':
