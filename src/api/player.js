@@ -47,6 +47,11 @@ function Player(selector, contentInfo) {
   // Expose a public .isPaused attribute.
   this.isPaused = false;
 
+  // Other public attributes
+  this.currentTime = 0;
+  this.duration = 0;
+  this.volume = 1;
+
   if (Util.isIOS()) {
     this.injectFullscreenStylesheet_();
   }
@@ -83,6 +88,10 @@ Player.prototype.pause = function() {
   this.sender.send({type: Message.PAUSE});
 };
 
+/**
+ * Equivalent of HTML5 setSrc().
+ * @param {String} contentInfo
+ */
 Player.prototype.setContent = function(contentInfo) {
   this.absolutifyPaths_(contentInfo);
   var data = {
@@ -99,6 +108,29 @@ Player.prototype.setVolume = function(volumeLevel) {
     volumeLevel: volumeLevel
   };
   this.sender.send({type: Message.SET_VOLUME, data: data});
+};
+
+Player.prototype.getVolume = function() {
+  return this.volume;
+};
+
+/**
+ * Set the current time of the media being played
+ * @param {Number} time
+ */
+Player.prototype.setCurrentTime = function(time) {
+  var data = {
+    currentTime: time
+  };
+  this.sender.send({type: Message.SET_CURRENT_TIME, data: data});
+};
+
+Player.prototype.getCurrentTime = function() {
+  return this.currentTime;
+};
+
+Player.prototype.getDuration = function() {
+  return this.duration;
 };
 
 /**
@@ -144,10 +176,30 @@ Player.prototype.onMessage_ = function(event) {
     case 'modechange':
     case 'error':
     case 'click':
+    case 'ended':
+      if (type === 'ready') {
+        if (data !== undefined) {
+          this.duration = data.duration;
+	}
+      }
       this.emit(type, data);
       break;
+    case 'volumechange':
+      this.volume = data;
+      this.emit('timeupdate', data);
+      break;
+    case 'timeupdate':
+      this.currentTime = data;
+      this.emit('timeupdate', data);
+      break;
+    case 'play':
     case 'paused':
       this.isPaused = data;
+      if (this.isPaused) {
+        this.emit('pause', data);
+      } else {
+        this.emit('play', data);
+      }
       break;
     case 'enter-fullscreen':
     case 'enter-vr':
