@@ -19,9 +19,11 @@
 var Message = {
   PLAY: 'play',
   PAUSE: 'pause',
+  TIMEUPDATE: 'timeupdate',
   ADD_HOTSPOT: 'addhotspot',
   SET_CONTENT: 'setimage',
   SET_VOLUME: 'setvolume',
+  SET_CURRENT_TIME: 'setcurrenttime',
   DEVICE_MOTION: 'devicemotion',
 };
 
