@@ -54,9 +54,15 @@ iframe {
   height: 24px;
 }
 
-  #toggleplay.paused {
-    background: url('img/ic_play_arrow_black_24dp.svg');
-  }
+#toggleplay.paused {
+  background: url('img/ic_play_arrow_black_24dp.svg');
+}
+
+#time {
+  float: left;
+  height: 19px;
+  padding-top: 5px;
+}
 
 #togglemute {
   float: right;

@@ -16,11 +16,7 @@
 var EventEmitter = require('eventemitter3');
 var shaka = require('shaka-player');
 
-var Types = {
-  HLS: 1,
-  DASH: 2,
-  VIDEO: 3
-};
+var Types = require('../video-type');
 
 var DEFAULT_BITS_PER_SECOND = 1000000;
 
@@ -34,10 +30,12 @@ var DEFAULT_BITS_PER_SECOND = 1000000;
  *
  * To play/pause/seek/etc, please use the underlying video element.
  */
-function AdaptivePlayer() {
+function AdaptivePlayer(params) {
   this.video = document.createElement('video');
   // Loop by default.
-  this.video.setAttribute('loop', true);
+  if (params.loop === true) {
+    this.video.setAttribute('loop', true);
+  }
   // For FF, make sure we enable preload.
   this.video.setAttribute('preload', 'auto');
   // Enable inline video playback in iOS 10+.
@@ -59,7 +57,7 @@ AdaptivePlayer.prototype.load = function(url) {
       this.type = Types.HLS;
       if (Util.isSafari()) {
         this.loadVideo_(url).then(function() {
-          self.emit('load', self.video);
+          self.emit('load', self.video, self.type);
         }).catch(this.onError_.bind(this));
       } else {
         self.onError_('HLS is only supported on Safari.');
@@ -69,13 +67,13 @@ AdaptivePlayer.prototype.load = function(url) {
       this.type = Types.DASH;
       this.loadShakaVideo_(url).then(function() {
         console.log('The video has now been loaded!');
-        self.emit('load', self.video);
+        self.emit('load', self.video, self.type);
       }).catch(this.onError_.bind(this));
       break;
     default: // A regular video, not an adaptive manifest.
       this.type = Types.VIDEO;
       this.loadVideo_(url).then(function() {
-        self.emit('load', self.video);
+        self.emit('load', self.video, self.type);
       }).catch(this.onError_.bind(this));
       break;
   }
@@ -95,10 +93,16 @@ AdaptivePlayer.prototype.onError_ = function(e) {
 };
 
 AdaptivePlayer.prototype.loadVideo_ = function(url) {
-  var video = this.video;
+  var self = this, video = self.video;
   return new Promise(function(resolve, reject) {
     video.src = url;
     video.addEventListener('canplaythrough', resolve);
+    video.addEventListener('loadedmetadata', function() {
+      self.emit('timeupdate', {
+        currentTime: video.currentTime,
+        duration: video.duration
+      });
+    });
     video.addEventListener('error', reject);
     video.load();
   });
