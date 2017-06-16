@@ -27,6 +27,3 @@ Relevant commands:
 
 As of 2017/06/13, the pre-built js artifacts have been removed from source
 control. You must run `npm run build` prior to trying any of the examples.
-
-Note: you may have to install uglify-js if error "sh: uglifyjs not found":
-$ npm install uglify-js -g
