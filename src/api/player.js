@@ -50,7 +50,7 @@ function Player(selector, contentInfo) {
   // Other public attributes
   this.currentTime = 0;
   this.duration = 0;
-  this.volume = 1;
+  this.volume = contentInfo.volume != undefined ? contentInfo.volume : 1;
 
   if (Util.isIOS()) {
     this.injectFullscreenStylesheet_();
@@ -104,6 +104,7 @@ Player.prototype.setContent = function(contentInfo) {
  * Sets the software volume of the video. 0 is mute, 1 is max.
  */
 Player.prototype.setVolume = function(volumeLevel) {
+  this.volume = volumeLevel;
   var data = {
     volumeLevel: volumeLevel
   };
@@ -173,6 +174,7 @@ Player.prototype.onMessage_ = function(event) {
 
   switch (type) {
     case 'ready':
+      this.setVolume(this.volume);
     case 'modechange':
     case 'error':
     case 'click':
