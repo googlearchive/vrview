@@ -49,10 +49,12 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
   switch (type) {
     case Message.SET_CONTENT:
     case Message.SET_VOLUME:
+    case Message.MUTED:
     case Message.ADD_HOTSPOT:
     case Message.PLAY:
     case Message.PAUSE:
     case Message.SET_CURRENT_TIME:
+    case Message.GET_POSITION:
       this.emit(type, data);
       break;
     default:
