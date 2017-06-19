@@ -41,7 +41,7 @@ iframe {
     cursor: pointer;
     opacity: 0.5;
   }
- 
+
   #controls > *:hover {
     opacity: 1;
   }
@@ -74,6 +74,12 @@ iframe {
   #togglemute.muted {
     background: url('img/ic_volume_off_black_24dp.svg');
   }
+
+#volumerange {
+  float: right;
+  width: 100px;
+  height: 24px;
+}
 
 /* MOBILE */
 @media screen and (max-width: 700px) {

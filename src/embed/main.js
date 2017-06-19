@@ -36,6 +36,7 @@ receiver.on(Message.PAUSE, onPauseRequest);
 receiver.on(Message.ADD_HOTSPOT, onAddHotspot);
 receiver.on(Message.SET_CONTENT, onSetContent);
 receiver.on(Message.SET_VOLUME, onSetVolume);
+receiver.on(Message.MUTED, onMuted);
 receiver.on(Message.SET_CURRENT_TIME, onUpdateCurrentTime);
 receiver.on(Message.GET_POSITION, onGetPosition);
 
@@ -141,8 +142,6 @@ function onPlayRequest() {
     return;
   }
   worldRenderer.videoProxy.play();
-
-
 }
 
 function onPauseRequest() {
@@ -208,6 +207,21 @@ function onSetVolume(e) {
   });
 }
 
+function onMuted(e) {
+  // Only work for video. If there's no video, send back an error.
+  if (!worldRenderer.videoProxy) {
+    onApiError('Attempt to mute, but no video found.');
+    return;
+  }
+
+  worldRenderer.videoProxy.mute(e.muteState);
+
+  Util.sendParentMessage({
+    type: 'muted',
+    data: e.muteState
+  });
+}
+
 function onUpdateCurrentTime(time) {
   if (!worldRenderer.videoProxy) {
     onApiError('Attempt to pause, but no video found.');
@@ -261,6 +275,7 @@ function onPause() {
     data: true
   });
 }
+
 function onEnded() {
     Util.sendParentMessage({
       type: 'ended',

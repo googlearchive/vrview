@@ -47,6 +47,12 @@ function Player(selector, contentInfo) {
   // Expose a public .isPaused attribute.
   this.isPaused = false;
 
+  // Expose a public .isMuted attribute.
+  this.isMuted = false;
+  if (typeof contentInfo.muted !== 'undefined') {
+    this.isMuted = contentInfo.muted;
+  }
+
   // Other public attributes
   this.currentTime = 0;
   this.duration = 0;
@@ -115,6 +121,16 @@ Player.prototype.getVolume = function() {
 };
 
 /**
+ * Sets the mute state of the video element. true is muted, false is unmuted.
+ */
+Player.prototype.mute = function(muteState) {
+  var data = {
+    muteState: muteState
+  };
+  this.sender.send({type: Message.MUTED, data: data});
+};
+
+/**
  * Set the current time of the media being played
  * @param {Number} time
  */
@@ -170,7 +186,6 @@ Player.prototype.onMessage_ = function(event) {
   }
   var type = message.type.toLowerCase();
   var data = message.data;
-
   switch (type) {
     case 'ready':
       if (data !== undefined && data.duration !== undefined) {
@@ -186,6 +201,10 @@ Player.prototype.onMessage_ = function(event) {
     case 'volumechange':
       this.volume = data;
       this.emit('volumechange', data);
+      break;
+    case 'muted':
+      this.isMuted = data;
+      this.emit('mute', data);
       break;
     case 'timeupdate':
       this.currentTime = data;
