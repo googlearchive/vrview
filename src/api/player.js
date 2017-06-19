@@ -47,7 +47,7 @@ function Player(selector, contentInfo) {
   // Expose a public .isPaused attribute.
   this.isPaused = false;
 
-  // Expose a plublic .isMuted attribute.
+  // Expose a public .isMuted attribute.
   this.isMuted = false;
   if (typeof contentInfo.muted !== 'undefined') {
     this.isMuted = contentInfo.muted;

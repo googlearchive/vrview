@@ -24,7 +24,7 @@ function onLoad() {
     video: 'congo_2048.mp4',
     is_stereo: true,
     loop: true,
-    //muted: false,
+    muted: true,
     //is_debug: true,
     //default_heading: 90,
     //is_yaw_only: true,
@@ -40,6 +40,9 @@ function onLoad() {
   muteButton.addEventListener('click', onToggleMute);
   volumeRange.addEventListener('change', onVolumeChange);
   volumeRange.addEventListener('input', onVolumeChange);
+
+  // Adds the muted icon by default.
+  muteButton.classList.add('muted');
 
   vrView.on('ready', onVRViewReady);
 
@@ -84,11 +87,7 @@ function onTogglePlay() {
 
 function onToggleMute() {
   var isMuted = muteButton.classList.contains('muted');
-  if (isMuted) {
-    vrView.mute(false);
-  } else {
-    vrView.mute(true);
-  }
+  vrView.mute(!isMuted);
   muteButton.classList.toggle('muted');
 }
 
