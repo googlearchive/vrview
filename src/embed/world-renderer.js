@@ -83,8 +83,11 @@ WorldRenderer.prototype.setScene = function(scene) {
 
   var params = {
     isStereo: scene.isStereo,
-    loop: scene.loop
+    loop: scene.loop,
+    volume: scene.volume,
+    muted: scene.muted
   };
+
   this.setDefaultYaw_(scene.defaultYaw || 0);
 
   // Disable VR mode if explicitly disabled, or if we're loading a video on iOS
