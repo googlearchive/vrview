@@ -23,8 +23,8 @@ function onLoad() {
     height: 480,
     video: 'congo_2048.mp4',
     is_stereo: true,
-    loop: true,
-    muted: true,
+    loop: false,
+    //muted: true,
     //is_debug: true,
     //default_heading: 90,
     //is_yaw_only: true,
@@ -41,8 +41,8 @@ function onLoad() {
   volumeRange.addEventListener('change', onVolumeChange);
   volumeRange.addEventListener('input', onVolumeChange);
 
-  // Adds the muted icon by default.
-  muteButton.classList.add('muted');
+  // If you set mute: true, uncomment the line bellow.
+  // muteButton.classList.add('muted');
 
   vrView.on('ready', onVRViewReady);
 
