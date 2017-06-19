@@ -173,15 +173,13 @@ Player.prototype.onMessage_ = function(event) {
 
   switch (type) {
     case 'ready':
+      if (data !== undefined && data.duration !== undefined) {
+        this.duration = data.duration;
+      }
     case 'modechange':
     case 'error':
     case 'click':
     case 'ended':
-      if (type === 'ready') {
-        if (data !== undefined) {
-          this.duration = data.duration;
-	}
-      }
       this.emit(type, data);
       break;
     case 'volumechange':
