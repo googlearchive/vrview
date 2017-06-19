@@ -25,6 +25,7 @@ var Message = {
   SET_VOLUME: 'setvolume',
   SET_CURRENT_TIME: 'setcurrenttime',
   DEVICE_MOTION: 'devicemotion',
+  GET_POSITION: 'getposition',
 };
 
 module.exports = Message;

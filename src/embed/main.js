@@ -37,6 +37,7 @@ receiver.on(Message.ADD_HOTSPOT, onAddHotspot);
 receiver.on(Message.SET_CONTENT, onSetContent);
 receiver.on(Message.SET_VOLUME, onSetVolume);
 receiver.on(Message.SET_CURRENT_TIME, onUpdateCurrentTime);
+receiver.on(Message.GET_POSITION, onGetPosition);
 
 window.addEventListener('load', onLoad);
 
@@ -328,4 +329,13 @@ function loop(time) {
   worldRenderer.render(time);
   worldRenderer.submitFrame();
   stats.end();
+}
+function onGetPosition() {
+    Util.sendParentMessage({
+        type: 'getposition',
+        data: {
+            Yaw: worldRenderer.camera.rotation.y * 180 / Math.PI,
+            Pitch: worldRenderer.camera.rotation.x * 180 / Math.PI
+        }
+    });
 }
