@@ -43,7 +43,7 @@ SphereRenderer.prototype.setPhotosphere = function(src, opt_params) {
 
     // Load texture.
     var loader = new THREE.TextureLoader();
-    loader.crossOrigin = 'anonymous';
+    loader.crossOrigin = 'use-credentials';
     loader.load(src, this.onTextureLoaded_.bind(this), undefined,
                 this.onTextureError_.bind(this));
   }.bind(this));
