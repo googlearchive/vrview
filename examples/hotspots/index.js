@@ -126,6 +126,7 @@ function onLoad() {
   vrView.on('modechange', onModeChange);
   vrView.on('click', onHotspotClick);
   vrView.on('error', onVRViewError);
+  vrView.on('getposition', onGetPosition);
 }
 
 function onVRViewReady(e) {
@@ -137,7 +138,13 @@ function onModeChange(e) {
   console.log('onModeChange', e.mode);
 }
 
+function onGetPosition(e) {
+  console.log(e);
+
+}
+
 function onHotspotClick(e) {
+  vrView.getPosition()
   console.log('onHotspotClick', e.id);
   if (e.id) {
     loadScene(e.id);
