@@ -445,6 +445,12 @@ function Player(selector, contentInfo) {
   // Expose a public .isPaused attribute.
   this.isPaused = false;
 
+  // Expose a public .isMuted attribute.
+  this.isMuted = false;
+  if (typeof contentInfo.muted !== 'undefined') {
+    this.isMuted = contentInfo.muted;
+  }
+
   // Other public attributes
   this.currentTime = 0;
   this.duration = 0;
@@ -513,6 +519,16 @@ Player.prototype.getVolume = function() {
 };
 
 /**
+ * Sets the mute state of the video element. true is muted, false is unmuted.
+ */
+Player.prototype.mute = function(muteState) {
+  var data = {
+    muteState: muteState
+  };
+  this.sender.send({type: Message.MUTED, data: data});
+};
+
+/**
  * Set the current time of the media being played
  * @param {Number} time
  */
@@ -568,23 +584,25 @@ Player.prototype.onMessage_ = function(event) {
   }
   var type = message.type.toLowerCase();
   var data = message.data;
-
   switch (type) {
     case 'ready':
+      if (data !== undefined && data.duration !== undefined) {
+        this.duration = data.duration;
+      }
     case 'modechange':
     case 'error':
     case 'click':
     case 'ended':
-      if (type === 'ready') {
-        if (data !== undefined) {
-          this.duration = data.duration;
-	}
-      }
+    case 'getposition':
       this.emit(type, data);
       break;
     case 'volumechange':
       this.volume = data;
       this.emit('volumechange', data);
+      break;
+    case 'muted':
+      this.isMuted = data;
+      this.emit('mute', data);
       break;
     case 'timeupdate':
       this.currentTime = data;
@@ -683,7 +701,12 @@ Player.prototype.absolutifyPaths_ = function(contentInfo) {
     }
   }
 };
-
+/**
+ * Get position YAW, PITCH
+ */
+Player.prototype.getPosition = function() {
+    this.sender.send({type: Message.GET_POSITION, data: {}});
+};
 
 module.exports = Player;
 
@@ -713,8 +736,10 @@ var Message = {
   ADD_HOTSPOT: 'addhotspot',
   SET_CONTENT: 'setimage',
   SET_VOLUME: 'setvolume',
+  MUTED: 'muted',
   SET_CURRENT_TIME: 'setcurrenttime',
   DEVICE_MOTION: 'devicemotion',
+  GET_POSITION: 'getposition',
 };
 
 module.exports = Message;

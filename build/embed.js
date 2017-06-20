@@ -10033,6 +10033,12 @@ function AdaptivePlayer(params) {
   if (params.loop === true) {
     this.video.setAttribute('loop', true);
   }
+
+  // Not muted by default.
+  if (params.muted === true) {
+    this.video.setAttribute('muted', true);
+  }
+
   // For FF, make sure we enable preload.
   this.video.setAttribute('preload', 'auto');
   // Enable inline video playback in iOS 10+.
@@ -10656,10 +10662,12 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
   switch (type) {
     case Message.SET_CONTENT:
     case Message.SET_VOLUME:
+    case Message.MUTED:
     case Message.ADD_HOTSPOT:
     case Message.PLAY:
     case Message.PAUSE:
     case Message.SET_CURRENT_TIME:
+    case Message.GET_POSITION:
       this.emit(type, data);
       break;
     default:
@@ -10766,7 +10774,9 @@ receiver.on(Message.PAUSE, onPauseRequest);
 receiver.on(Message.ADD_HOTSPOT, onAddHotspot);
 receiver.on(Message.SET_CONTENT, onSetContent);
 receiver.on(Message.SET_VOLUME, onSetVolume);
+receiver.on(Message.MUTED, onMuted);
 receiver.on(Message.SET_CURRENT_TIME, onUpdateCurrentTime);
+receiver.on(Message.GET_POSITION, onGetPosition);
 
 window.addEventListener('load', onLoad);
 
@@ -10870,8 +10880,6 @@ function onPlayRequest() {
     return;
   }
   worldRenderer.videoProxy.play();
-
-
 }
 
 function onPauseRequest() {
@@ -10937,6 +10945,21 @@ function onSetVolume(e) {
   });
 }
 
+function onMuted(e) {
+  // Only work for video. If there's no video, send back an error.
+  if (!worldRenderer.videoProxy) {
+    onApiError('Attempt to mute, but no video found.');
+    return;
+  }
+
+  worldRenderer.videoProxy.mute(e.muteState);
+
+  Util.sendParentMessage({
+    type: 'muted',
+    data: e.muteState
+  });
+}
+
 function onUpdateCurrentTime(time) {
   if (!worldRenderer.videoProxy) {
     onApiError('Attempt to pause, but no video found.');
@@ -10990,6 +11013,7 @@ function onPause() {
     data: true
   });
 }
+
 function onEnded() {
     Util.sendParentMessage({
       type: 'ended',
@@ -11059,6 +11083,15 @@ function loop(time) {
   worldRenderer.submitFrame();
   stats.end();
 }
+function onGetPosition() {
+    Util.sendParentMessage({
+        type: 'getposition',
+        data: {
+            Yaw: worldRenderer.camera.rotation.y * 180 / Math.PI,
+            Pitch: worldRenderer.camera.rotation.x * 180 / Math.PI
+        }
+    });
+}
 
 },{"../../node_modules/stats-js/build/stats.min":5,"../message":46,"../util":47,"./iframe-message-receiver":37,"./loading-indicator":38,"./scene-info":41,"./world-renderer":45,"es6-promise":1,"webvr-polyfill":22}],40:[function(_dereq_,module,exports){
 /*
@@ -11124,6 +11157,7 @@ var CAMEL_TO_UNDERSCORE = {
   image: 'image',
   preview: 'preview',
   loop: 'loop',
+  muted: 'muted',
   isStereo: 'is_stereo',
   defaultYaw: 'default_yaw',
   isYawOnly: 'is_yaw_only',
@@ -11138,7 +11172,8 @@ var CAMEL_TO_UNDERSCORE = {
 function SceneInfo(opt_params) {
   var params = opt_params || {};
   params.player = {
-    loop: opt_params.loop
+    loop: opt_params.loop,
+    muted: opt_params.muted
   };
 
   this.image = params.image;
@@ -11152,13 +11187,15 @@ function SceneInfo(opt_params) {
   this.isVROff = Util.parseBoolean(params.isVROff);
   this.isAutopanOff = Util.parseBoolean(params.isAutopanOff);
   this.loop = Util.parseBoolean(params.player.loop);
+  this.muted = Util.parseBoolean(params.player.muted);
 }
 
 SceneInfo.loadFromGetParams = function() {
   var params = {};
   for (var camelCase in CAMEL_TO_UNDERSCORE) {
     var underscore = CAMEL_TO_UNDERSCORE[camelCase];
-    params[camelCase] = Util.getQueryParameter(underscore);
+    params[camelCase] = Util.getQueryParameter(underscore)
+                        || ((window.WebVRConfig && window.WebVRConfig.PLAYER) ? window.WebVRConfig.PLAYER[underscore] : "");
   }
   var scene = new SceneInfo(params);
   if (!scene.isValid()) {
@@ -11345,10 +11382,13 @@ SphereRenderer.prototype.onTextureLoaded_ = function(texture) {
   // Display in left and right eye respectively.
   sphereLeft.layers.set(Eyes.LEFT);
   sphereLeft.eye = Eyes.LEFT;
+  sphereLeft.name = 'eyeLeft';
   sphereRight.layers.set(Eyes.RIGHT);
   sphereRight.eye = Eyes.RIGHT;
+  sphereRight.name = 'eyeRight';
 
-  this.scene.getObjectByName('photo').children = [sphereLeft, sphereRight];
+
+    this.scene.getObjectByName('photo').children = [sphereLeft, sphereRight];
 
   this.resolve();
 };
@@ -11502,6 +11542,20 @@ VideoProxy.prototype.setVolume = function(volumeLevel) {
   }
 };
 
+/**
+ * Set the attribute mute of the elements according with the muteState param.
+ *
+ * @param bool muteState
+ */
+VideoProxy.prototype.mute = function(muteState) {
+  if (this.videoElement) {
+    this.videoElement.muted = muteState;
+  }
+  if (this.audioElement) {
+    this.audioElement.muted = muteState;
+  }
+};
+
 VideoProxy.prototype.getCurrentTime = function() {
   return Util.isIOS9OrLess() ? this.audioElement.currentTime : this.videoElement.currentTime;
 };
@@ -11652,8 +11706,10 @@ WorldRenderer.prototype.setScene = function(scene) {
 
   var params = {
     isStereo: scene.isStereo,
-    loop: scene.loop
+    loop: scene.loop,
+    muted: scene.muted
   };
+
   this.setDefaultYaw_(scene.defaultYaw || 0);
 
   // Disable VR mode if explicitly disabled, or if we're loading a video on iOS
@@ -11739,13 +11795,45 @@ WorldRenderer.prototype.submitFrame = function() {
   }
 };
 
+WorldRenderer.prototype.disposeEye_ = function(eye) {
+  if (eye) {
+    if (eye.material.map) {
+      eye.material.map.dispose();
+    }
+    eye.material.dispose();
+    eye.geometry.dispose();
+  }
+};
+
+WorldRenderer.prototype.dispose = function() {
+  var eyeLeft = this.scene.getObjectByName('eyeLeft');
+  this.disposeEye_(eyeLeft);
+  var eyeRight = this.scene.getObjectByName('eyeRight');
+  this.disposeEye_(eyeRight);
+};
+
 WorldRenderer.prototype.destroy = function() {
   if (this.player) {
     this.player.removeAllListeners();
     this.player.destroy();
     this.player = null;
   }
-}
+  var photo = this.scene.getObjectByName('photo');
+  var eyeLeft = this.scene.getObjectByName('eyeLeft');
+  var eyeRight = this.scene.getObjectByName('eyeRight');
+
+  if (eyeLeft) {
+    this.disposeEye_(eyeLeft);
+    photo.remove(eyeLeft);
+    this.scene.remove(eyeLeft);
+  }
+
+  if (eyeRight) {
+    this.disposeEye_(eyeRight);
+    photo.remove(eyeRight);
+    this.scene.remove(eyeRight);
+  }
+};
 
 WorldRenderer.prototype.didLoad_ = function(opt_event) {
   var event = opt_event || {};
@@ -11923,8 +12011,10 @@ var Message = {
   ADD_HOTSPOT: 'addhotspot',
   SET_CONTENT: 'setimage',
   SET_VOLUME: 'setvolume',
+  MUTED: 'muted',
   SET_CURRENT_TIME: 'setcurrenttime',
   DEVICE_MOTION: 'devicemotion',
+  GET_POSITION: 'getposition',
 };
 
 module.exports = Message;
