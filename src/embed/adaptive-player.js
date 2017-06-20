@@ -36,6 +36,12 @@ function AdaptivePlayer(params) {
   if (params.loop === true) {
     this.video.setAttribute('loop', true);
   }
+
+  // Not muted by default.
+  if (params.muted === true) {
+    this.video.setAttribute('muted', true);
+  }
+
   // For FF, make sure we enable preload.
   this.video.setAttribute('preload', 'auto');
   // Enable inline video playback in iOS 10+.
