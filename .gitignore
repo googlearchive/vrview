@@ -2,7 +2,6 @@
 .DS_Store
 *.swp
 *.swo
-build
 .idea
 *.iml
 
