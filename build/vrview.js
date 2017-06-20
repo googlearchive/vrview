@@ -454,7 +454,7 @@ function Player(selector, contentInfo) {
   // Other public attributes
   this.currentTime = 0;
   this.duration = 0;
-  this.volume = 1;
+  this.volume = contentInfo.volume != undefined ? contentInfo.volume : 1;
 
   if (Util.isIOS()) {
     this.injectFullscreenStylesheet_();

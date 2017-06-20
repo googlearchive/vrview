@@ -10034,6 +10034,11 @@ function AdaptivePlayer(params) {
     this.video.setAttribute('loop', true);
   }
 
+  if (params.volume !== undefined) {
+    // XXX: .setAttribute('volume', params.volume) doesn't work for some reason.
+    this.video.volume = params.volume;
+  }
+
   // Not muted by default.
   if (params.muted === true) {
     this.video.setAttribute('muted', true);
@@ -11157,6 +11162,7 @@ var CAMEL_TO_UNDERSCORE = {
   image: 'image',
   preview: 'preview',
   loop: 'loop',
+  volume: 'volume',
   muted: 'muted',
   isStereo: 'is_stereo',
   defaultYaw: 'default_yaw',
@@ -11173,6 +11179,7 @@ function SceneInfo(opt_params) {
   var params = opt_params || {};
   params.player = {
     loop: opt_params.loop,
+    volume: opt_params.volume,
     muted: opt_params.muted
   };
 
@@ -11187,6 +11194,8 @@ function SceneInfo(opt_params) {
   this.isVROff = Util.parseBoolean(params.isVROff);
   this.isAutopanOff = Util.parseBoolean(params.isAutopanOff);
   this.loop = Util.parseBoolean(params.player.loop);
+  this.volume = parseFloat(
+      params.player.volume ? params.player.volume : '1');
   this.muted = Util.parseBoolean(params.player.muted);
 }
 
@@ -11707,6 +11716,7 @@ WorldRenderer.prototype.setScene = function(scene) {
   var params = {
     isStereo: scene.isStereo,
     loop: scene.loop,
+    volume: scene.volume,
     muted: scene.muted
   };
 
