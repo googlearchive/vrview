@@ -55,7 +55,8 @@ SceneInfo.loadFromGetParams = function() {
   var params = {};
   for (var camelCase in CAMEL_TO_UNDERSCORE) {
     var underscore = CAMEL_TO_UNDERSCORE[camelCase];
-    params[camelCase] = Util.getQueryParameter(underscore);
+    params[camelCase] = Util.getQueryParameter(underscore)
+                        || ((window.WebVRConfig && window.WebVRConfig.PLAYER) ? window.WebVRConfig.PLAYER[underscore] : "");
   }
   var scene = new SceneInfo(params);
   if (!scene.isValid()) {
