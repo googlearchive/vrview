@@ -23,18 +23,47 @@ function onLoad() {
     height: 480,
     video: 'congo_2048.m3u8',
     is_stereo: true,
+    loop: false,
+    //volume: 0.4,
+    //muted: true,
     //is_debug: true,
     //default_heading: 90,
     //is_yaw_only: true,
     //is_vr_off: true,
   });
-  vrView.on('ready', onVRViewReady);
 
   playButton = document.querySelector('#toggleplay');
   muteButton = document.querySelector('#togglemute');
+  volumeRange = document.querySelector('#volumerange');
+  timeContainer = document.querySelector('#time');
 
   playButton.addEventListener('click', onTogglePlay);
   muteButton.addEventListener('click', onToggleMute);
+  volumeRange.addEventListener('change', onVolumeChange);
+  volumeRange.addEventListener('input', onVolumeChange);
+
+  // If you set mute: true, uncomment the line bellow.
+  // muteButton.classList.add('muted');
+
+  vrView.on('ready', onVRViewReady);
+
+  vrView.on('play', function() {
+    console.log('media play');
+    console.log(vrView.getDuration());
+  });
+  vrView.on('pause', function() {
+    console.log('media paused');
+  });
+  vrView.on('timeupdate', function(e) {
+    var current = formatTime(e.currentTime);
+    var duration = formatTime(e.duration);
+    timeContainer.innerText = current + ' | ' + duration;
+    console.log('currently playing ' + current + ' secs.');
+  });
+  vrView.on('ended', function() {
+    console.log('media ended');
+    playButton.classList.add('paused');
+  });
 }
 
 function onVRViewReady() {
@@ -59,12 +88,26 @@ function onTogglePlay() {
 
 function onToggleMute() {
   var isMuted = muteButton.classList.contains('muted');
-  if (isMuted) {
-    vrView.setVolume(1);
-  } else {
-    vrView.setVolume(0);
-  }
+  vrView.mute(!isMuted);
   muteButton.classList.toggle('muted');
+}
+
+function onVolumeChange(e) {
+  vrView.setVolume(volumeRange.value / 100);
+}
+
+function formatTime(time) {
+  time = !time || typeof time !== 'number' || time < 0 ? 0 : time;
+
+  var minutes = Math.floor(time / 60) % 60;
+  var seconds = Math.floor(time % 60);
+
+  minutes = minutes <= 0 ? 0 : minutes;
+  seconds = seconds <= 0 ? 0 : seconds;
+
+  var result = (minutes < 10 ? '0' + minutes : minutes) + ':';
+  result += seconds < 10 ? '0' + seconds : seconds;
+  return result;
 }
 
 window.addEventListener('load', onLoad);

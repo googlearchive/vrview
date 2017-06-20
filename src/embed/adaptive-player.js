@@ -37,6 +37,11 @@ function AdaptivePlayer(params) {
     this.video.setAttribute('loop', true);
   }
 
+  if (params.volume !== undefined) {
+    // XXX: .setAttribute('volume', params.volume) doesn't work for some reason.
+    this.video.volume = params.volume;
+  }
+
   // Not muted by default.
   if (params.muted === true) {
     this.video.setAttribute('muted', true);
