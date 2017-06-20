@@ -84,6 +84,7 @@ WorldRenderer.prototype.setScene = function(scene) {
   var params = {
     isStereo: scene.isStereo,
     loop: scene.loop,
+    volume: scene.volume,
     muted: scene.muted
   };
 
