@@ -44,7 +44,7 @@ function AdaptivePlayer(params) {
 
   // Not muted by default.
   if (params.muted === true) {
-    this.video.setAttribute('muted', true);
+    this.video.muted = params.muted;
   }
 
   // For FF, make sure we enable preload.
