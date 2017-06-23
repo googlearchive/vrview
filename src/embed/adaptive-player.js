@@ -17,6 +17,7 @@ var EventEmitter = require('eventemitter3');
 var shaka = require('shaka-player');
 
 var Types = require('../video-type');
+var Util = require('../util');
 
 var DEFAULT_BITS_PER_SECOND = 1000000;
 

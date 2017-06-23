@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+var Util = require('../util');
+
 var CAMEL_TO_UNDERSCORE = {
   video: 'video',
   image: 'image',
