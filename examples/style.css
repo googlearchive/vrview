@@ -71,14 +71,24 @@ iframe {
   height: 24px;
 }
 
-  #togglemute.muted {
-    background: url('img/ic_volume_off_black_24dp.svg');
-  }
+#togglemute.muted {
+  background: url('img/ic_volume_off_black_24dp.svg');
+}
 
 #volumerange {
   float: right;
   width: 100px;
   height: 24px;
+}
+
+#togglefullscreen {
+  background: url('img/ic_fullscreen_black_off.svg');
+  float: right;
+  height: 20px;
+  width: 20px;
+}
+#togglefullscreen.on {
+  background: url('img/ic_fullscreen_black_on.svg');
 }
 
 /* MOBILE */
