@@ -120,10 +120,13 @@ SphereRenderer.prototype.onTextureLoaded_ = function(texture) {
   // Display in left and right eye respectively.
   sphereLeft.layers.set(Eyes.LEFT);
   sphereLeft.eye = Eyes.LEFT;
+  sphereLeft.name = 'eyeLeft';
   sphereRight.layers.set(Eyes.RIGHT);
   sphereRight.eye = Eyes.RIGHT;
+  sphereRight.name = 'eyeRight';
 
-  this.scene.getObjectByName('photo').children = [sphereLeft, sphereRight];
+
+    this.scene.getObjectByName('photo').children = [sphereLeft, sphereRight];
 
   this.resolve();
 };

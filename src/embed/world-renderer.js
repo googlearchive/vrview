@@ -83,8 +83,11 @@ WorldRenderer.prototype.setScene = function(scene) {
 
   var params = {
     isStereo: scene.isStereo,
-    loop: scene.loop
+    loop: scene.loop,
+    volume: scene.volume,
+    muted: scene.muted
   };
+
   this.setDefaultYaw_(scene.defaultYaw || 0);
 
   // Disable VR mode if explicitly disabled, or if we're loading a video on iOS
@@ -170,13 +173,45 @@ WorldRenderer.prototype.submitFrame = function() {
   }
 };
 
+WorldRenderer.prototype.disposeEye_ = function(eye) {
+  if (eye) {
+    if (eye.material.map) {
+      eye.material.map.dispose();
+    }
+    eye.material.dispose();
+    eye.geometry.dispose();
+  }
+};
+
+WorldRenderer.prototype.dispose = function() {
+  var eyeLeft = this.scene.getObjectByName('eyeLeft');
+  this.disposeEye_(eyeLeft);
+  var eyeRight = this.scene.getObjectByName('eyeRight');
+  this.disposeEye_(eyeRight);
+};
+
 WorldRenderer.prototype.destroy = function() {
   if (this.player) {
     this.player.removeAllListeners();
     this.player.destroy();
     this.player = null;
   }
-}
+  var photo = this.scene.getObjectByName('photo');
+  var eyeLeft = this.scene.getObjectByName('eyeLeft');
+  var eyeRight = this.scene.getObjectByName('eyeRight');
+
+  if (eyeLeft) {
+    this.disposeEye_(eyeLeft);
+    photo.remove(eyeLeft);
+    this.scene.remove(eyeLeft);
+  }
+
+  if (eyeRight) {
+    this.disposeEye_(eyeRight);
+    photo.remove(eyeRight);
+    this.scene.remove(eyeRight);
+  }
+};
 
 WorldRenderer.prototype.didLoad_ = function(opt_event) {
   var event = opt_event || {};

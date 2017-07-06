@@ -15,6 +15,8 @@
 var EventEmitter = require('eventemitter3');
 var TWEEN = require('tween.js');
 
+var Util = require('../util');
+
 // Constants for the focus/blur animation.
 var NORMAL_SCALE = new THREE.Vector3(1, 1, 1);
 var FOCUS_SCALE = new THREE.Vector3(1.2, 1.2, 1.2);

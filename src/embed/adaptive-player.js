@@ -17,6 +17,7 @@ var EventEmitter = require('eventemitter3');
 var shaka = require('shaka-player');
 
 var Types = require('../video-type');
+var Util = require('../util');
 
 var DEFAULT_BITS_PER_SECOND = 1000000;
 
@@ -36,6 +37,17 @@ function AdaptivePlayer(params) {
   if (params.loop === true) {
     this.video.setAttribute('loop', true);
   }
+
+  if (params.volume !== undefined) {
+    // XXX: .setAttribute('volume', params.volume) doesn't work for some reason.
+    this.video.volume = params.volume;
+  }
+
+  // Not muted by default.
+  if (params.muted === true) {
+    this.video.muted = params.muted;
+  }
+
   // For FF, make sure we enable preload.
   this.video.setAttribute('preload', 'auto');
   // Enable inline video playback in iOS 10+.

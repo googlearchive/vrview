@@ -13,11 +13,15 @@
  * limitations under the License.
  */
 
+var Util = require('../util');
+
 var CAMEL_TO_UNDERSCORE = {
   video: 'video',
   image: 'image',
   preview: 'preview',
   loop: 'loop',
+  volume: 'volume',
+  muted: 'muted',
   isStereo: 'is_stereo',
   defaultYaw: 'default_yaw',
   isYawOnly: 'is_yaw_only',
@@ -32,7 +36,9 @@ var CAMEL_TO_UNDERSCORE = {
 function SceneInfo(opt_params) {
   var params = opt_params || {};
   params.player = {
-    loop: opt_params.loop
+    loop: opt_params.loop,
+    volume: opt_params.volume,
+    muted: opt_params.muted
   };
 
   this.image = params.image;
@@ -46,13 +52,17 @@ function SceneInfo(opt_params) {
   this.isVROff = Util.parseBoolean(params.isVROff);
   this.isAutopanOff = Util.parseBoolean(params.isAutopanOff);
   this.loop = Util.parseBoolean(params.player.loop);
+  this.volume = parseFloat(
+      params.player.volume ? params.player.volume : '1');
+  this.muted = Util.parseBoolean(params.player.muted);
 }
 
 SceneInfo.loadFromGetParams = function() {
   var params = {};
   for (var camelCase in CAMEL_TO_UNDERSCORE) {
     var underscore = CAMEL_TO_UNDERSCORE[camelCase];
-    params[camelCase] = Util.getQueryParameter(underscore);
+    params[camelCase] = Util.getQueryParameter(underscore)
+                        || ((window.WebVRConfig && window.WebVRConfig.PLAYER) ? window.WebVRConfig.PLAYER[underscore] : "");
   }
   var scene = new SceneInfo(params);
   if (!scene.isValid()) {
