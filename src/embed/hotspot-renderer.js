@@ -15,6 +15,8 @@
 var EventEmitter = require('eventemitter3');
 var TWEEN = require('tween.js');
 
+var Util = require('../util');
+
 // Constants for the focus/blur animation.
 var NORMAL_SCALE = new THREE.Vector3(1, 1, 1);
 var FOCUS_SCALE = new THREE.Vector3(1.2, 1.2, 1.2);
@@ -302,7 +304,7 @@ HotspotRenderer.prototype.createHotspot_ = function(radius, distance) {
   // Position at the extreme end of the sphere.
   var hotspot = new THREE.Object3D();
   hotspot.position.z = -distance;
-  hotspot.scale.set(NORMAL_SCALE);
+  hotspot.scale.copy(NORMAL_SCALE);
 
   hotspot.add(inner);
   hotspot.add(outer);
