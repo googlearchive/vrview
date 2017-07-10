@@ -39,12 +39,14 @@ receiver.on(Message.SET_VOLUME, onSetVolume);
 receiver.on(Message.MUTED, onMuted);
 receiver.on(Message.SET_CURRENT_TIME, onUpdateCurrentTime);
 receiver.on(Message.GET_POSITION, onGetPosition);
+receiver.on(Message.SET_FULLSCREEN, onSetFullscreen);
 
 window.addEventListener('load', onLoad);
 
 var stats = new Stats();
+var scene = SceneInfo.loadFromGetParams();
 
-var worldRenderer = new WorldRenderer();
+var worldRenderer = new WorldRenderer(scene);
 worldRenderer.on('error', onRenderError);
 worldRenderer.on('load', onRenderLoad);
 worldRenderer.on('modechange', onModeChange);
@@ -64,7 +66,6 @@ function onLoad() {
   }
 
   // Load the scene.
-  var scene = SceneInfo.loadFromGetParams();
   worldRenderer.setScene(scene);
 
   if (scene.isDebug) {
@@ -238,6 +239,14 @@ function onGetCurrentTime() {
     type: 'timeupdate',
     data: time
   });
+}
+
+function onSetFullscreen() {
+  if (!worldRenderer.videoProxy) {
+    onApiError('Attempt to set fullscreen, but no video found.');
+    return;
+  }
+  worldRenderer.manager.onFSClick_();
 }
 
 function onApiError(message) {
