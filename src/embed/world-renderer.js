@@ -61,9 +61,9 @@ WorldRenderer.prototype = new EventEmitter();
 
 WorldRenderer.prototype.render = function(time) {
   this.controls.update();
-  this.hotspotRenderer.update(this.camera);
   TWEEN.update(time);
   this.effect.render(this.scene, this.camera);
+  this.hotspotRenderer.update(this.camera);
 };
 
 /**
