@@ -55,6 +55,7 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
     case Message.PAUSE:
     case Message.SET_CURRENT_TIME:
     case Message.GET_POSITION:
+    case Message.SET_FULLSCREEN:
       this.emit(type, data);
       break;
     default:
