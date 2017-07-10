@@ -18,6 +18,7 @@
     "browserify": "^13.1.1",
     "derequire": "^2.0.6",
     "eslint": "^4.2.0",
+    "eslint-config-google": "^0.9.1",
     "rollup": "^0.37.2",
     "uglify-js": "^3.0.17",
     "uglifyjs": "^2.4.10",
