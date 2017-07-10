@@ -10014,6 +10014,7 @@ var EventEmitter = _dereq_('eventemitter3');
 var shaka = _dereq_('shaka-player');
 
 var Types = _dereq_('../video-type');
+var Util = _dereq_('../util');
 
 var DEFAULT_BITS_PER_SECOND = 1000000;
 
@@ -10142,7 +10143,7 @@ AdaptivePlayer.prototype.loadShakaVideo_ = function(url) {
 
 module.exports = AdaptivePlayer;
 
-},{"../video-type":48,"eventemitter3":2,"shaka-player":4}],34:[function(_dereq_,module,exports){
+},{"../util":47,"../video-type":48,"eventemitter3":2,"shaka-player":4}],34:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10239,6 +10240,8 @@ module.exports = Eyes;
  */
 var EventEmitter = _dereq_('eventemitter3');
 var TWEEN = _dereq_('tween.js');
+
+var Util = _dereq_('../util');
 
 // Constants for the focus/blur animation.
 var NORMAL_SCALE = new THREE.Vector3(1, 1, 1);
@@ -10527,7 +10530,7 @@ HotspotRenderer.prototype.createHotspot_ = function(radius, distance) {
   // Position at the extreme end of the sphere.
   var hotspot = new THREE.Object3D();
   hotspot.position.z = -distance;
-  hotspot.scale.set(NORMAL_SCALE);
+  hotspot.scale.copy(NORMAL_SCALE);
 
   hotspot.add(inner);
   hotspot.add(outer);
@@ -10615,7 +10618,7 @@ HotspotRenderer.prototype.setOpacity_ = function(id, opacity) {
 
 module.exports = HotspotRenderer;
 
-},{"eventemitter3":2,"tween.js":6}],37:[function(_dereq_,module,exports){
+},{"../util":47,"eventemitter3":2,"tween.js":6}],37:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11157,6 +11160,8 @@ module.exports = ReticleRenderer;
  * limitations under the License.
  */
 
+var Util = _dereq_('../util');
+
 var CAMEL_TO_UNDERSCORE = {
   video: 'video',
   image: 'image',
@@ -11268,7 +11273,7 @@ SceneInfo.prototype.isValidImage_ = function(imageUrl) {
 
 module.exports = SceneInfo;
 
-},{}],42:[function(_dereq_,module,exports){
+},{"../util":47}],42:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11693,9 +11698,9 @@ WorldRenderer.prototype = new EventEmitter();
 
 WorldRenderer.prototype.render = function(time) {
   this.controls.update();
-  this.hotspotRenderer.update(this.camera);
   TWEEN.update(time);
   this.effect.render(this.scene, this.camera);
+  this.hotspotRenderer.update(this.camera);
 };
 
 /**
@@ -12045,7 +12050,7 @@ module.exports = Message;
  * limitations under the License.
  */
 
-Util = window.Util || {};
+var Util = window.Util || {};
 
 Util.isDataURI = function(src) {
   return src && src.indexOf('data:') == 0;

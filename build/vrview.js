@@ -760,7 +760,7 @@ module.exports = Message;
  * limitations under the License.
  */
 
-Util = window.Util || {};
+var Util = window.Util || {};
 
 Util.isDataURI = function(src) {
   return src && src.indexOf('data:') == 0;
