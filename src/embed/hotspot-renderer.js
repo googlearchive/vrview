@@ -304,7 +304,7 @@ HotspotRenderer.prototype.createHotspot_ = function(radius, distance) {
   // Position at the extreme end of the sphere.
   var hotspot = new THREE.Object3D();
   hotspot.position.z = -distance;
-  hotspot.scale.set(NORMAL_SCALE);
+  hotspot.scale.copy(NORMAL_SCALE);
 
   hotspot.add(inner);
   hotspot.add(outer);
