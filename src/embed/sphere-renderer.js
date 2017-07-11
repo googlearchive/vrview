@@ -14,7 +14,7 @@
  */
 
 var Eyes = require('./eyes');
-var TWEEN = require('tween.js');
+var TWEEN = require('@tweenjs/tween.js');
 var Util = require('../util');
 var VideoType = require('../video-type');
 
