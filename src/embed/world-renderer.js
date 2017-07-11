@@ -312,7 +312,7 @@ WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
 
   // If the mode changed to VR and there is at least one hotspot, show reticle.
   var isReticleVisible = isVR && this.hotspotRenderer.getCount() > 0;
-  //this.reticleRenderer.setVisibility(isReticleVisible);
+  this.reticleRenderer.setVisibility(isReticleVisible);
 
   // Resize the renderer for good measure.
   this.onResize_();
