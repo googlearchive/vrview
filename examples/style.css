@@ -81,16 +81,6 @@ iframe {
   height: 24px;
 }
 
-#togglefullscreen {
-  background: url('img/ic_fullscreen_black_off.svg');
-  float: right;
-  height: 20px;
-  width: 20px;
-}
-#togglefullscreen.on {
-  background: url('img/ic_fullscreen_black_on.svg');
-}
-
 /* MOBILE */
 @media screen and (max-width: 700px) {
   iframe {

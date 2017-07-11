@@ -24,7 +24,7 @@ function onLoad() {
     video: 'congo_2048.mp4',
     is_stereo: true,
     loop: false,
-    hide_button: true
+    //hide_button: true,
     //volume: 0.4,
     //muted: true,
     //is_debug: true,
@@ -35,13 +35,11 @@ function onLoad() {
 
   playButton = document.querySelector('#toggleplay');
   muteButton = document.querySelector('#togglemute');
-  fullscreeButton = document.querySelector('#togglefullscreen');
   volumeRange = document.querySelector('#volumerange');
   timeContainer = document.querySelector('#time');
 
   playButton.addEventListener('click', onTogglePlay);
   muteButton.addEventListener('click', onToggleMute);
-  fullscreeButton.addEventListener('click', onToggleFullscreen);
   volumeRange.addEventListener('change', onVolumeChange);
   volumeRange.addEventListener('input', onVolumeChange);
 
@@ -93,10 +91,6 @@ function onToggleMute() {
   var isMuted = muteButton.classList.contains('muted');
   vrView.mute(!isMuted);
   muteButton.classList.toggle('muted');
-}
-function onToggleFullscreen() {
-  vrView.setFullscreen();
-  fullscreeButton.classList.toggle('on');
 }
 
 function onVolumeChange(e) {

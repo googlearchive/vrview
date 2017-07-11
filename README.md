@@ -4,6 +4,28 @@ VR View allows you to embed 360 degree VR media into websites on desktop and
 mobile. For more information, please read the documentation available at
 <http://developers.google.com/cardboard/vrview>.
 
+# Configuration
+
+A complete list of VR View parameters can be found in the table below.
+
+Name | Type | Parameter description
+---- | ---- | ---------------------
+`video` | String | URL to a 360° video file or an adaptive streaming manifest file (.mpd or .m3u8). Exactly one of video or image is required.
+`image` | String | URL to a 360° image file. Exactly one of video or image is required.
+`width` | String | String value for the iframe's width attribute.
+`height` | String | String value for the iframe's height attribute.
+`preview` | String | (Optional) URL to a preview image for a 360° image file.
+`is_stereo` | Boolean | (Optional) Indicates whether the content at the image or video URL is stereo or not.
+`is_debug` | Boolean | (Optional) When true, turns on debug features like rendering hotspots ad showing the FPS meter.
+`is_vr_off` | Boolean | (Optional) When true, disables the VR mode button.
+`is_autopan_off` | Boolean | (Optional) When true, disables the autopan introduction on desktop.
+`default_yaw` | Number | (Optional) Numeric angle in degrees of the initial heading for the 360° content. By default, the camera points at the center of the underlying image.
+`is_yaw_only` | Boolean | (Optional) When true, prevents roll and pitch. This is intended for stereo panoramas.
+`loop` | Boolean | (Optional) When false, stops the loop in the video  
+`hide_button` | Boolean | (Optional) When true, the fullscreen on video are hidden. Useful when user requires to implement his own fullscreen button
+`volume` | Number | (Optional) The initial volume of the media; it ranges between 0 and 1; zero equals muted
+`muted` | Boolean | (Optional) When true, mutes the sound of the video
+
 # Building
 
 This project uses `browserify` to manage dependencies and build. `watchify` is
