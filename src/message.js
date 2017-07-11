@@ -27,6 +27,7 @@ var Message = {
   SET_CURRENT_TIME: 'setcurrenttime',
   DEVICE_MOTION: 'devicemotion',
   GET_POSITION: 'getposition',
+  SET_FULLSCREEN: 'setfullscreen',
 };
 
 module.exports = Message;

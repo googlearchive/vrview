@@ -40,8 +40,8 @@ var AUTOPAN_ANGLE = 0.4;
  *   error: if there is an error loading the scene.
  *   modechange(Boolean isVR): if the mode (eg. VR, fullscreen, etc) changes.
  */
-function WorldRenderer() {
-  this.init_();
+function WorldRenderer(params) {
+  this.init_(params.hideFullscreenButton);
 
   this.sphereRenderer = new SphereRenderer(this.scene);
   this.hotspotRenderer = new HotspotRenderer(this);
@@ -257,7 +257,7 @@ WorldRenderer.prototype.autopan = function(duration) {
       .start();
 };
 
-WorldRenderer.prototype.init_ = function() {
+WorldRenderer.prototype.init_ = function(hideFullscreenButton) {
   var container = document.querySelector('body');
   var aspect = window.innerWidth / window.innerHeight;
   var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 100);
@@ -289,7 +289,7 @@ WorldRenderer.prototype.init_ = function() {
   this.renderer = renderer;
   this.effect = effect;
   this.controls = controls;
-  this.manager = new WebVRManager(renderer, effect, {predistorted: false});
+  this.manager = new WebVRManager(renderer, effect, {predistorted: false, hideButton: hideFullscreenButton});
 
   this.scene = this.createScene_();
   this.scene.add(this.camera.parent);

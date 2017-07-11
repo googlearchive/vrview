@@ -28,6 +28,7 @@ var CAMEL_TO_UNDERSCORE = {
   isDebug: 'is_debug',
   isVROff: 'is_vr_off',
   isAutopanOff: 'is_autopan_off',
+  hideFullscreenButton: 'hide_fullscreen_button'
 };
 
 /**
@@ -55,6 +56,7 @@ function SceneInfo(opt_params) {
   this.volume = parseFloat(
       params.player.volume ? params.player.volume : '1');
   this.muted = Util.parseBoolean(params.player.muted);
+  this.hideFullscreenButton = Util.parseBoolean(params.hideFullscreenButton);
 }
 
 SceneInfo.loadFromGetParams = function() {

@@ -71,9 +71,9 @@ iframe {
   height: 24px;
 }
 
-  #togglemute.muted {
-    background: url('img/ic_volume_off_black_24dp.svg');
-  }
+#togglemute.muted {
+  background: url('img/ic_volume_off_black_24dp.svg');
+}
 
 #volumerange {
   float: right;
