@@ -1,4 +1,8 @@
-# VR View [![Build Status](https://travis-ci.org/googlevr/vrview.svg?branch=master)](https://travis-ci.org/googlevr/vrview)
+# VR View
+
+[![Build Status](https://travis-ci.org/googlevr/vrview.svg?branch=master)](https://travis-ci.org/googlevr/vrview)
+[![dependencies Status](https://david-dm.org/googlevr/vrview/status.svg)](https://david-dm.org/googlevr/vrview)
+[![devDependencies Status](https://david-dm.org/googlevr/vrview/dev-status.svg)](https://david-dm.org/googlevr/vrview?type=dev)
 
 VR View allows you to embed 360 degree VR media into websites on desktop and
 mobile. For more information, please read the documentation available at
