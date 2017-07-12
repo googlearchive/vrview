@@ -10566,6 +10566,12 @@ HotspotRenderer.prototype.focus_ = function(id) {
   this.tween = new TWEEN.Tween(hotspot.scale).to(FOCUS_SCALE, FOCUS_DURATION)
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
+  
+  if (this.worldRenderer.isVRMode()) {
+    this.timeForHospotClick = setTimeout(() => {
+      this.emit('click', id);
+    }, 1200 )
+  }
 };
 
 HotspotRenderer.prototype.blur_ = function(id) {
@@ -10574,6 +10580,10 @@ HotspotRenderer.prototype.blur_ = function(id) {
   this.tween = new TWEEN.Tween(hotspot.scale).to(NORMAL_SCALE, FOCUS_DURATION)
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
+  
+  if (this.timeForHospotClick) {
+    clearTimeout( this.timeForHospotClick );
+  }
 };
 
 HotspotRenderer.prototype.down_ = function(id) {
@@ -10663,6 +10673,7 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
     case Message.PAUSE:
     case Message.SET_CURRENT_TIME:
     case Message.GET_POSITION:
+    case Message.SET_FULLSCREEN:
       this.emit(type, data);
       break;
     default:
@@ -10772,12 +10783,14 @@ receiver.on(Message.SET_VOLUME, onSetVolume);
 receiver.on(Message.MUTED, onMuted);
 receiver.on(Message.SET_CURRENT_TIME, onUpdateCurrentTime);
 receiver.on(Message.GET_POSITION, onGetPosition);
+receiver.on(Message.SET_FULLSCREEN, onSetFullscreen);
 
 window.addEventListener('load', onLoad);
 
 var stats = new Stats();
+var scene = SceneInfo.loadFromGetParams();
 
-var worldRenderer = new WorldRenderer();
+var worldRenderer = new WorldRenderer(scene);
 worldRenderer.on('error', onRenderError);
 worldRenderer.on('load', onRenderLoad);
 worldRenderer.on('modechange', onModeChange);
@@ -10797,7 +10810,6 @@ function onLoad() {
   }
 
   // Load the scene.
-  var scene = SceneInfo.loadFromGetParams();
   worldRenderer.setScene(scene);
 
   if (scene.isDebug) {
@@ -10971,6 +10983,14 @@ function onGetCurrentTime() {
     type: 'timeupdate',
     data: time
   });
+}
+
+function onSetFullscreen() {
+  if (!worldRenderer.videoProxy) {
+    onApiError('Attempt to set fullscreen, but no video found.');
+    return;
+  }
+  worldRenderer.manager.onFSClick_();
 }
 
 function onApiError(message) {
@@ -11162,6 +11182,7 @@ var CAMEL_TO_UNDERSCORE = {
   isDebug: 'is_debug',
   isVROff: 'is_vr_off',
   isAutopanOff: 'is_autopan_off',
+  hideFullscreenButton: 'hide_fullscreen_button'
 };
 
 /**
@@ -11189,6 +11210,7 @@ function SceneInfo(opt_params) {
   this.volume = parseFloat(
       params.player.volume ? params.player.volume : '1');
   this.muted = Util.parseBoolean(params.player.muted);
+  this.hideFullscreenButton = Util.parseBoolean(params.hideFullscreenButton);
 }
 
 SceneInfo.loadFromGetParams = function() {
@@ -11664,8 +11686,8 @@ var AUTOPAN_ANGLE = 0.4;
  *   error: if there is an error loading the scene.
  *   modechange(Boolean isVR): if the mode (eg. VR, fullscreen, etc) changes.
  */
-function WorldRenderer() {
-  this.init_();
+function WorldRenderer(params) {
+  this.init_(params.hideFullscreenButton);
 
   this.sphereRenderer = new SphereRenderer(this.scene);
   this.hotspotRenderer = new HotspotRenderer(this);
@@ -11881,7 +11903,7 @@ WorldRenderer.prototype.autopan = function(duration) {
       .start();
 };
 
-WorldRenderer.prototype.init_ = function() {
+WorldRenderer.prototype.init_ = function(hideFullscreenButton) {
   var container = document.querySelector('body');
   var aspect = window.innerWidth / window.innerHeight;
   var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 100);
@@ -11913,7 +11935,7 @@ WorldRenderer.prototype.init_ = function() {
   this.renderer = renderer;
   this.effect = effect;
   this.controls = controls;
-  this.manager = new WebVRManager(renderer, effect, {predistorted: false});
+  this.manager = new WebVRManager(renderer, effect, {predistorted: false, hideButton: hideFullscreenButton});
 
   this.scene = this.createScene_();
   this.scene.add(this.camera.parent);
@@ -11943,7 +11965,7 @@ WorldRenderer.prototype.onVRDisplayPresentChange_ = function(e) {
 
   // If the mode changed to VR and there is at least one hotspot, show reticle.
   var isReticleVisible = isVR && this.hotspotRenderer.getCount() > 0;
-  //this.reticleRenderer.setVisibility(isReticleVisible);
+  this.reticleRenderer.setVisibility(isReticleVisible);
 
   // Resize the renderer for good measure.
   this.onResize_();
@@ -12025,6 +12047,7 @@ var Message = {
   SET_CURRENT_TIME: 'setcurrenttime',
   DEVICE_MOTION: 'devicemotion',
   GET_POSITION: 'getposition',
+  SET_FULLSCREEN: 'setfullscreen',
 };
 
 module.exports = Message;

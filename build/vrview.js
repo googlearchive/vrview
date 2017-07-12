@@ -546,6 +546,9 @@ Player.prototype.getCurrentTime = function() {
 Player.prototype.getDuration = function() {
   return this.duration;
 };
+Player.prototype.setFullscreen = function() {
+  this.sender.send({type: Message.SET_FULLSCREEN});
+};
 
 /**
  * Helper for creating an iframe.
@@ -740,6 +743,7 @@ var Message = {
   SET_CURRENT_TIME: 'setcurrenttime',
   DEVICE_MOTION: 'devicemotion',
   GET_POSITION: 'getposition',
+  SET_FULLSCREEN: 'setfullscreen',
 };
 
 module.exports = Message;
