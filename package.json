@@ -12,7 +12,7 @@
     "three": "^0.84.0",
     "urijs": "^1.18.2",
     "webvr-boilerplate": "^0.4.6",
-    "webvr-polyfill": "^0.9.26"
+    "webvr-polyfill": "^0.9.38"
   },
   "devDependencies": {
     "browserify": "^13.1.1",
