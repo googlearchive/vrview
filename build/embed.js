@@ -10130,65 +10130,7 @@ AdaptivePlayer.prototype.loadShakaVideo_ = function(url) {
 
 module.exports = AdaptivePlayer;
 
-},{"../util":47,"../video-type":48,"eventemitter3":3,"shaka-player":5}],34:[function(_dereq_,module,exports){
-/*
- * Copyright 2016 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-function Analytics() {
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-35315454-8', 'auto');
-  ga('send', 'pageview');
-
-  this.lastModeChangeTime = window.performance.now();
-  this.lastModeLabel = Analytics.MODE_LABELS[0];
-}
-
-Analytics.MODE_LABELS = {
-  0: 'UNKNOWN',
-  1: 'NORMAL',
-  2: 'MAGIC_WINDOW',
-  3: 'VR'
-};
-
-
-Analytics.prototype.logModeChanged = function(mode) {
-  var modeLabel = Analytics.MODE_LABELS[mode];
-  var lastModeLabel = Analytics.MODE_LABELS[this.lastMode];
-
-  console.log('Analytics: going from mode %s to %s', lastModeLabel, modeLabel);
-
-  ga('send', 'screenview', {
-    appName: 'EmbedVR',
-    screenName: modeLabel
-  });
-
-  var now = window.performance.now();
-  var msSinceLastModeChange = Math.round(now - this.lastModeChangeTime);
-  ga('send', 'timing', 'Time spent in mode', lastModeLabel, msSinceLastModeChange);
-
-  this.lastModeChangeTime = now;
-  this.lastMode = mode;
-}
-
-window.analytics = new Analytics();
-
-},{}],35:[function(_dereq_,module,exports){
+},{"../util":45,"../video-type":46,"eventemitter3":3,"shaka-player":5}],34:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10210,7 +10152,7 @@ var Eyes = {
 
 module.exports = Eyes;
 
-},{}],36:[function(_dereq_,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10615,7 +10557,7 @@ HotspotRenderer.prototype.setOpacity_ = function(id, opacity) {
 
 module.exports = HotspotRenderer;
 
-},{"../util":47,"@tweenjs/tween.js":1,"eventemitter3":3}],37:[function(_dereq_,module,exports){
+},{"../util":45,"@tweenjs/tween.js":1,"eventemitter3":3}],36:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10685,7 +10627,7 @@ IFrameMessageReceiver.prototype.onMessage_ = function(event) {
 
 module.exports = IFrameMessageReceiver;
 
-},{"../message":46,"../util":47,"eventemitter3":3}],38:[function(_dereq_,module,exports){
+},{"../message":44,"../util":45,"eventemitter3":3}],37:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -10741,7 +10683,7 @@ LoadingIndicator.prototype.show = function() {
 
 module.exports = LoadingIndicator;
 
-},{}],39:[function(_dereq_,module,exports){
+},{}],38:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11108,7 +11050,7 @@ function onGetPosition() {
     });
 }
 
-},{"../../node_modules/stats-js/build/stats.min":6,"../message":46,"../util":47,"./iframe-message-receiver":37,"./loading-indicator":38,"./scene-info":41,"./world-renderer":45,"es6-promise":2,"webvr-polyfill":22}],40:[function(_dereq_,module,exports){
+},{"../../node_modules/stats-js/build/stats.min":6,"../message":44,"../util":45,"./iframe-message-receiver":36,"./loading-indicator":37,"./scene-info":40,"./world-renderer":43,"es6-promise":2,"webvr-polyfill":22}],39:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11151,7 +11093,7 @@ ReticleRenderer.prototype.createReticle_ = function() {
 
 module.exports = ReticleRenderer;
 
-},{}],41:[function(_dereq_,module,exports){
+},{}],40:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11282,7 +11224,7 @@ SceneInfo.prototype.isValidImage_ = function(imageUrl) {
 
 module.exports = SceneInfo;
 
-},{"../util":47}],42:[function(_dereq_,module,exports){
+},{"../util":45}],41:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11489,7 +11431,7 @@ SphereRenderer.prototype.createOpacityMask_ = function() {
 
 module.exports = SphereRenderer;
 
-},{"../util":47,"../video-type":48,"./eyes":35,"@tweenjs/tween.js":1}],43:[function(_dereq_,module,exports){
+},{"../util":45,"../video-type":46,"./eyes":34,"@tweenjs/tween.js":1}],42:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11621,29 +11563,7 @@ VideoProxy.prototype.update = function() {
 
 module.exports = VideoProxy;
 
-},{"../util":47}],44:[function(_dereq_,module,exports){
-/*
- * Copyright 2016 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-// Load EmbedVR.
-_dereq_('./main');
-
-// Load Analytics for EmbedVR.
-_dereq_('./analytics');
-
-},{"./analytics":34,"./main":39}],45:[function(_dereq_,module,exports){
+},{"../util":45}],43:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12017,7 +11937,7 @@ WorldRenderer.prototype.onContextMenu_ = function(e) {
 
 module.exports = WorldRenderer;
 
-},{"../util":47,"./adaptive-player":33,"./eyes":35,"./hotspot-renderer":36,"./reticle-renderer":40,"./sphere-renderer":42,"./video-proxy":43,"@tweenjs/tween.js":1,"eventemitter3":3,"webvr-boilerplate":7}],46:[function(_dereq_,module,exports){
+},{"../util":45,"./adaptive-player":33,"./eyes":34,"./hotspot-renderer":35,"./reticle-renderer":39,"./sphere-renderer":41,"./video-proxy":42,"@tweenjs/tween.js":1,"eventemitter3":3,"webvr-boilerplate":7}],44:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12052,7 +11972,7 @@ var Message = {
 
 module.exports = Message;
 
-},{}],47:[function(_dereq_,module,exports){
+},{}],45:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12295,7 +12215,7 @@ Util.getCurrentScript = function() {
 
 module.exports = Util;
 
-},{}],48:[function(_dereq_,module,exports){
+},{}],46:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12321,4 +12241,4 @@ var VideoTypes = {
 };
 
 module.exports = VideoTypes;
-},{}]},{},[44]);
+},{}]},{},[38]);
