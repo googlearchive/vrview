@@ -105,7 +105,7 @@ HotspotRenderer.prototype.add = function(pitch, yaw, radius, distance, id) {
 
   // Position the hotspot based on the pitch and yaw specified.
   var quat = new THREE.Quaternion();
-  quat.setFromEuler(new THREE.Euler(THREE.Math.degToRad(pitch), THREE.Math.degToRad(yaw), 0));
+  quat.setFromEuler(new THREE.Euler(THREE.Math.degToRad(pitch), THREE.Math.degToRad(yaw), 0, 'YXZ'));
   hotspot.position.applyQuaternion(quat);
   hotspot.lookAt(new THREE.Vector3());
 
