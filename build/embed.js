@@ -3482,31 +3482,42 @@ module.exports = WebVRManager;
 module.exports={
   "_args": [
     [
-      "webvr-polyfill@0.9.35",
+      "webvr-polyfill@^0.9.38",
       "/Users/lincolnfrog/daydream/vrview"
     ]
   ],
-  "_from": "webvr-polyfill@0.9.35",
-  "_id": "webvr-polyfill@0.9.35",
-  "_inBundle": false,
-  "_integrity": "sha1-V0DX70HwEjTAUc5SmNGLh6UyEC8=",
+  "_from": "webvr-polyfill@>=0.9.38 <0.10.0",
+  "_id": "webvr-polyfill@0.9.40",
+  "_inCache": true,
+  "_installable": true,
   "_location": "/webvr-polyfill",
+  "_nodeVersion": "8.6.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/webvr-polyfill-0.9.40.tgz_1507657755590_0.00047161197289824486"
+  },
+  "_npmUser": {
+    "email": "jsantell@gmail.com",
+    "name": "jsantell"
+  },
+  "_npmVersion": "5.3.0",
   "_phantomChildren": {},
   "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "webvr-polyfill@0.9.35",
     "name": "webvr-polyfill",
-    "escapedName": "webvr-polyfill",
-    "rawSpec": "0.9.35",
-    "saveSpec": null,
-    "fetchSpec": "0.9.35"
+    "raw": "webvr-polyfill@^0.9.38",
+    "rawSpec": "^0.9.38",
+    "scope": null,
+    "spec": ">=0.9.38 <0.10.0",
+    "type": "range"
   },
   "_requiredBy": [
-    "/"
+    "/",
+    "/webvr-boilerplate"
   ],
-  "_resolved": "https://registry.npmjs.org/webvr-polyfill/-/webvr-polyfill-0.9.35.tgz",
-  "_spec": "0.9.35",
+  "_resolved": "https://registry.npmjs.org/webvr-polyfill/-/webvr-polyfill-0.9.40.tgz",
+  "_shasum": "2cfa0ec0e0cc6ba7238c73a09cba4952fff59a63",
+  "_shrinkwrap": null,
+  "_spec": "webvr-polyfill@^0.9.38",
   "_where": "/Users/lincolnfrog/daydream/vrview",
   "authors": [
     "Boris Smus <boris@smus.com>",
@@ -3516,6 +3527,7 @@ module.exports={
   "bugs": {
     "url": "https://github.com/googlevr/webvr-polyfill/issues"
   },
+  "dependencies": {},
   "description": "Use WebVR today, on mobile or desktop, without requiring a special browser build.",
   "devDependencies": {
     "chai": "^3.5.0",
@@ -3523,8 +3535,15 @@ module.exports={
     "mocha": "^3.2.0",
     "semver": "^5.3.0",
     "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "2.7.1"
   },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-m7jhJHjFcUYPyPSNeGmly7a2h/cP7bARz0OZMoUn5SueVXEKeZ4P7bzbAUDBDvvqCsa5gHgM3PFIhYe13bqaWw==",
+    "shasum": "2cfa0ec0e0cc6ba7238c73a09cba4952fff59a63",
+    "tarball": "https://registry.npmjs.org/webvr-polyfill/-/webvr-polyfill-0.9.40.tgz"
+  },
+  "gitHead": "45828ffdb8c3e0f9bb90296d6039d3cc7909ba8e",
   "homepage": "https://github.com/googlevr/webvr-polyfill",
   "keywords": [
     "vr",
@@ -3532,7 +3551,23 @@ module.exports={
   ],
   "license": "Apache-2.0",
   "main": "src/node-entry",
+  "maintainers": [
+    {
+      "email": "jsantell@gmail.com",
+      "name": "jsantell"
+    },
+    {
+      "email": "tojiro@gmail.com",
+      "name": "toji"
+    },
+    {
+      "email": "boris@smus.com",
+      "name": "smus"
+    }
+  ],
   "name": "webvr-polyfill",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/googlevr/webvr-polyfill.git"
@@ -3543,7 +3578,7 @@ module.exports={
     "test": "mocha",
     "watch": "webpack-dev-server"
   },
-  "version": "0.9.35"
+  "version": "0.9.40"
 }
 
 },{}],9:[function(_dereq_,module,exports){
@@ -5192,11 +5227,14 @@ CardboardVRDisplay.prototype.onResize_ = function(e) {
       'position: absolute',
       'top: 0',
       'left: 0',
-      'width: ' + Math.max(screen.width, screen.height) + 'px',
-      'height: ' + Math.min(screen.height, screen.width) + 'px',
+      // Use vw/vh to handle implicitly devicePixelRatio; issue #282
+      'width: 100vw',
+      'height: 100vh',
       'border: 0',
       'margin: 0',
-      'padding: 0 10px 10px 0',
+      // Set no padding in the case where you don't have control over
+      // the content injection, like in Unity WebGL; issue #282
+      'padding: 0px',
       'box-sizing: content-box',
     ];
     gl.canvas.setAttribute('style', cssProperties.join('; ') + ';');
@@ -5855,7 +5893,7 @@ module.exports = Distortion;
 },{}],17:[function(_dereq_,module,exports){
 module.exports={
   "format": 1,
-  "last_updated": "2017-06-01T22:33:42Z",
+  "last_updated": "2017-08-27T14:39:31Z",
   "devices": [
     {
       "type": "android",
@@ -6037,6 +6075,23 @@ module.exports={
       ],
       "bw": 3,
       "ac": 1000
+    },
+    {
+      "type": "android",
+      "rules": [
+        {
+          "mdmh": "LENOVO/*/Lenovo PB2-690Y/*"
+        },
+        {
+          "ua": "Lenovo PB2-690Y"
+        }
+      ],
+      "dpi": [
+        457.2,
+        454.713
+      ],
+      "bw": 3,
+      "ac": 500
     },
     {
       "type": "android",
@@ -7155,6 +7210,40 @@ module.exports={
         }
       ],
       "dpi": 533,
+      "bw": 3,
+      "ac": 500
+    },
+    {
+      "type": "android",
+      "rules": [
+        {
+          "mdmh": "samsung/*/SM-G950F/*"
+        },
+        {
+          "ua": "SM-G950F"
+        }
+      ],
+      "dpi": [
+        562.707,
+        565.293
+      ],
+      "bw": 3,
+      "ac": 500
+    },
+    {
+      "type": "android",
+      "rules": [
+        {
+          "mdmh": "samsung/*/SM-G955U/*"
+        },
+        {
+          "ua": "SM-G955U"
+        }
+      ],
+      "dpi": [
+        522.514,
+        525.762
+      ],
       "bw": 3,
       "ac": 500
     },
@@ -8651,11 +8740,6 @@ FusionPoseSensor.prototype.updateDeviceMotion_ = function(deviceMotion) {
   var rotRate = deviceMotion.rotationRate;
   var timestampS = deviceMotion.timeStamp / 1000;
 
-  // Firefox Android timeStamp returns one thousandth of a millisecond.
-  if (this.isFirefoxAndroid) {
-    timestampS /= 1000;
-  }
-
   var deltaS = timestampS - this.previousTimestampS;
   if (deltaS <= Util.MIN_TIMESTEP || deltaS > Util.MAX_TIMESTEP) {
     console.warn('Invalid timestamps detected. Time step between successive ' +
@@ -8663,8 +8747,13 @@ FusionPoseSensor.prototype.updateDeviceMotion_ = function(deviceMotion) {
     this.previousTimestampS = timestampS;
     return;
   }
+
   this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
-  this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
+  if (Util.isR7()) {
+    this.gyroscope.set(-rotRate.beta, rotRate.alpha, rotRate.gamma);
+  } else {
+    this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
+  }
 
   // With iOS and Firefox Android, rotationRate is reported in degrees,
   // so we first convert to radians.
@@ -9009,8 +9098,16 @@ Util.isFirefoxAndroid = (function() {
   };
 })();
 
+Util.isR7 = (function() {
+  var isR7 = navigator.userAgent.indexOf('R7 Build') !== -1;
+  return function() {
+    return isR7;
+  };
+})();
+
 Util.isLandscapeMode = function() {
-  return (window.orientation == 90 || window.orientation == -90);
+  var rtn = (window.orientation == 90 || window.orientation == -90);
+  return Util.isR7() ? !rtn : rtn;
 };
 
 // Helper method to validate the time steps of sensor timestamps.
@@ -9732,7 +9829,7 @@ function WebVRPolyfill() {
                                  navigator.getVRDisplays :
                                  null;
 
-  if (!this.nativeLegacyWebVRAvailable) {
+  if (!this.nativeLegacyWebVRAvailable && !this.nativeWebVRAvailable) {
     this.enablePolyfill();
     if (window.WebVRConfig.ENABLE_DEPRECATED_API) {
       this.enableDeprecatedPolyfill();
@@ -9833,7 +9930,7 @@ WebVRPolyfill.prototype.enablePolyfill = function() {
   window.VRDisplay = VRDisplay;
 
   // Provide the `navigator.vrEnabled` property.
-  if (navigator && !navigator.vrEnabled) {
+  if (navigator && typeof navigator.vrEnabled === 'undefined') {
     var self = this;
     Object.defineProperty(navigator, 'vrEnabled', {
       get: function () {
@@ -11188,10 +11285,6 @@ SceneInfo.prototype.isValid = function() {
   // Either it's an image or a video.
   if (!this.image && !this.video) {
     this.errorMessage = 'Either image or video URL must be specified.';
-    return false;
-  }
-  if (this.image && this.video) {
-    this.errorMessage = 'Both image and video URL can\'t be specified.';
     return false;
   }
   if (this.image && !this.isValidImage_(this.image)) {
