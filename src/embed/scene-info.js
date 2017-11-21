@@ -94,10 +94,6 @@ SceneInfo.prototype.isValid = function() {
     this.errorMessage = 'Either image or video URL must be specified.';
     return false;
   }
-  if (this.image && this.video) {
-    this.errorMessage = 'Both image and video URL can\'t be specified.';
-    return false;
-  }
   if (this.image && !this.isValidImage_(this.image)) {
     this.errorMessage = 'Invalid image URL: ' + this.image;
     return false;
