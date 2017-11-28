@@ -163,6 +163,7 @@ Player.prototype.createIframe_ = function(contentInfo) {
   var iframe = document.createElement('iframe');
   iframe.setAttribute('allowfullscreen', true);
   iframe.setAttribute('scrolling', 'no');
+  iframe.setAttribute('allow', 'vr');
   iframe.style.border = 0;
 
   // Handle iframe size if width and height are specified.
