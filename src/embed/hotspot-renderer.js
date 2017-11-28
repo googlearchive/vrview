@@ -355,7 +355,7 @@ HotspotRenderer.prototype.focus_ = function(id) {
       .start();
   
   if (this.worldRenderer.isVRMode()) {
-    this.timeForHospotClick = setTimeout(() => {
+    this.timeForHospotClick = setTimeout(function () {
       this.emit('click', id);
     }, 1200 )
   }
