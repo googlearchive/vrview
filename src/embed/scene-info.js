@@ -42,9 +42,9 @@ function SceneInfo(opt_params) {
     muted: opt_params.muted
   };
 
-  this.image = params.image;
-  this.preview = params.preview;
-  this.video = params.video;
+  this.image = params.image !== undefined ? encodeURI(params.image) : undefined;
+  this.preview = params.preview !== undefined ? encodeURI(params.preview) : undefined;
+  this.video = params.video !== undefined ? encodeURI(params.video) : undefined;
   this.defaultYaw = THREE.Math.degToRad(params.defaultYaw || 0);
 
   this.isStereo = Util.parseBoolean(params.isStereo);

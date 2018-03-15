@@ -300,16 +300,20 @@ function onRenderError(message) {
   showError('Render: ' + message);
 }
 
-function showError(message, opt_title) {
+function showError(message) {
   // Hide loading indicator.
   loadIndicator.hide();
+
+  // Sanitize `message` as it could contain user supplied
+  // values. Re-add the space character as to not modify the
+  // error messages used throughout the codebase.
+  message = encodeURI(message).replace(/%20/g, ' ');
 
   var error = document.querySelector('#error');
   error.classList.add('visible');
   error.querySelector('.message').innerHTML = message;
 
-  var title = (opt_title !== undefined ? opt_title : 'Error');
-  error.querySelector('.title').innerHTML = title;
+  error.querySelector('.title').innerHTML = 'Error';
 }
 
 function hideError() {
