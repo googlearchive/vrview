@@ -10357,7 +10357,7 @@ HotspotRenderer.prototype.add = function(pitch, yaw, radius, distance, id) {
 
   // Position the hotspot based on the pitch and yaw specified.
   var quat = new THREE.Quaternion();
-  quat.setFromEuler(new THREE.Euler(THREE.Math.degToRad(pitch), THREE.Math.degToRad(yaw), 0, 'YXZ'));
+  quat.setFromEuler(new THREE.Euler(THREE.Math.degToRad(pitch), THREE.Math.degToRad(yaw), 0, 'ZYX'));
   hotspot.position.applyQuaternion(quat);
   hotspot.lookAt(new THREE.Vector3());
 
@@ -10607,7 +10607,7 @@ HotspotRenderer.prototype.focus_ = function(id) {
       .start();
   
   if (this.worldRenderer.isVRMode()) {
-    this.timeForHospotClick = setTimeout(() => {
+    this.timeForHospotClick = setTimeout(function () {
       this.emit('click', id);
     }, 1200 )
   }
@@ -11083,16 +11083,20 @@ function onRenderError(message) {
   showError('Render: ' + message);
 }
 
-function showError(message, opt_title) {
+function showError(message) {
   // Hide loading indicator.
   loadIndicator.hide();
+
+  // Sanitize `message` as it could contain user supplied
+  // values. Re-add the space character as to not modify the
+  // error messages used throughout the codebase.
+  message = encodeURI(message).replace(/%20/g, ' ');
 
   var error = document.querySelector('#error');
   error.classList.add('visible');
   error.querySelector('.message').innerHTML = message;
 
-  var title = (opt_title !== undefined ? opt_title : 'Error');
-  error.querySelector('.title').innerHTML = title;
+  error.querySelector('.title').innerHTML = 'Error';
 }
 
 function hideError() {
@@ -11235,9 +11239,9 @@ function SceneInfo(opt_params) {
     muted: opt_params.muted
   };
 
-  this.image = params.image;
-  this.preview = params.preview;
-  this.video = params.video;
+  this.image = params.image !== undefined ? encodeURI(params.image) : undefined;
+  this.preview = params.preview !== undefined ? encodeURI(params.preview) : undefined;
+  this.video = params.video !== undefined ? encodeURI(params.video) : undefined;
   this.defaultYaw = THREE.Math.degToRad(params.defaultYaw || 0);
 
   this.isStereo = Util.parseBoolean(params.isStereo);
